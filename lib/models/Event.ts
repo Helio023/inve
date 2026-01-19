@@ -1,0 +1,115 @@
+import mongoose, { Schema, Model, Document } from "mongoose";
+
+
+const TimelineItemSchema = new Schema({
+  title: { type: String, required: true },
+  startTime: { type: String, required: true },
+  endTime: String,
+  locationName: String,
+  address: String,
+  mapLink: String,
+  description: String,
+});
+
+// 2. Módulos de Presentes (Foco em M-Pesa/e-Mola)
+const GiftRegistrySchema = new Schema({
+  isEnabled: { type: Boolean, default: false },
+  pixText: String,
+  bankAccounts: [
+    {
+      bank: String,
+      holder: String,
+      number: String,
+      iban: String,
+    },
+  ],
+  wallets: [
+    {
+      provider: { type: String, enum: ["M-Pesa", "e-Mola", "M-Kesh"] },
+      number: String,
+      name: String,
+    },
+  ],
+  externalLinks: [{ label: String, url: String }],
+});
+
+// 3. Configuração do RSVP
+const RsvpConfigSchema = new Schema({
+  deadline: Date,
+  allowPlusOne: { type: Boolean, default: false },
+  maxGuests: { type: Number, default: 1 },
+  askDietary: { type: Boolean, default: false },
+  askMusic: { type: Boolean, default: false },
+  showGuestList: { type: Boolean, default: false },
+});
+
+// --- Interface Principal ---
+export interface IEvent extends Document {
+  agencyId: mongoose.Types.ObjectId;
+  title: string;
+  slug: string;
+  eventType: "wedding" | "birthday" | "corporate" | "baby_shower" | "other";
+  date: Date;
+  hasPaid: boolean;
+
+  description?: string;
+  coverImage?: string;
+
+  designContent: any;
+
+  timeline: any[];
+  gifts: any;
+  rsvpConfig: any;
+
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  views: number;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// --- Schema Principal ---
+const EventSchema = new Schema<IEvent>(
+  {
+    agencyId: {
+      type: Schema.Types.ObjectId,
+      ref: "Agency",
+      required: true,
+      index: true,
+    },
+    hasPaid: { type: Boolean, default: false },
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+
+    eventType: {
+      type: String,
+      enum: ["wedding", "birthday", "corporate", "baby_shower", "other"],
+      required: true,
+    },
+
+    date: { type: Date, required: true },
+
+    description: { type: String },
+    coverImage: { type: String },
+
+    // O "Coração" do Page Builder
+    designContent: { type: Schema.Types.Mixed, default: [] },
+
+    // Funcionalidades
+    timeline: [TimelineItemSchema],
+    gifts: { type: GiftRegistrySchema, default: {} },
+    rsvpConfig: { type: RsvpConfigSchema, default: {} },
+
+    status: {
+      type: String,
+      enum: ["DRAFT", "PUBLISHED", "ARCHIVED"],
+      default: "DRAFT",
+    },
+
+    views: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+export const Event: Model<IEvent> =
+  mongoose.models.Event || mongoose.model<IEvent>("Event", EventSchema);
