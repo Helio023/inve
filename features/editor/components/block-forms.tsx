@@ -50,6 +50,8 @@ export const BlockSettingsManager = ({
       let newKey = key;
 
       const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+      
+      // --- CORREÇÃO 1: Adicionado "borderStyle" à lista ---
       if (
         [
           "backgroundColor",
@@ -57,6 +59,7 @@ export const BlockSettingsManager = ({
           "borderColor",
           "borderRadius",
           "borderWidth",
+          "borderStyle", 
           "shadow",
         ].includes(key)
       ) {
@@ -86,6 +89,7 @@ export const BlockSettingsManager = ({
       layerStyles.borderRadius = s.itemBorderRadius;
       layerStyles.borderWidth = s.itemBorderWidth;
       layerStyles.borderColor = s.itemBorderColor;
+      layerStyles.borderStyle = s.itemBorderStyle; 
       layerStyles.shadow = s.itemShadow;
     }
     if (activeLayer === "btn") {
@@ -94,13 +98,18 @@ export const BlockSettingsManager = ({
       layerStyles.color = s.btnTextColor;
       layerStyles.borderRadius = s.btnRadius;
       layerStyles.shadow = s.btnShadow;
+      layerStyles.borderStyle = s.btnBorderStyle; 
+      layerStyles.borderWidth = s.btnBorderWidth; 
+      layerStyles.borderColor = s.btnBorderColor;
     }
     if (activeLayer === "input") {
       // Inputs RSVP
       layerStyles.backgroundColor = s.inputBackgroundColor;
       layerStyles.color = s.inputTextColor;
       layerStyles.borderColor = s.inputBorderColor;
-      layerStyles.borderRadius = s.inputBorderRadius || 8;
+      layerStyles.borderRadius = s.inputBorderRadius ;
+      layerStyles.borderWidth = s.inputBorderWidth; 
+      layerStyles.borderStyle = s.inputBorderStyle; 
       layerStyles.shadow = s.inputShadow;
     }
 
@@ -264,7 +273,7 @@ export const BlockSettingsManager = ({
             <Input
               value={block.content.url || ""}
               onChange={(e) => handleContentChange({ url: e.target.value })}
-              placeholder="https://youtube.com/watch?v=..."
+              placeholder="..."
             />
           </div>
         )}
