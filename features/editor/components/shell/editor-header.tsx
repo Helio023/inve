@@ -4,8 +4,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
-  Smartphone,
-  Monitor,
   Save,
   Loader2,
   CheckCircle,
@@ -30,16 +28,14 @@ interface EditorHeaderProps {
   pageIndex: number;
   totalPages: number;
   saveStatus: "saved" | "saving" | "unsaved" | "error";
-  device: "mobile" | "desktop";
-  setDevice: (d: "mobile" | "desktop") => void;
   onSave: () => void;
   onPublish: () => void;
   onUnpublish: () => void;
   isPublishing: boolean;
   published: boolean;
   eventId: string;
-  eventSlug: string; // Adicionado para o link correto
-  agencySlug: string; // Adicionado para o link correto
+  eventSlug: string;
+  agencySlug: string;
   isPreview: boolean;
   setIsPreview: (v: boolean) => void;
 }
@@ -49,8 +45,6 @@ export function EditorHeader({
   pageIndex,
   totalPages,
   saveStatus,
-  device,
-  setDevice,
   onSave,
   onPublish,
   onUnpublish,
@@ -62,21 +56,20 @@ export function EditorHeader({
   isPreview,
   setIsPreview,
 }: EditorHeaderProps) {
-  // URL para o site público baseada nos slugs
-  const publicUrl = `/sites/${agencySlug}/${eventSlug}`;
+  const publicUrl = `/${agencySlug}/${eventSlug}`;
 
   return (
     <header className="h-14 bg-white border-b flex items-center justify-between px-3 md:px-4 shrink-0 z-50 relative shadow-sm">
-      {/* --- LADO ESQUERDO: Voltar e Status --- */}
+      {/* Lado Esquerdo */}
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
           size="icon"
           className="h-9 w-9 hover:bg-slate-100 rounded-full"
           asChild
-          title="Voltar para a lista"
+          title="Voltar"
         >
-          <Link href="/dashboard/events">
+          <Link href={`/dashboard/events`}>
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </Link>
         </Button>
@@ -86,8 +79,6 @@ export function EditorHeader({
             <span className="text-[11px] font-black text-slate-900 uppercase tracking-tighter max-w-[100px] md:max-w-[200px] truncate">
               {activePageTitle}
             </span>
-
-            {/* Status Visual de Salvamento */}
             <div className="flex items-center">
               {saveStatus === "saving" && (
                 <span className="text-[9px] font-bold text-blue-600 flex items-center bg-blue-50 px-1.5 py-0.5 rounded">
@@ -117,51 +108,21 @@ export function EditorHeader({
         </div>
       </div>
 
-      {/* --- CENTRO: Dispositivos (Oculto em Preview) --- */}
-      {!isPreview && (
-        <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-          <button
-            onClick={() => setDevice("mobile")}
-            className={cn(
-              "p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-bold",
-              device === "mobile"
-                ? "bg-white shadow-sm text-blue-600"
-                : "text-slate-400 hover:text-slate-600"
-            )}
-          >
-            <Smartphone className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setDevice("desktop")}
-            className={cn(
-              "p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-bold",
-              device === "desktop"
-                ? "bg-white shadow-sm text-blue-600"
-                : "text-slate-400 hover:text-slate-600"
-            )}
-          >
-            <Monitor className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      {/* --- LADO DIREITO: Ações --- */}
       <div className="flex items-center gap-2">
-        {/* Botão Preview */}
         <Button
           size="sm"
           variant="outline"
           className={cn(
             "hidden md:flex h-9 rounded-lg font-bold border-slate-200 transition-all",
             isPreview
-              ? "bg-blue-600 text-white hover:bg-blue-700 border-blue-700"
-              : "bg-white text-slate-600"
+              ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white border-blue-700"
+              : "bg-white text-slate-600",
           )}
           onClick={() => setIsPreview(!isPreview)}
         >
           {isPreview ? (
             <>
-              <EyeOff className="w-4 h-4 mr-2" /> Editar
+              <EyeOff className="w-4 h-4  mr-2" /> Editar
             </>
           ) : (
             <>
@@ -170,7 +131,6 @@ export function EditorHeader({
           )}
         </Button>
 
-        {/* Botão Salvar Manual (Apenas desktop e se não for preview) */}
         {!isPreview && (
           <Button
             size="sm"
@@ -185,7 +145,6 @@ export function EditorHeader({
 
         <div className="w-px h-6 bg-slate-200 mx-1 hidden md:block" />
 
-        {/* Status de Publicação */}
         {published ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -208,14 +167,14 @@ export function EditorHeader({
                 className="rounded-lg cursor-pointer flex items-center gap-2 py-2"
                 onClick={() => window.open(publicUrl, "_blank")}
               >
-                <ExternalLink className="w-4 h-4 text-blue-500" />
+                <ExternalLink className="w-4 h-4 text-blue-500" />{" "}
                 <span className="font-semibold text-xs">Abrir Convite</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onUnpublish}
                 className="rounded-lg cursor-pointer flex items-center gap-2 py-2 text-red-600 focus:text-red-600 focus:bg-red-50"
               >
-                <EyeOff className="w-4 h-4" />
+                <EyeOff className="w-4 h-4" />{" "}
                 <span className="font-semibold text-xs">Tirar do Ar</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

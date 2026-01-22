@@ -1,34 +1,190 @@
 "use client";
 
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/image-upload";
 import { cn } from "@/lib/utils";
+
 import {
   TypographyControls,
   ColorControls,
   BoxModelControls,
   DecorationControls,
+  AnimationControls,
 } from "./panels/style-controls";
+
+const LABEL_MAP: Record<string, string> = {
+  HERO: "Capa",
+  TEXT: "Texto",
+  IMAGE: "Imagem",
+  VIDEO: "Vídeo",
+  MAP: "Mapa",
+  COUNTDOWN: "Cronómetro",
+  RSVP: "Confirmação",
+  COLUMNS: "Colunas",
+};
 
 export const BlockSettingsManager = ({
   block,
   updateBlock,
   updateStyles,
 }: any) => {
+  const [activeLayer, setActiveLayer] = useState<string>("global");
+
   const handleContentChange = (newContent: any) =>
     updateBlock(block.id, newContent);
-  const handleStyleChange = (newStyles: any) =>
-    updateStyles(block.id, newStyles);
 
-  // Helper para formatar a data do banco para o padrão do input (YYYY-MM-DDThh:mm)
+  // --- LÓGICA DE ESTILOS (Entrada e Saída) ---
+
+  const handleStyleChange = (newStyles: any) => {
+    if (activeLayer === "global") {
+      updateStyles(block.id, newStyles);
+      return;
+    }
+
+    const prefixedStyles: any = {};
+    Object.keys(newStyles).forEach((key) => {
+      let newKey = key;
+
+      const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+      if (
+        [
+          "backgroundColor",
+          "color",
+          "borderColor",
+          "borderRadius",
+          "borderWidth",
+          "shadow",
+        ].includes(key)
+      ) {
+        newKey = `${activeLayer}${capitalizedKey}`;
+      }
+
+      if (activeLayer === "btn" && key === "color") newKey = "btnTextColor";
+      if (activeLayer === "btn" && key === "borderRadius") newKey = "btnRadius";
+      if (activeLayer === "input" && key === "color") newKey = "inputTextColor";
+
+      prefixedStyles[newKey] = newStyles[key];
+    });
+
+    updateStyles(block.id, prefixedStyles);
+  };
+
+  const getCurrentLayerStyles = () => {
+    if (activeLayer === "global") return block.styles || {};
+
+    const s = block.styles || {};
+    const layerStyles: any = {};
+
+    if (activeLayer === "item") {
+      // Cronómetro
+      layerStyles.backgroundColor = s.itemBackgroundColor;
+      layerStyles.color = s.itemColor;
+      layerStyles.borderRadius = s.itemBorderRadius;
+      layerStyles.borderWidth = s.itemBorderWidth;
+      layerStyles.borderColor = s.itemBorderColor;
+      layerStyles.shadow = s.itemShadow;
+    }
+    if (activeLayer === "btn") {
+      // Botão RSVP
+      layerStyles.backgroundColor = s.btnBackgroundColor;
+      layerStyles.color = s.btnTextColor;
+      layerStyles.borderRadius = s.btnRadius;
+      layerStyles.shadow = s.btnShadow;
+    }
+    if (activeLayer === "input") {
+      // Inputs RSVP
+      layerStyles.backgroundColor = s.inputBackgroundColor;
+      layerStyles.color = s.inputTextColor;
+      layerStyles.borderColor = s.inputBorderColor;
+      layerStyles.borderRadius = s.inputBorderRadius || 8;
+      layerStyles.shadow = s.inputShadow;
+    }
+
+    return layerStyles;
+  };
+
+  const currentStyles = getCurrentLayerStyles();
+  const blockLabel = LABEL_MAP[block.type] || block.type.toUpperCase();
+
+  const renderLayerSelector = () => {
+    if (block.type === "COUNTDOWN") {
+      return (
+        <div className="flex p-1 bg-slate-100 rounded-lg mb-4 border border-slate-200">
+          <button
+            onClick={() => setActiveLayer("global")}
+            className={cn(
+              "flex-1 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all",
+              activeLayer === "global"
+                ? "bg-white shadow text-blue-600"
+                : "text-slate-500 hover:text-slate-700",
+            )}
+          >
+            Container
+          </button>
+          <button
+            onClick={() => setActiveLayer("item")}
+            className={cn(
+              "flex-1 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all",
+              activeLayer === "item"
+                ? "bg-white shadow text-blue-600"
+                : "text-slate-500 hover:text-slate-700",
+            )}
+          >
+            Números
+          </button>
+        </div>
+      );
+    }
+    if (block.type === "RSVP") {
+      return (
+        <div className="flex p-1 bg-slate-100 rounded-lg mb-4 border border-slate-200">
+          <button
+            onClick={() => setActiveLayer("global")}
+            className={cn(
+              "flex-1 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all",
+              activeLayer === "global"
+                ? "bg-white shadow text-blue-600"
+                : "text-slate-500",
+            )}
+          >
+            Box
+          </button>
+          <button
+            onClick={() => setActiveLayer("input")}
+            className={cn(
+              "flex-1 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all",
+              activeLayer === "input"
+                ? "bg-white shadow text-blue-600"
+                : "text-slate-500",
+            )}
+          >
+            Campos
+          </button>
+          <button
+            onClick={() => setActiveLayer("btn")}
+            className={cn(
+              "flex-1 py-1.5 text-[10px] font-bold uppercase rounded-md transition-all",
+              activeLayer === "btn"
+                ? "bg-white shadow text-blue-600"
+                : "text-slate-500",
+            )}
+          >
+            Botão
+          </button>
+        </div>
+      );
+    }
+    return null;
+  };
+
   const formatDataForInput = (dateString: string) => {
     if (!dateString) return "";
     try {
       const date = new Date(dateString);
-      // Ajuste de fuso horário para o input não mudar a data sozinho
       const tzOffset = date.getTimezoneOffset() * 60000;
       return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
     } catch (e) {
@@ -53,11 +209,13 @@ export const BlockSettingsManager = ({
         </TabsTrigger>
       </TabsList>
 
+      {/* ABA DE CONTEÚDO */}
       <TabsContent
         value="content"
         className="space-y-4 animate-in fade-in slide-in-from-right-2 duration-300"
       >
-        {/* --- CAPA (HERO) --- */}
+        <h4 className="font-bold text-slate-700">Editar {blockLabel}</h4>
+
         {block.type === "HERO" && (
           <div className="space-y-3">
             <div className="space-y-1">
@@ -88,7 +246,6 @@ export const BlockSettingsManager = ({
           </div>
         )}
 
-        {/* --- TEXTO --- */}
         {block.type === "TEXT" && (
           <div className="space-y-1">
             <Label className="text-xs">Texto do Convite</Label>
@@ -101,7 +258,17 @@ export const BlockSettingsManager = ({
           </div>
         )}
 
-        {/* --- MAPA (CORRIGIDO) --- */}
+        {block.type === "VIDEO" && (
+          <div className="space-y-1">
+            <Label className="text-xs">Link do Vídeo (YouTube/Vimeo)</Label>
+            <Input
+              value={block.content.url || ""}
+              onChange={(e) => handleContentChange({ url: e.target.value })}
+              placeholder="https://youtube.com/watch?v=..."
+            />
+          </div>
+        )}
+
         {block.type === "MAP" && (
           <div className="space-y-4">
             <div className="space-y-1">
@@ -128,7 +295,6 @@ export const BlockSettingsManager = ({
           </div>
         )}
 
-        {/* --- CRONÓMETRO (CORRIGIDO) --- */}
         {block.type === "COUNTDOWN" && (
           <div className="space-y-3">
             <Label className="text-xs font-bold">Data Alvo do Evento</Label>
@@ -143,18 +309,14 @@ export const BlockSettingsManager = ({
               }
             />
             <div className="p-3 bg-blue-50 text-blue-700 text-[10px] rounded-lg border border-blue-100">
-              Escolha a data exata da festa. O cronómetro fará a contagem
-              regressiva automaticamente.
+              Escolha a data exata da festa.
             </div>
           </div>
         )}
 
-        {/* --- RSVP --- */}
         {block.type === "RSVP" && (
           <div className="space-y-1">
-            <Label className="text-xs font-bold">
-              Título do Bloco de Confirmação
-            </Label>
+            <Label className="text-xs font-bold">Título do Bloco</Label>
             <Input
               value={block.content?.title || ""}
               onChange={(e) => handleContentChange({ title: e.target.value })}
@@ -162,7 +324,6 @@ export const BlockSettingsManager = ({
           </div>
         )}
 
-        {/* --- IMAGE --- */}
         {block.type === "IMAGE" && (
           <div className="space-y-1">
             <Label className="text-xs font-bold">Carregar Foto</Label>
@@ -173,7 +334,6 @@ export const BlockSettingsManager = ({
           </div>
         )}
 
-        {/* --- COLUNAS --- */}
         {block.type === "COLUMNS" && (
           <div className="space-y-4">
             <Label className="text-xs font-bold">Número de Colunas</Label>
@@ -186,7 +346,7 @@ export const BlockSettingsManager = ({
                     "flex-1 py-3 border rounded-xl font-bold text-xs transition-all",
                     block.content?.cols === n
                       ? "bg-slate-900 text-white shadow-md"
-                      : "bg-white text-slate-500 hover:bg-slate-50"
+                      : "bg-white text-slate-500 hover:bg-slate-50",
                   )}
                 >
                   {n} {n === 1 ? "Col" : "Cols"}
@@ -197,27 +357,41 @@ export const BlockSettingsManager = ({
         )}
       </TabsContent>
 
-      {/* --- ABA DESIGN (DESIGN UNIVERSAL) --- */}
+      {/* ABA DE DESIGN */}
       <TabsContent
         value="style"
         className="space-y-8 animate-in fade-in slide-in-from-left-2 duration-300"
       >
-        <ColorControls
-          styles={block.styles || {}}
-          onUpdate={handleStyleChange}
-        />
-        <TypographyControls
-          styles={block.styles || {}}
-          onUpdate={handleStyleChange}
-        />
-        <BoxModelControls
-          styles={block.styles || {}}
-          onUpdate={handleStyleChange}
-        />
+        {renderLayerSelector()}
+
+        <ColorControls styles={currentStyles} onUpdate={handleStyleChange} />
+
+        {(["TEXT", "HERO"].includes(block.type) ||
+          ["global", "btn"].includes(activeLayer)) && (
+          <TypographyControls
+            styles={currentStyles}
+            onUpdate={handleStyleChange}
+          />
+        )}
+
+        {activeLayer === "global" && (
+          <BoxModelControls
+            styles={currentStyles}
+            onUpdate={handleStyleChange}
+          />
+        )}
+
         <DecorationControls
-          styles={block.styles || {}}
+          styles={currentStyles}
           onUpdate={handleStyleChange}
         />
+
+        {activeLayer === "global" && (
+          <AnimationControls
+            styles={currentStyles}
+            onUpdate={handleStyleChange}
+          />
+        )}
       </TabsContent>
     </Tabs>
   );

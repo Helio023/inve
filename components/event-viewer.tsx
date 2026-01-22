@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { PublicBlockRenderer } from "./public-block-viewer";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DEFAULT_PAGE_STYLES } from "@/features/editor/types";
 
 interface EventViewerProps {
   pages: any[];
@@ -12,31 +13,25 @@ interface EventViewerProps {
   isEditorPreview?: boolean;
 }
 
-export function EventViewer({ pages, isPublished, isEditorPreview }: EventViewerProps) {
+export function EventViewer({
+  pages,
+  isPublished,
+  isEditorPreview,
+}: EventViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const activePage = pages[currentIndex];
 
-  // --- NAVEGAÇÃO ---
   const nextSlide = () => {
-    if (currentIndex < pages.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    }
+    if (currentIndex < pages.length - 1) setCurrentIndex((prev) => prev + 1);
   };
-
   const prevSlide = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
+    if (currentIndex > 0) setCurrentIndex((prev) => prev - 1);
   };
-
-  
   const onDragEnd = (event: any, info: any) => {
-    const threshold = 50; 
-    if (info.offset.x < -threshold) nextSlide();
-    if (info.offset.x > threshold) prevSlide();
+    if (info.offset.x < -50) nextSlide();
+    if (info.offset.x > 50) prevSlide();
   };
 
- 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") nextSlide();
@@ -46,49 +41,45 @@ export function EventViewer({ pages, isPublished, isEditorPreview }: EventViewer
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, pages.length]);
 
-  
-  if (!pages || pages.length === 0) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
-        <p>Este convite ainda não possui conteúdo.</p>
-      </div>
-    );
-  }
+  if (!pages || pages.length === 0) return <div>Sem conteúdo.</div>;
 
   if (!isPublished && !isEditorPreview) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
-        <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mb-6 border border-slate-800">
-          <Lock className="w-10 h-10 text-slate-500" />
-        </div>
-        <h1 className="text-2xl font-bold mb-2 tracking-tight text-slate-100">Convite em Preparação</h1>
-        <p className="text-slate-400 max-w-xs text-sm leading-relaxed">
-          Este convite está sendo editado e ainda não foi publicado pela agência organizadora.
-        </p>
+        <Lock className="w-12 h-12 text-slate-500 mb-4" />
+        <h1 className="text-2xl font-bold">Convite em Edição</h1>
+        <p className="text-slate-400 mt-2">Este link ainda não está ativo.</p>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center font-sans overflow-hidden select-none">
-      <div className="relative w-full max-w-md h-[100dvh] bg-white shadow-2xl md:rounded-[2.5rem] md:h-[90vh] md:my-8 overflow-hidden md:border-4 md:border-slate-800 flex flex-col">
-        
-        <div className="absolute top-4 left-4 right-4 z-50 flex gap-1.5 pointer-events-none">
-          {pages.map((_, idx) => (
-            <div key={idx} className="h-1 flex-1 bg-black/10 backdrop-blur-md rounded-full overflow-hidden">
-              <div 
-                className={cn(
-                  "h-full bg-slate-800 transition-all duration-300", 
-                  idx <= currentIndex ? "w-full opacity-100" : "w-0 opacity-0"
-                )} 
-              />
-            </div>
-          ))}
-        </div>
+  const pageStyles = { ...DEFAULT_PAGE_STYLES, ...(activePage.styles || {}) };
 
-        
-        <div className="absolute inset-y-0 left-0 w-[15%] z-40 cursor-pointer" onClick={prevSlide} />
-        <div className="absolute inset-y-0 right-0 w-[15%] z-40 cursor-pointer" onClick={nextSlide} />
+  return (
+    // Fundo da página ligeiramente mais claro para um look mais suave
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden select-none p-4">
+      {/* --- 1. ESTILO DO "MOCKUP" SUAVIZADO --- */}
+      {/* Curvas menores (rounded-2xl), borda mais fina e cor mais clara */}
+      <div className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group">
+        {/* --- BARRA DE PROGRESSO REMOVIDA --- */}
+
+        {/* --- 2. BOTÕES DE NAVEGAÇÃO VISÍVEIS (em hover) --- */}
+        {currentIndex > 0 && (
+          <button
+            onClick={prevSlide}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-50 h-8 w-8 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:left-4"
+          >
+            <ChevronLeft className="w-5 h-5 text-slate-800" />
+          </button>
+        )}
+        {currentIndex < pages.length - 1 && (
+          <button
+            onClick={nextSlide}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-50 h-8 w-8 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:right-4"
+          >
+            <ChevronRight className="w-5 h-5 text-slate-800" />
+          </button>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -98,23 +89,33 @@ export function EventViewer({ pages, isPublished, isEditorPreview }: EventViewer
             onDragEnd={onDragEnd}
             className="h-full w-full relative z-0 flex flex-col"
             style={{
-              backgroundColor: activePage.styles?.backgroundColor || "#ffffff",
-              backgroundImage: activePage.styles?.backgroundImage ? `url(${activePage.styles.backgroundImage})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundColor: pageStyles.backgroundColor,
+              backgroundImage: pageStyles.backgroundImage
+                ? `url(${pageStyles.backgroundImage})`
+                : "none",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           >
-            {/* OVERLAY DE ESCURECIMENTO (Configurado no Editor) */}
-            {activePage.styles?.backgroundImage && (
-              <div 
-                className="absolute inset-0 z-0 pointer-events-none" 
-                style={{ backgroundColor: `rgba(0,0,0,${activePage.styles.backgroundOpacity || 0})` }}
+            {pageStyles.backgroundImage && (
+              <div
+                className="absolute inset-0 z-0 pointer-events-none"
+                style={{
+                  backgroundColor: `rgba(0,0,0,${pageStyles.backgroundOpacity})`,
+                }}
               />
             )}
 
-            {/* ÁREA DE SCROLL DO CONTEÚDO */}
-            <div className="h-full w-full overflow-y-auto no-scrollbar pt-16 pb-20 px-6 relative z-10 flex flex-col justify-center">
-              <div className="space-y-8">
+            <div
+              className="w-full overflow-y-auto no-scrollbar relative z-10 flex-1 flex flex-col"
+              style={{
+                paddingTop: `${pageStyles.paddingTop}px`,
+                paddingBottom: `${pageStyles.paddingBottom}px`,
+                paddingLeft: `${pageStyles.paddingLeft}px`,
+                paddingRight: `${pageStyles.paddingRight}px`,
+              }}
+            >
+              <div className="flex flex-col">
                 {activePage.blocks.map((block: any) => (
                   <PublicBlockRenderer key={block.id} block={block} />
                 ))}
@@ -123,33 +124,30 @@ export function EventViewer({ pages, isPublished, isEditorPreview }: EventViewer
           </motion.div>
         </AnimatePresence>
 
-        {/* --- 4. INDICADOR DE PREVIEW (Apenas se for o editor) --- */}
-        {isEditorPreview && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 bg-blue-600/90 backdrop-blur text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-2xl uppercase tracking-[0.2em] border border-blue-400 animate-pulse">
-            Preview Ativo
-          </div>
-        )}
-
-        {/* Botões de navegação auxiliares (Opcional - visíveis apenas no desktop) */}
-        <div className="absolute bottom-8 left-0 right-0 hidden md:flex justify-between px-10 pointer-events-none z-40">
-           <button 
-             onClick={prevSlide}
-             className={cn("p-2 rounded-full bg-white/20 backdrop-blur text-white pointer-events-auto transition-opacity", currentIndex === 0 && "opacity-0")}
-           >
-             <ChevronLeft className="w-5 h-5" />
-           </button>
-           <button 
-             onClick={nextSlide}
-             className={cn("p-2 rounded-full bg-white/20 backdrop-blur text-white pointer-events-auto transition-opacity", currentIndex === pages.length - 1 && "opacity-0")}
-           >
-             <ChevronRight className="w-5 h-5" />
-           </button>
+        {/* --- 3. INDICADORES DE PONTO (em vez da barra) --- */}
+        <div className="absolute bottom-4 left-0 right-0 z-50 flex justify-center gap-2 pointer-events-none">
+          {pages.map((_, idx) => (
+            <div
+              key={idx}
+              className={cn(
+                "h-2 rounded-full shadow-sm transition-all duration-300",
+                idx === currentIndex
+                  ? "w-4 bg-slate-800"
+                  : "w-2 bg-slate-800/30",
+              )}
+            />
+          ))}
         </div>
       </div>
 
       <style jsx global>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
     </div>
   );
