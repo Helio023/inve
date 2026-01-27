@@ -19,6 +19,7 @@ import {
   ZoomOut,
   FlipHorizontal,
   Ban,
+  Maximize,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_STYLES } from "../../types";
@@ -33,17 +34,25 @@ import {
 // --- 1. Tipografia ---
 export const TypographyControls = ({ styles, onUpdate }: any) => {
   const fonts = [
-    { name: "Padrão (Sans)", value: "var(--font-inter)" },
-    { name: "Elegante (Serif)", value: "var(--font-playfair)" },
-    { name: "Cursiva Moderna", value: "var(--font-dancing)" },
-    { name: "Cursiva Clássica", value: "var(--font-vibes)" },
-    { name: "Moderna Bold", value: "var(--font-montserrat)" },
+    
+    { name: "Padrão (Inter)", value: "var(--font-inter)" },
+    { name: "Moderna (Montserrat)", value: "var(--font-montserrat)" },
+    { name: "Clean (Lato)", value: "var(--font-lato)" }, 
+    
+    // Serifs (Elegantes/Clássicas)
+    { name: "Editorial (Playfair)", value: "var(--font-playfair)" },
+    { name: "Luxo (Cormorant)", value: "var(--font-cormorant)" }, 
+    { name: "Imperial (Cinzel)", value: "var(--font-cinzel)" }, 
+    
+    // Scripts (Cursivas/Manuscritas)
+    { name: "Romântica (Great Vibes)", value: "var(--font-vibes)" },
+    { name: "Descontraída (Dancing)", value: "var(--font-dancing)" },
+    { name: "Parisiense (Parisienne)", value: "var(--font-parisienne)" }, 
+    { name: "Fluída (Allura)", value: "var(--font-allura)" }, 
   ];
 
-  // Garante valor padrão se undefined
   const fontSize = styles.fontSize ?? DEFAULT_STYLES.fontSize;
   const textAlign = styles.textAlign ?? DEFAULT_STYLES.textAlign;
-
   return (
     <div className="space-y-4 pt-2">
       <div className="space-y-2">
@@ -62,7 +71,6 @@ export const TypographyControls = ({ styles, onUpdate }: any) => {
           ))}
         </select>
       </div>
-
       <div className="flex justify-between items-center">
         <Label className="text-[10px] font-bold uppercase text-slate-400">
           Tamanho
@@ -78,7 +86,6 @@ export const TypographyControls = ({ styles, onUpdate }: any) => {
         step={1}
         onValueChange={([v]) => onUpdate({ fontSize: v })}
       />
-
       <div className="flex gap-2">
         <div className="flex border rounded-md overflow-hidden flex-1">
           <button
@@ -139,21 +146,27 @@ export const TypographyControls = ({ styles, onUpdate }: any) => {
   );
 };
 
-// --- 2. Cores ---
-export const ColorControls = ({ styles, onUpdate }: any) => (
+// --- 2. Cores (Atualizado para receber prop showTextColor) ---
+export const ColorControls = ({
+  styles,
+  onUpdate,
+  showTextColor = true,
+}: any) => (
   <div className="space-y-4 pt-2">
     <div className="grid grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label className="text-[10px] font-bold uppercase text-slate-400">
-          Cor do Texto
-        </Label>
-        <input
-          type="color"
-          value={styles.color ?? DEFAULT_STYLES.color}
-          className="w-full h-8 rounded cursor-pointer border shadow-sm"
-          onChange={(e) => onUpdate({ color: e.target.value })}
-        />
-      </div>
+      {showTextColor && (
+        <div className="space-y-2">
+          <Label className="text-[10px] font-bold uppercase text-slate-400">
+            Cor do Texto
+          </Label>
+          <input
+            type="color"
+            value={styles.color ?? DEFAULT_STYLES.color}
+            className="w-full h-8 rounded cursor-pointer border shadow-sm"
+            onChange={(e) => onUpdate({ color: e.target.value })}
+          />
+        </div>
+      )}
       <div className="space-y-2">
         <Label className="text-[10px] font-bold uppercase text-slate-400">
           Fundo do Bloco
@@ -177,23 +190,74 @@ export const ColorControls = ({ styles, onUpdate }: any) => (
   </div>
 );
 
-// --- 3. Espaçamento (Box Model) ---
-export const BoxModelControls = ({ styles, onUpdate }: any) => {
-  // Helper para buscar valor, com fallback para o padrão
-  const getVal = (key: string) => styles[key] ?? (DEFAULT_STYLES as any)[key];
+// --- 3. Tamanho e Ajuste (NOVO COMPONENTE) ---
+export const SizeControls = ({ styles, onUpdate, showObjectFit = false }: any) => {
+  return (
+    <div className="space-y-4 pt-2 border-t">
+      <Label className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-2">
+        <Maximize className="w-3 h-3" /> Dimensões
+      </Label>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <span className="text-[9px] font-bold uppercase text-slate-400">Largura</span>
+          <Input 
+             className="h-8 text-xs bg-slate-50 border-slate-100" 
+             placeholder="100%, 300px" 
+             value={styles.width ?? "100%"}
+             onChange={(e) => onUpdate({ width: e.target.value })}
+           />
+        </div>
+        <div className="space-y-1">
+          <span className="text-[9px] font-bold uppercase text-slate-400">Altura</span>
+          <Input 
+             className="h-8 text-xs bg-slate-50 border-slate-100" 
+             placeholder="auto, 200px" 
+             value={styles.height ?? "auto"}
+             onChange={(e) => onUpdate({ height: e.target.value })}
+           />
+        </div>
+      </div>
 
+      {/* RENDERIZAÇÃO CONDICIONAL DO OBJECT FIT */}
+      {showObjectFit && (
+        <div className="space-y-1.5">
+          <span className="text-[9px] font-bold uppercase text-slate-400">Ajuste da Imagem (Object Fit)</span>
+          <Select
+            value={styles.objectFit ?? "cover"}
+            onValueChange={(value) => onUpdate({ objectFit: value })}
+          >
+            <SelectTrigger className="w-full h-8 text-xs bg-slate-50 border-slate-100">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cover">Cobrir (Cover)</SelectItem>
+              <SelectItem value="contain">Conter (Contain)</SelectItem>
+              <SelectItem value="fill">Esticar (Fill)</SelectItem>
+              <SelectItem value="none">Original (None)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// --- 4. Espaçamento (Box Model) --- ATUALIZADO COM MARGENS LATERAIS ---
+export const BoxModelControls = ({ styles, onUpdate }: any) => {
+  const getVal = (key: string) => styles[key] ?? (DEFAULT_STYLES as any)[key];
   return (
     <div className="space-y-6 pt-2 border-t">
       <div className="space-y-3">
         <Label className="text-[10px] font-bold uppercase text-slate-400">
-          Espaçamento Interno (Padding)
+          Padding (Interno)
         </Label>
         <div className="grid grid-cols-2 gap-3">
           {[
             { l: "Superior", k: "paddingTop" },
             { l: "Inferior", k: "paddingBottom" },
-            { l: "Esquerda (E)", k: "paddingLeft" },
-            { l: "Direita (D)", k: "paddingRight" },
+            { l: "Esquerda", k: "paddingLeft" },
+            { l: "Direita", k: "paddingRight" },
           ].map((s) => (
             <div key={s.k} className="space-y-1">
               <span className="text-[9px] text-slate-400 font-bold uppercase">
@@ -206,7 +270,6 @@ export const BoxModelControls = ({ styles, onUpdate }: any) => {
                 value={getVal(s.k)}
                 onChange={(e) => {
                   const val = Number(e.target.value);
-                  // Impede valores negativos
                   if (val >= 0) onUpdate({ [s.k]: val });
                 }}
               />
@@ -216,12 +279,15 @@ export const BoxModelControls = ({ styles, onUpdate }: any) => {
       </div>
       <div className="space-y-3">
         <Label className="text-[10px] font-bold uppercase text-slate-400">
-          Margem Vertical (Margin)
+          Margin (Externo)
         </Label>
+        {/* ATUALIZAÇÃO: AGORA COM 4 INPUTS DE MARGEM */}
         <div className="grid grid-cols-2 gap-3">
           {[
             { l: "Superior", k: "marginTop" },
             { l: "Inferior", k: "marginBottom" },
+            { l: "Esquerda", k: "marginLeft" },
+            { l: "Direita", k: "marginRight" },
           ].map((s) => (
             <div key={s.k} className="space-y-1">
               <span className="text-[9px] text-slate-400 font-bold uppercase">
@@ -229,12 +295,11 @@ export const BoxModelControls = ({ styles, onUpdate }: any) => {
               </span>
               <Input
                 type="number"
-                min={0}
                 className="h-8 text-xs bg-slate-50 border-slate-100"
                 value={getVal(s.k)}
                 onChange={(e) => {
                   const val = Number(e.target.value);
-                  if (val >= 0) onUpdate({ [s.k]: val });
+                  onUpdate({ [s.k]: val });
                 }}
               />
             </div>
@@ -245,137 +310,17 @@ export const BoxModelControls = ({ styles, onUpdate }: any) => {
   );
 };
 
-// --- 4. Decoração (Bordas e Sombra) ---
-// export const DecorationControls = ({ styles, onUpdate }: any) => {
-//   const currentShadow = styles.shadow ?? DEFAULT_STYLES.shadow;
-
-//   const borderStyles = [
-//     { value: "solid", label: "Sólida" },
-//     { value: "dashed", label: "Tracejada" },
-//     { value: "dotted", label: "Pontilhada" },
-//     { value: "double", label: "Dupla" },
-//   ];
-
-//   return (
-//     <div className="space-y-4 pt-2 border-t">
-//       <div className="grid grid-cols-2 gap-4">
-//         <div className="space-y-1.5">
-//           <Label className="text-[10px] font-bold uppercase text-slate-400">
-//             Arredondamento
-//           </Label>
-//           <Input
-//             type="number"
-//             min={0}
-//             value={styles.borderRadius ?? DEFAULT_STYLES.borderRadius}
-//             onChange={(e) => {
-//               const val = Number(e.target.value);
-//               if (val >= 0) onUpdate({ borderRadius: val });
-//             }}
-//             className="h-9 bg-slate-50 border-slate-100"
-//           />
-//         </div>
-//         <div className="space-y-1.5">
-//           <Label className="text-[10px] font-bold uppercase text-slate-400">
-//             Borda (px)
-//           </Label>
-//           <Input
-//             type="number"
-//             min={0}
-//             value={styles.borderWidth ?? DEFAULT_STYLES.borderWidth}
-//             onChange={(e) => {
-//               const val = Number(e.target.value);
-//               if (val >= 0) onUpdate({ borderWidth: val });
-//             }}
-//             className="h-9 bg-slate-50 border-slate-100"
-//           />
-
-//           <div className="space-y-1.5">
-//             <span className="text-[9px] font-bold uppercase text-slate-400">
-//               Estilo
-//             </span>
-//             <Select
-//               value={styles.borderStyle ?? DEFAULT_STYLES.borderStyle}
-//               onValueChange={(value) => onUpdate({ borderStyle: value as any })}
-//             >
-//               <SelectTrigger className="w-full h-9 bg-slate-50 border-slate-100 text-xs">
-//                 <SelectValue placeholder="Escolha um estilo..." />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 {borderStyles.map((style) => (
-//                   <SelectItem
-//                     key={style.value}
-//                     value={style.value}
-//                     className="text-xs"
-//                   >
-//                     {style.label}
-//                   </SelectItem>
-//                 ))}
-//               </SelectContent>
-//             </Select>
-//           </div>
-
-//           <div className="space-y-1.5">
-//             <span className="text-[9px] font-bold uppercase text-slate-400">
-//               Cor
-//             </span>
-//             <div className="flex items-center gap-2">
-//               <Input
-//                 type="color"
-//                 value={styles.borderColor ?? DEFAULT_STYLES.borderColor}
-//                 onChange={(e) => onUpdate({ borderColor: e.target.value })}
-//                 className="w-9 h-9 p-1 cursor-pointer bg-slate-50 border-slate-100"
-//               />
-//               <Input
-//                 type="text"
-//                 value={styles.borderColor ?? DEFAULT_STYLES.borderColor}
-//                 onChange={(e) => onUpdate({ borderColor: e.target.value })}
-//                 className="h-9 bg-slate-50 border-slate-100 font-mono text-xs"
-//               />
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-
-//       <div className="space-y-2">
-//         <Label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">
-//           Sombra do Bloco
-//         </Label>
-//         <div className="flex gap-1.5">
-//           {["none", "sm", "md", "lg"].map((s) => (
-//             <button
-//               key={s}
-//               onClick={() => onUpdate({ shadow: s })}
-//               className={cn(
-//                 "flex-1 py-1.5 text-[9px] border rounded-md font-bold uppercase transition-all",
-//                 currentShadow === s
-//                   ? "bg-slate-900 text-white border-slate-900"
-//                   : "bg-white text-slate-400 border-slate-200 hover:border-slate-300",
-//               )}
-//             >
-//               {s === "none" ? "Sem" : s}
-//             </button>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-
+// --- 5. Decoração (Mantém igual) ---
 export const DecorationControls = ({ styles, onUpdate }: any) => {
   const currentShadow = styles.shadow ?? DEFAULT_STYLES.shadow;
-
   const borderStyles = [
     { value: "solid", label: "Sólida" },
     { value: "dashed", label: "Tracejada" },
     { value: "dotted", label: "Pontilhada" },
     { value: "double", label: "Dupla" },
   ];
-
   return (
-    // O container principal agora tem 'space-y-6' para um espaçamento mais consistente
     <div className="space-y-6 pt-2 border-t">
-      {/* 1. Grid para Arredondamento e Largura da Borda */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label className="text-[10px] font-bold uppercase text-slate-400">
@@ -408,8 +353,6 @@ export const DecorationControls = ({ styles, onUpdate }: any) => {
           />
         </div>
       </div>
-
-      {/* 2. Controlo de Estilo (agora fora do grid, ocupando a largura total) */}
       <div className="space-y-1.5">
         <Label className="text-[10px] font-bold uppercase text-slate-400">
           Estilo
@@ -434,8 +377,6 @@ export const DecorationControls = ({ styles, onUpdate }: any) => {
           </SelectContent>
         </Select>
       </div>
-
-      {/* 3. Controlo de Cor (agora fora do grid, ocupando a largura total) */}
       <div className="space-y-1.5">
         <Label className="text-[10px] font-bold uppercase text-slate-400">
           Cor
@@ -455,8 +396,6 @@ export const DecorationControls = ({ styles, onUpdate }: any) => {
           />
         </div>
       </div>
-      
-      {/* 4. Controlo de Sombra (agora separado por um espaço vertical) */}
       <div className="space-y-2">
         <Label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">
           Sombra do Bloco
@@ -482,9 +421,7 @@ export const DecorationControls = ({ styles, onUpdate }: any) => {
   );
 };
 
-
-
-// --- 5. Animações ---
+// --- 6. Animações (Mantém igual) ---
 export const AnimationControls = ({ styles, onUpdate }: any) => {
   const animations = [
     { label: "Nenhuma", value: "none", icon: Ban },

@@ -10,7 +10,6 @@ import { ExportButton } from "@/app/(app)/dashboard/guests/_components/export-bu
 import { GlobalAddGuest } from "./_components/global-add-guest";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -31,6 +30,7 @@ import {
   CalendarDays,
   Filter,
   User as UserIcon,
+  Utensils, // <--- NOVO ÍCONE
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -84,6 +84,9 @@ export default async function AllGuestsPage({
       ? { ...guest.eventId, _id: guest.eventId._id.toString() }
       : null,
     createdAt: guest.createdAt ? new Date(guest.createdAt).toISOString() : null,
+    // --- ALTERAÇÃO CIRÚRGICA 1: GARANTIR QUE MENU CHOICES É LIMPO ---
+    menuChoices: guest.menuChoices ? JSON.parse(JSON.stringify(guest.menuChoices)) : [],
+    // ----------------------------------------------------------------
   }));
 
   const totalGuests = await Guest.countDocuments({ agencyId: user.agencyId });
@@ -168,11 +171,7 @@ export default async function AllGuestsPage({
         </Button>
       </div>
 
-      {/* 
-          1. VISÃO MOBILE (Lista Clean) 
-          - Removemos o Card tradicional com borda grossa.
-          - Usamos um layout flex row simples e limpo.
-      */}
+      {/* VISÃO MOBILE */}
       <div className="flex flex-col gap-3 md:hidden">
         {serializedGuests.length === 0 ? (
           <EmptyState />
@@ -191,9 +190,15 @@ export default async function AllGuestsPage({
                 </Avatar>
 
                 <div className="flex flex-col min-w-0">
-                  <p className="font-semibold text-slate-900 text-base leading-tight truncate">
-                    {guest.name}
-                  </p>
+                  <div className="flex items-center gap-2">
+                     <p className="font-semibold text-slate-900 text-base leading-tight truncate">
+                        {guest.name}
+                     </p>
+                     {/* --- ALTERAÇÃO 2: Ícone se tiver escolhido menu --- */}
+                     {guest.menuChoices && guest.menuChoices.length > 0 && (
+                        <Utensils className="w-3 h-3 text-amber-500" />
+                     )}
+                  </div>
 
                   <div className="flex flex-col gap-1 mt-1.5">
                     <div className="flex items-center text-xs text-slate-500">
@@ -231,13 +236,16 @@ export default async function AllGuestsPage({
         )}
       </div>
 
-      {/* 2. VISÃO DESKTOP (Tabela Completa) */}
+      {/* VISÃO DESKTOP */}
       <div className="hidden md:block border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="hover:bg-transparent">
               <TableHead className="pl-6 h-12">Convidado</TableHead>
               <TableHead>Evento</TableHead>
+              {/* --- ALTERAÇÃO 3: Coluna Menu --- */}
+              <TableHead>Menu</TableHead>
+              {/* -------------------------------- */}
               <TableHead>Contato</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right pr-6">Ação</TableHead>
@@ -246,7 +254,7 @@ export default async function AllGuestsPage({
           <TableBody>
             {serializedGuests.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5}>
+                <TableCell colSpan={6}>
                   <EmptyState />
                 </TableCell>
               </TableRow>
@@ -279,6 +287,24 @@ export default async function AllGuestsPage({
                       <span className="text-xs text-red-400">Excluído</span>
                     )}
                   </TableCell>
+
+                  {/* --- ALTERAÇÃO 4: Exibir escolhas do menu --- */}
+                  <TableCell className="max-w-[200px]">
+                     {guest.menuChoices && guest.menuChoices.length > 0 ? (
+                       <div className="flex flex-col gap-1">
+                          {guest.menuChoices.map((c: any, i: number) => (
+                            <div key={i} className="flex items-center gap-1.5">
+                               <Utensils className="w-3 h-3 text-slate-400 shrink-0" />
+                               <span className="text-xs text-slate-600 truncate" title={c.item}>{c.item}</span>
+                            </div>
+                          ))}
+                       </div>
+                     ) : (
+                       <span className="text-xs text-slate-300">-</span>
+                     )}
+                  </TableCell>
+                  {/* ------------------------------------------- */}
+
                   <TableCell className="text-sm text-slate-500 font-mono">
                     {guest.phone || "-"}
                   </TableCell>
@@ -345,7 +371,7 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-// Badge minimalista para Mobile (apenas bolinha ou texto curto)
+
 function StatusDot({ status }: { status: string }) {
   if (status === "CONFIRMED") {
     return (

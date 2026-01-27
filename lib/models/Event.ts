@@ -1,6 +1,5 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
 
-
 const TimelineItemSchema = new Schema({
   title: { type: String, required: true },
   startTime: { type: String, required: true },
@@ -43,6 +42,19 @@ const RsvpConfigSchema = new Schema({
   showGuestList: { type: Boolean, default: false },
 });
 
+const EventSettingsSchema = new Schema({
+  music: {
+    isEnabled: { type: Boolean, default: false },
+    url: String,
+    autoPlay: { type: Boolean, default: false },
+    showControl: { type: Boolean, default: true },
+  },
+    navigation: {
+    direction: { type: String, enum: ["horizontal", "vertical"], default: "horizontal" },
+    effect: { type: String, enum: ["slide", "fade"], default: "slide" },
+  }
+}, { _id: false });
+
 // --- Interface Principal ---
 export interface IEvent extends Document {
   agencyId: mongoose.Types.ObjectId;
@@ -63,6 +75,15 @@ export interface IEvent extends Document {
 
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   views: number;
+
+  settings: {
+    music: {
+      isEnabled: boolean;
+      url?: string;
+      autoPlay: boolean;
+      showControl: boolean;
+    };
+  };
 
   createdAt: Date;
   updatedAt: Date;
@@ -86,16 +107,16 @@ const EventSchema = new Schema<IEvent>(
       enum: ["wedding", "birthday", "corporate", "baby_shower", "other"],
       required: true,
     },
-
+    settings: { type: EventSettingsSchema, default: {} },
     date: { type: Date, required: true },
 
     description: { type: String },
     coverImage: { type: String },
 
-    // O "Coração" do Page Builder
+ 
     designContent: { type: Schema.Types.Mixed, default: [] },
 
-    // Funcionalidades
+    
     timeline: [TimelineItemSchema],
     gifts: { type: GiftRegistrySchema, default: {} },
     rsvpConfig: { type: RsvpConfigSchema, default: {} },
@@ -108,7 +129,7 @@ const EventSchema = new Schema<IEvent>(
 
     views: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Event: Model<IEvent> =

@@ -13,8 +13,9 @@ export interface IGuest extends Document {
   confirmedAdults: number;
   confirmedKids: number;
 
-  // --- CAMPO QUE FALTAVA ---
   maxAllowedGuests: number;
+
+  menuChoices?: { section: string; item: string }[];
 
   dietaryNotes?: string;
   songRequest?: string;
@@ -49,14 +50,21 @@ const GuestSchema = new Schema<IGuest>(
     confirmedAdults: { type: Number, default: 0 },
     confirmedKids: { type: Number, default: 0 },
 
-    // --- CAMPO ADICIONADO ---
     maxAllowedGuests: { type: Number, default: 1 },
+
+    menuChoices: [
+      {
+        section: String,
+        item: String,
+        _id: false
+      },
+    ],
 
     dietaryNotes: String,
     songRequest: String,
     messageToHosts: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Guest: Model<IGuest> =

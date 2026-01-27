@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,7 +29,8 @@ export function EditorCanvas({
     setIsMounted(true);
   }, []);
 
-  const isRealMobile = isMounted && typeof window !== 'undefined' && window.innerWidth < 768;
+  const isRealMobile =
+    isMounted && typeof window !== "undefined" && window.innerWidth < 768;
 
   return (
     <main
@@ -41,22 +41,18 @@ export function EditorCanvas({
         className={cn(
           "transition-all duration-300 overflow-hidden flex flex-col relative bg-white shadow-sm",
 
-          // --- CORREÇÃO AQUI ---
-          // Aplicamos as classes do mockup de telemóvel diretamente, sem condições.
-          // Este é o "quadradinho" que será sempre visível.
-          "w-[375px] h-[667px] rounded-[30px] border-[8px] border-slate-800 shadow-2xl",
-          // --------------------
+          "w-[375px] h-[80vh] rounded-[30px] border-[8px] border-slate-800 shadow-2xl",
 
-          // Esta linha garante que em ecrãs muito pequenos (como um telemóvel real),
-          // o mockup ocupa a tela inteira, proporcionando uma boa experiência de edição.
           "max-md:!w-full max-md:!h-full max-md:!border-none max-md:!rounded-none max-md:!shadow-none",
-          
-          // Quando o modo 'Preview' do header está ativo, removemos as bordas para uma visualização limpa.
-          isPreview && "shadow-none border-none rounded-none w-full h-full max-w-md mx-auto"
+
+          isPreview &&
+            "shadow-none border-none rounded-none w-full h-full max-w-md mx-auto",
         )}
         style={{
           backgroundColor: pageStyles.backgroundColor || "#ffffff",
-          backgroundImage: pageStyles.backgroundImage ? `url(${pageStyles.backgroundImage})` : "none",
+          backgroundImage: pageStyles.backgroundImage
+            ? `url(${pageStyles.backgroundImage})`
+            : "none",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -66,7 +62,9 @@ export function EditorCanvas({
         {pageStyles.backgroundImage && (
           <div
             className="absolute inset-0 z-0 pointer-events-none"
-            style={{ backgroundColor: `rgba(0,0,0,${pageStyles.backgroundOpacity || 0})` }}
+            style={{
+              backgroundColor: `rgba(0,0,0,${pageStyles.backgroundOpacity || 0})`,
+            }}
           />
         )}
 
@@ -111,7 +109,7 @@ export function EditorCanvas({
               key={p.id}
               className={cn(
                 "w-1.5 h-1.5 rounded-full shadow-sm transition-all duration-300 backdrop-blur-sm",
-                p.id === activePageId ? "bg-slate-800 w-4" : "bg-slate-400/50"
+                p.id === activePageId ? "bg-slate-800 w-4" : "bg-slate-400/50",
               )}
             />
           ))}
@@ -120,7 +118,12 @@ export function EditorCanvas({
 
       {!isPreview && (
         <div className="hidden md:flex absolute bottom-6 items-center gap-2 bg-white/90 backdrop-blur px-2.5 py-2 rounded-full shadow-xl border border-slate-200 z-30">
-          <Button variant="ghost" size="icon" onClick={addPage} className="rounded-full hover:bg-blue-50">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={addPage}
+            className="rounded-full hover:bg-blue-50"
+          >
             <Files className="w-4 h-4 text-blue-600" />
           </Button>
           <div className="h-4 w-px bg-slate-200 mx-1" />
@@ -133,7 +136,7 @@ export function EditorCanvas({
                   "w-7 h-7 rounded-full text-xs font-bold border transition-all",
                   p.id === activePageId
                     ? "bg-slate-900 text-white border-slate-900 shadow-md scale-110"
-                    : "bg-white text-slate-500 hover:border-slate-400"
+                    : "bg-white text-slate-500 hover:border-slate-400",
                 )}
               >
                 {idx + 1}

@@ -19,6 +19,7 @@ import {
 import { DEFAULT_STYLES } from "../types";
 import { RsvpBlock } from "@/components/rsvp-block";
 import { CountdownRenderer } from "./blocks/countdown-renderer";
+import { MenuRenderer } from "./blocks/menu-render";
 
 export const BlockRenderer = ({
   block,
@@ -49,15 +50,17 @@ export const BlockRenderer = ({
     paddingRight: `${s.paddingRight}px`,
     marginTop: `${s.marginTop}px`,
     marginBottom: `${s.marginBottom}px`,
+    marginLeft: `${s.marginLeft || 0}px`,
+    marginRight: `${s.marginRight || 0}px`,
+    width: s.width || "100%",
+    height: s.height || "auto",
 
     // Bordas
     borderRadius: `${s.borderRadius}px`,
     borderWidth: `${s.borderWidth}px`,
     borderColor: s.borderColor,
-    // --- MUDANÇA CIRÚRGICA AQUI ---
-    // Em vez de "solid", agora lê o valor de 's.borderStyle'
-    borderStyle: s.borderStyle as any, 
-    // -----------------------------
+
+    borderStyle: s.borderStyle as any,
 
     // Sombra
     boxShadow:
@@ -122,9 +125,10 @@ export const BlockRenderer = ({
       }}
       style={dynamicStyles}
       className={cn(
-        "relative w-full overflow-hidden",
+        "relative overflow-hidden",
         !isPreview && "cursor-pointer group",
-        !isPreview && isSelected && "outline outline-2 outline-blue-600 z-10",
+        !isPreview && isSelected && "outline-2 outline-blue-600 z-10",
+        "shrink-0",
       )}
       key={block.id + JSON.stringify(s.animation)}
       initial={selectedAnim.initial}
@@ -176,9 +180,6 @@ export const BlockRenderer = ({
         </div>
       )}
 
-      {/* --- RENDERIZAÇÃO WYSIWYG LIMPA --- */}
-
-      {/* HERO: Removemos flex-col e items-center forçados */}
       {block.type === "HERO" && (
         <div
           style={{
@@ -188,8 +189,8 @@ export const BlockRenderer = ({
             backgroundSize: "cover",
             backgroundPosition: "center",
             width: "100%",
-            // Altura mínima para não colapsar se vazio
-            minHeight: "200px",
+            height: "100%",
+            minHeight: s.height === "auto" ? "200px" : undefined,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -212,12 +213,17 @@ export const BlockRenderer = ({
         </p>
       )}
 
-      {/* IMAGE: Removemos w-full forçado (user pode controlar via padding do container) */}
+      {/* IMAGE: Alterado para ocupar 100% do container e remover altura automática */}
       {block.type === "IMAGE" &&
         (block.content.url ? (
           <img
             src={block.content.url}
-            style={{ maxWidth: "100%", height: "auto", display: "block" }}
+            style={{
+              width: "100%",
+              height: "100%", // Força preenchimento da altura definida pelo utilizador
+              display: "block",
+              objectFit: s.objectFit as any,
+            }}
             alt=""
           />
         ) : (
@@ -226,18 +232,40 @@ export const BlockRenderer = ({
           </div>
         ))}
 
-      {/* VIDEO */}
+      {/* VIDEO: Removido aspect-video para respeitar dimensões do utilizador */}
       {block.type === "VIDEO" && (
-        <div className="aspect-video bg-slate-950 flex items-center justify-center text-white w-full">
+        <div className="w-full h-full bg-slate-950 flex items-center justify-center text-white">
           <Video className="w-10 h-10 opacity-50" />
         </div>
       )}
 
-      {/* MAPA: Removido rounded e border fixos. Agora user controla borda no painel. */}
+      {/* MAPA: Removido aspect-video para respeitar dimensões do utilizador */}
       {block.type === "MAP" && (
-        <div style={{ width: "100%" }}>
-          <div className="relative w-full aspect-video overflow-hidden bg-slate-100">
-            {!isPreview && <div className="absolute inset-0 z-10" />}
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            minHeight: s.height === "auto" ? "200px" : undefined,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* MOLDURA DO MAPA */}
+          <div
+            className="relative w-full flex-1 overflow-hidden"
+            style={{
+              backgroundColor: "transparent",
+
+              borderRadius: s.borderRadius ? `${s.borderRadius}px` : undefined,
+              borderWidth: s.borderWidth ? `${s.borderWidth}px` : undefined,
+              borderColor: s.borderColor,
+              borderStyle: s.borderStyle as any,
+            }}
+          >
+            {!isPreview && (
+              <div className="absolute inset-0 z-10 cursor-move" />
+            )}
+
             {block.content.link ? (
               <iframe
                 width="100%"
@@ -251,24 +279,31 @@ export const BlockRenderer = ({
                 }
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-slate-400">
-                <MapPin className="w-8 h-8" />
+              <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                <MapPin className="w-8 h-8 opacity-50" />
+                <p className="text-[10px] uppercase font-bold mt-1">Mapa</p>
               </div>
             )}
           </div>
-          {/* Endereço usa a fonte e cor do bloco */}
-          <p
-            style={{
-              marginTop: "0.5rem",
-              fontSize: "0.875rem",
-              fontWeight: "bold",
-            }}
-          >
-            {block.content.address}
-          </p>
+
+          {/* TEXTO DO ENDEREÇO (Mantendo estilos consistentes) */}
+          {block.content.address && (
+            <p
+              style={{
+                marginTop: "0.75rem", // mt-3 equivalente
+                fontSize: `${s.fontSize}px`,
+                fontWeight: s.fontWeight as any,
+                fontStyle: s.fontStyle as any,
+                fontFamily: s.fontFamily,
+                color: s.color, // <--- Garante que a cor funciona
+                textAlign: s.textAlign as any,
+              }}
+            >
+              {block.content.address}
+            </p>
+          )}
         </div>
       )}
-
       {/* COUNTDOWN: Usa o componente isolado que criamos antes */}
       {block.type === "COUNTDOWN" && (
         <CountdownRenderer date={block.content?.date} styles={block.styles} />
@@ -336,6 +371,13 @@ export const BlockRenderer = ({
             </div>
           ))}
         </div>
+      )}
+      {block.type === "MENU" && (
+        <MenuRenderer
+          content={block.content}
+          styles={s}
+          isPreview={isPreview}
+        />
       )}
     </motion.div>
   );

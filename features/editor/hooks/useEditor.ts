@@ -13,6 +13,15 @@ const INITIAL_BLOCK_DATA: Record<BlockType, any> = {
   COUNTDOWN: { date: new Date().toISOString() },
   RSVP: { title: "Confirme sua Presença" },
   COLUMNS: { cols: 2, children: { col0: [], col1: [], col2: [] } },
+  MENU: { 
+    isInteractive: false, 
+    sections: [
+      { 
+        title: "Entradas", 
+        items: [{ name: "Prato Exemplo", description: "Descrição deliciosa", price: "" }] 
+      }
+    ] 
+  }, 
 };
 
 export function useEditor(initialPages: IPage[] = []) {
@@ -29,14 +38,15 @@ export function useEditor(initialPages: IPage[] = []) {
           },
         ]
   );
+
   const [activePageId, setActivePageId] = useState<string>(pages[0].id);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
-  // --- HELPER PARA CLONAGEM PROFUNDA (Resolve o erro de duplicação) ---
+
   const cloneBlockWithNewIds = (block: IBlock): IBlock => {
     const newBlock = {
       ...JSON.parse(JSON.stringify(block)), 
-      id: uuidv4(), // Novo ID para o bloco principal
+      id: uuidv4(), 
     };
 
     // Se for colunas, gera novos IDs para todos os filhos recursivamente

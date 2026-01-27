@@ -1,14 +1,17 @@
+
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { MapPin, ExternalLink } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RsvpBlock } from "./rsvp-block";
 import { DEFAULT_STYLES } from "@/features/editor/types";
+import { MenuRenderer } from "@/features/editor/components/blocks/menu-render";
 
-export function PublicBlockRenderer({ block }: { block: any }) {
+export function PublicBlockRenderer({ block, isPreview = false }: { block: any, isPreview?: boolean }) {
   const { type, content, styles: blockStyles } = block;
 
   const s = { ...DEFAULT_STYLES, ...blockStyles };
@@ -27,18 +30,10 @@ export function PublicBlockRenderer({ block }: { block: any }) {
     const diff = target - now;
     if (diff > 0) {
       setTimeLeft({
-        d: Math.floor(diff / (1000 * 60 * 60 * 24))
-          .toString()
-          .padStart(2, "0"),
-        h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-          .toString()
-          .padStart(2, "0"),
-        m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-          .toString()
-          .padStart(2, "0"),
-        s: Math.floor((diff % (1000 * 60)) / 1000)
-          .toString()
-          .padStart(2, "0"),
+        d: Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, "0"),
+        h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, "0"),
+        m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, "0"),
+        s: Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, "0"),
       });
     }
   }, [content?.date, type]);
@@ -51,23 +46,31 @@ export function PublicBlockRenderer({ block }: { block: any }) {
     }
   }, [calculateTime, type]);
 
+  // --- 1. Estilos Dinâmicos do Container Principal ---
   const dynamicStyles: React.CSSProperties = {
     backgroundColor: s.backgroundColor,
     color: s.color,
-
-    textAlign: s.textAlign,
     fontFamily: s.fontFamily,
     fontSize: `${s.fontSize}px`,
-    fontWeight: s.fontWeight,
-    fontStyle: s.fontStyle,
+    fontWeight: s.fontWeight as any,
+    fontStyle: s.fontStyle as any,
+    textAlign: s.textAlign as any,
 
+    // Box Model Completo
     paddingTop: `${s.paddingTop}px`,
     paddingBottom: `${s.paddingBottom}px`,
     paddingLeft: `${s.paddingLeft}px`,
     paddingRight: `${s.paddingRight}px`,
     marginTop: `${s.marginTop}px`,
     marginBottom: `${s.marginBottom}px`,
+    marginLeft: `${s.marginLeft}px`,
+    marginRight: `${s.marginRight}px`,
 
+    // Dimensões
+    width: s.width || "100%",
+    height: s.height || "auto",
+
+    // Bordas e Sombras Globais
     borderRadius: `${s.borderRadius}px`,
     borderWidth: `${s.borderWidth}px`,
     borderColor: s.borderColor,
@@ -82,22 +85,32 @@ export function PublicBlockRenderer({ block }: { block: any }) {
             : "0 10px 15px rgba(0,0,0,0.1)",
   };
 
+  // --- 2. Estilos Específicos para os Itens do Cronómetro ---
+  const countdownItemStyle: React.CSSProperties = {
+    backgroundColor: s.itemBackgroundColor,
+    color: s.itemColor,
+    borderWidth: `${s.itemBorderWidth}px`,
+    borderColor: s.itemBorderColor,
+    borderStyle: s.itemBorderStyle as any,
+    borderRadius: `${s.itemBorderRadius}px`,
+    boxShadow: s.itemShadow === "none" ? "none" : "0 2px 4px rgba(0,0,0,0.1)",
+  };
+
   const getFlexAlign = () => {
     if (s.textAlign === "left") return "items-start text-left";
     if (s.textAlign === "right") return "items-end text-right";
     return "items-center text-center";
   };
 
+  // --- CORREÇÃO DE SINTAXE AQUI ---
   const getEmbedUrl = (url: string) => {
     if (!url) return "";
-    if (url.includes("youtube.com/watch?v="))
-      return url.replace("watch?v=", "embed/");
-    if (url.includes("youtu.be/"))
-      return `https://www.youtube.com/embed/${url.split("/").pop()}`;
+    if (url.includes("youtube.com/watch?v=")) return url.replace("watch?v=", "embed/");
+    if (url.includes("youtu.be/")) return `https://www.youtube.com/embed/${url.split("/").pop()}`;
     return url;
   };
+  // --------------------------------
 
-  // Animações
   const animVariants = {
     none: { initial: false, animate: {} },
     fade: { initial: { opacity: 0 }, animate: { opacity: 1 } },
@@ -152,18 +165,17 @@ export function PublicBlockRenderer({ block }: { block: any }) {
         ...selectedAnim.transition,
       }}
       style={dynamicStyles}
-      className="w-full relative overflow-hidden"
+      className={cn("relative overflow-hidden", "shrink-0")}
     >
       {type === "HERO" && (
         <div
-          className={cn(
-            "w-full flex flex-col justify-center min-h-[200px]",
-            getFlexAlign(),
-          )}
+          className={cn("w-full flex flex-col justify-center", getFlexAlign())}
           style={{
             backgroundImage: content.image ? `url(${content.image})` : "none",
             backgroundSize: "cover",
             backgroundPosition: "center",
+            height: "100%",
+            minHeight: s.height === "auto" ? "200px" : undefined,
           }}
         >
           {content.image && (
@@ -171,14 +183,9 @@ export function PublicBlockRenderer({ block }: { block: any }) {
           )}
 
           <div className="relative z-10 w-full">
-            {/* Título: Usa a fonte herdada (sem font-serif forçada) e tamanho herdado */}
-            <h1
-              style={{ fontSize: "2.5em", fontWeight: "bold", lineHeight: 1.2 }}
-            >
+            <h1 style={{ margin: 0, lineHeight: 1.2 }}>
               {content.title || "Título"}
             </h1>
-
-            {/* Linha decorativa: Usa a cor do texto atual */}
             <div
               className={cn(
                 "h-px w-20 bg-current my-4 opacity-50",
@@ -189,7 +196,6 @@ export function PublicBlockRenderer({ block }: { block: any }) {
                     : "mr-auto",
               )}
             />
-
             <p style={{ fontSize: "1.2em", opacity: 0.9 }}>
               {content.subtitle}
             </p>
@@ -197,37 +203,65 @@ export function PublicBlockRenderer({ block }: { block: any }) {
         </div>
       )}
 
-      {/* TEXTO: Removido padding fixo */}
       {type === "TEXT" && (
-        <p className="whitespace-pre-wrap leading-relaxed w-full">
+        <p
+          className="whitespace-pre-wrap leading-relaxed w-full"
+          style={{ margin: 0 }}
+        >
           {content.text}
         </p>
       )}
 
-      {/* IMAGEM: Ocupa 100% da largura do container (respeitando padding do bloco) */}
       {type === "IMAGE" && content.url && (
-        <img src={content.url} className="w-full h-auto block" alt="Imagem" />
+        <img
+          src={content.url}
+          className="block"
+          alt="Imagem"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: s.objectFit as any,
+          }}
+        />
       )}
 
-      {/* VÍDEO */}
-      {type === "VIDEO" && content.url && (
-        <div className="aspect-video w-full overflow-hidden rounded-lg">
+     {type === "VIDEO" && content.url && (
+        <div className="w-full h-full min-h-[200px] overflow-hidden rounded-lg relative bg-black">
           <iframe
-            src={getEmbedUrl(content.url)}
-            className="w-full h-full"
+            src={(() => {
+              let src = getEmbedUrl(content.url);
+              const params = [];
+              if (s.videoAutoplay) params.push("autoplay=1");
+              if (s.videoMuted) params.push("mute=1"); 
+              if (s.videoLoop) params.push("loop=1&playlist=" + src.split("/").pop()); 
+              if (!s.videoControls) params.push("controls=0");
+              
+              return params.length > 0 ? `${src}?${params.join("&")}` : src;
+            })()}
+            className="w-full h-full absolute inset-0"
+            allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
             title="Video Player"
             style={{ border: 0 }}
           />
         </div>
       )}
-
-      {/* MAPA: Removido estilo de "Card" branco */}
+      
+      {/* MAPA CORRIGIDO (Transparente) */}
       {type === "MAP" && (
-        <div className="w-full">
+        <div
+          className="w-full h-full flex flex-col"
+          style={{ minHeight: s.height === "auto" ? "200px" : undefined }}
+        >
           <div
-            className="w-full aspect-video overflow-hidden border border-slate-200"
-            style={{ borderRadius: s.borderRadius }}
+            className="w-full flex-1 relative overflow-hidden"
+            style={{
+              backgroundColor: "transparent",
+              borderRadius: `${s.borderRadius}px`,
+              borderWidth: `${s.borderWidth}px`,
+              borderColor: s.borderColor,
+              borderStyle: s.borderStyle as any,
+            }}
           >
             {content.link ? (
               <iframe
@@ -243,29 +277,49 @@ export function PublicBlockRenderer({ block }: { block: any }) {
                 }
               />
             ) : (
-              <div className="flex items-center justify-center h-full bg-slate-100 text-slate-400">
+              <div className="flex items-center justify-center h-full text-slate-400">
                 <MapPin className="w-8 h-8" />
               </div>
             )}
           </div>
-          {/* O endereço herda a cor e fonte do bloco */}
-          <p className="mt-2 text-sm opacity-80">{content.address}</p>
-          {content.link && (
-            <div
-              className={cn(
-                "mt-2",
+
+          <div
+            className="mt-3 flex flex-col gap-3"
+            style={{
+              alignItems:
                 s.textAlign === "left"
-                  ? "text-left"
+                  ? "flex-start"
                   : s.textAlign === "right"
-                    ? "text-right"
-                    : "text-center",
-              )}
-            >
+                    ? "flex-end"
+                    : "center",
+              textAlign: s.textAlign as any,
+            }}
+          >
+            {content.address && (
+              <p
+                className="leading-relaxed opacity-90"
+                style={{
+                  fontFamily: s.fontFamily,
+                  color: s.color,
+                  fontSize: `${s.fontSize}px`,
+                  fontWeight: s.fontWeight as any,
+                  fontStyle: s.fontStyle as any,
+                }}
+              >
+                {content.address}
+              </p>
+            )}
+
+            {content.link && (
               <Button
                 asChild
                 variant="outline"
-                size="sm"
-                className="text-xs uppercase font-bold tracking-widest"
+                style={{
+                  color: s.color,
+                  borderColor: s.color,
+                  borderRadius: "9999px",
+                }}
+                className="h-8 px-4 text-xs uppercase font-bold tracking-widest hover:bg-black/5 transition-colors"
               >
                 <a
                   href={content.link}
@@ -275,12 +329,12 @@ export function PublicBlockRenderer({ block }: { block: any }) {
                   Abrir GPS
                 </a>
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
-      {/* COUNTDOWN: Removido estilo de "cartão preto" fixo */}
+      {/* COUNTDOWN CORRIGIDO */}
       {type === "COUNTDOWN" && (
         <div className="flex justify-center gap-3 w-full">
           {[
@@ -290,10 +344,9 @@ export function PublicBlockRenderer({ block }: { block: any }) {
             { l: "S", v: timeLeft.s },
           ].map((t, i) => (
             <div key={i} className="flex flex-col items-center">
-              {/* O número herda a cor do texto do bloco. Fundo levemente contrastante. */}
               <div
-                className="w-12 h-12 flex items-center justify-center rounded-lg text-xl font-bold border border-current opacity-80"
-                style={{ borderColor: s.color }}
+                className="w-12 h-12 flex items-center justify-center font-bold text-xl transition-all"
+                style={countdownItemStyle} // Usa os estilos específicos definidos acima
               >
                 {t.v}
               </div>
@@ -305,10 +358,12 @@ export function PublicBlockRenderer({ block }: { block: any }) {
         </div>
       )}
 
-      {/* RSVP: Renderiza o bloco puro */}
-      {type === "RSVP" && <RsvpBlock content={content} styles={s} />}
+      {type === "RSVP" && (
+        <div className={cn(isPreview ? "pointer-events-auto" : "pointer-events-auto")}>
+           <RsvpBlock content={content} styles={s} isEditorPreview={isPreview} />
+        </div>
+      )}
 
-      {/* COLUNAS: Removido gap forçado, user define margem nos filhos se quiser */}
       {type === "COLUMNS" && (
         <div
           className={cn(
@@ -319,16 +374,24 @@ export function PublicBlockRenderer({ block }: { block: any }) {
                 ? "grid-cols-2"
                 : "grid-cols-1",
           )}
-          style={{ gap: "1rem" }} // Gap padrão mínimo para colunas
+          style={{ gap: "1rem" }}
         >
           {[...Array(content.cols || 1)].map((_, i) => (
             <div key={i} className="flex flex-col">
               {(content.children?.[`col${i}`] || []).map((subBlock: any) => (
-                <PublicBlockRenderer key={subBlock.id} block={subBlock} />
+                <PublicBlockRenderer key={subBlock.id} block={subBlock} isPreview={isPreview} />
               ))}
             </div>
           ))}
         </div>
+      )}
+
+      {type === "MENU" && (
+        <MenuRenderer 
+          content={content} 
+          styles={s} 
+          isPreview={isPreview} 
+        />
       )}
     </motion.div>
   );

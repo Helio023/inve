@@ -60,6 +60,44 @@ export async function deleteGuestAction(guestId: string, eventId: string) {
 }
 
 
+// export async function submitRsvpAction(formData: FormData) {
+//   try {
+//     await connectDB();
+    
+//     const token = formData.get('token') as string;
+//     const status = formData.get('status') as 'CONFIRMED' | 'DECLINED' | 'PENDING';
+//     const adults = Number(formData.get('adults') || 1);
+//     const kids = Number(formData.get('kids') || 0);
+//     const message = formData.get('message') as string;
+
+//     // 1. Validar Token
+//     const guest = await Guest.findOne({ inviteToken: token });
+    
+//     if (!guest) {
+//       return { error: "Convite inválido ou expirado." };
+//     }
+
+//     // 2. Atualizar Dados
+//     guest.status = status;
+//     guest.confirmedAdults = status === 'CONFIRMED' ? adults : 0;
+//     guest.confirmedKids = status === 'CONFIRMED' ? kids : 0;
+//     guest.messageToHosts = message;
+//     guest.hasOpened = true; 
+    
+//     await guest.save();
+
+ 
+//     revalidatePath(`/dashboard/guests`);
+
+//     return { success: true };
+
+//   } catch (error) {
+//     console.error("Erro no RSVP:", error);
+//     return { error: "Erro ao enviar resposta." };
+//   }
+// }
+
+
 export async function submitRsvpAction(formData: FormData) {
   try {
     await connectDB();
@@ -70,25 +108,36 @@ export async function submitRsvpAction(formData: FormData) {
     const kids = Number(formData.get('kids') || 0);
     const message = formData.get('message') as string;
 
-    // 1. Validar Token
+    const menuChoicesRaw = formData.get('menuChoices') as string;
+    const menuChoices = menuChoicesRaw ? JSON.parse(menuChoicesRaw) : [];
+
     const guest = await Guest.findOne({ inviteToken: token });
     
     if (!guest) {
       return { error: "Convite inválido ou expirado." };
     }
 
-    // 2. Atualizar Dados
+  
     guest.status = status;
     guest.confirmedAdults = status === 'CONFIRMED' ? adults : 0;
     guest.confirmedKids = status === 'CONFIRMED' ? kids : 0;
     guest.messageToHosts = message;
-    guest.hasOpened = true; // Marca que interagiu
+    guest.hasOpened = true; 
+    
+
+    if (menuChoices && menuChoices.length > 0) {
+      guest.menuChoices = menuChoices;
+    }
+    
     
     await guest.save();
 
-    // Revalidar o dashboard da agência para ver a mudança instantaneamente
-    // (Obs: revalidatePath do Next.js às vezes é chato com rotas dinâmicas, mas tentamos)
-    revalidatePath(`/dashboard/guests`);
+ 
+    revalidatePath(`/dashboard/guests`); 
+    
+    if (guest.eventId) {
+        revalidatePath(`/dashboard/events/${guest.eventId}/guests`);
+    }
 
     return { success: true };
 

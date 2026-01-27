@@ -46,12 +46,11 @@ export default async function DashboardPage() {
     ? Math.round((confirmedCount / totalGuestsDb) * 100) 
     : 0;
 
-  // 3. Calculando créditos totais (Correção do erro .values())
+ 
   let totalCredits = 0;
   
   if (agency.credits) {
-     // Como usamos .lean(), 'credits' é um Objeto JS comum, não um Map do Mongoose.
-     // Portanto, usamos Object.values()
+   
      const creditValues = Object.values(agency.credits);
      
      totalCredits = creditValues.reduce((sum: number, val: any) => {
@@ -65,8 +64,7 @@ export default async function DashboardPage() {
     .limit(5)
     .lean();
 
-  // Precisamos calcular os convidados para cada um desses 5 eventos
-  // (Query N+1 controlada, pois são apenas 5 itens)
+ 
   const recentEventsData = await Promise.all(
     recentEventsDocs.map(async (ev) => {
       const confirmed = await Guest.countDocuments({ eventId: ev._id, status: 'CONFIRMED' });

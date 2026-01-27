@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   await connectDB();
 
-  // Buscamos apenas os campos necessários para SEO
+ 
   const event = await Event.findOne({ slug })
     .select("title description coverImage")
     .lean();
@@ -24,6 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!event) {
     return { title: "Evento não encontrado" };
   }
+
+ 
 
   const title = event.title;
   const description =
@@ -66,6 +68,8 @@ export default async function PublicEventPage({ params }: Props) {
 
   if (!event) return notFound();
 
+  const plainSettings = event.settings ? JSON.parse(JSON.stringify(event.settings)) : {};
+
   const pages = event.designContent && event.designContent.length > 0
       ? event.designContent
       : [{ id: "default", title: "Capa", blocks: [], styles: { backgroundColor: "#ffffff" } }];
@@ -74,6 +78,7 @@ export default async function PublicEventPage({ params }: Props) {
     <EventViewer 
       pages={pages} 
       isPublished={event.status === 'PUBLISHED'} 
+      settings={plainSettings}
       isEditorPreview={false} 
     />
   );

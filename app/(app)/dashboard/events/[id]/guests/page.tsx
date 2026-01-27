@@ -1,6 +1,7 @@
+
+
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db";
-// Ajuste dos imports para o padrão do projeto (.model)
 import { Event } from "@/lib/models/Event";
 import { Guest } from "@/lib/models/Guest";
 import { Agency } from "@/lib/models/Agency";
@@ -35,22 +36,19 @@ export default async function EventGuestsPage({ params }: PageProps) {
     .sort({ createdAt: -1 })
     .lean();
 
-  // 3. Montar URL Base (Lógica Melhorada)
+  // 3. Montar URL Base
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
   const isLocalhost = rootDomain.includes("localhost");
   const protocol = isLocalhost ? "http" : "https";
 
   let baseUrl = "";
-
   if (isLocalhost) {
-    
     baseUrl = `${protocol}://${rootDomain}/sites/${agency.slug}/${event.slug}`;
   } else {
-    
     baseUrl = `${protocol}://${agency.slug}.${rootDomain}/${event.slug}`;
   }
 
-  
+  // --- CORREÇÃO DE SERIALIZAÇÃO AQUI ---
   const serializedGuests = guests.map((g: any) => ({
     ...g,
     _id: g._id.toString(),
@@ -62,7 +60,10 @@ export default async function EventGuestsPage({ params }: PageProps) {
     updatedAt: g.updatedAt
       ? g.updatedAt.toISOString()
       : new Date().toISOString(),
+    // Limpeza profunda do menuChoices para evitar erros de objeto
+    menuChoices: g.menuChoices ? JSON.parse(JSON.stringify(g.menuChoices)) : [],
   }));
+  // --------------------------------------
 
   return (
     <div className="space-y-6">
@@ -105,14 +106,17 @@ export default async function EventGuestsPage({ params }: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Coluna Esquerda: Formulário de Adicionar */}
         <div className="lg:col-span-1">
           <AddGuestForm eventId={id} />
         </div>
 
-        {/* Coluna Direita: Lista */}
         <div className="lg:col-span-2">
-          <GuestList guests={serializedGuests} eventId={id} baseUrl={baseUrl}  eventDescription={event.description} />
+          <GuestList
+            guests={serializedGuests}
+            eventId={id}
+            baseUrl={baseUrl}
+            eventDescription={event.description}
+          />
         </div>
       </div>
     </div>
