@@ -1,5 +1,3 @@
-
-
 export type BlockType = 
   | 'HERO' 
   | 'TEXT' 
@@ -9,7 +7,9 @@ export type BlockType =
   | 'COUNTDOWN' 
   | 'RSVP' 
   | 'COLUMNS'
-  | 'MENU'; // Adicionado para suportar o futuro bloco de Menu
+  | 'MENU' 
+  | 'SCHEDULE'
+   | 'CAROUSEL';
 
 export type AnimationType = 
   | 'none' | 'fade' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right'

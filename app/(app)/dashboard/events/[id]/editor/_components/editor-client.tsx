@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus,
   Files,
+  Images,
   Settings2,
   Trash2,
   Heart,
@@ -39,7 +40,8 @@ import {
   Video,
   ChevronLeft,
   ChevronRight,
-  Utensils, // Icone para Menu
+  Utensils,
+  CalendarDays,
 } from "lucide-react";
 import {
   Sheet,
@@ -81,7 +83,9 @@ const Toolbox = ({
       icon: CheckSquare,
       color: "text-purple-500",
     },
-    { type: "MENU", label: "Menu", icon: Utensils, color: "text-amber-500" }, // Novo Bloco
+    { type: "MENU", label: "Menu", icon: Utensils, color: "text-amber-500" }, 
+    { type: "SCHEDULE", label: "Programa", icon: CalendarDays, color: "text-blue-500" },
+    { type: "CAROUSEL", label: "Galeria", icon: Images, color: "text-purple-500" },
     ...(!isNested
       ? [
           {
@@ -124,21 +128,18 @@ export function EditorClient({
   eventSlug,
   agencySlug,
 }: any) {
-
-
- const initialPages = Array.isArray(initialData) 
-    ? initialData 
-    : (initialData?.designContent || []);
+  const initialPages = Array.isArray(initialData)
+    ? initialData
+    : initialData?.designContent || [];
 
   const editor = useEditor(initialPages);
   const { status, performSave } = useAutoSave(eventId, editor.pages);
 
-
   const [settings, setSettings] = useState(
-    (!Array.isArray(initialData) ? initialData?.settings : null) || 
-    { music: { isEnabled: false, url: "", autoPlay: false } }
+    (!Array.isArray(initialData) ? initialData?.settings : null) || {
+      music: { isEnabled: false, url: "", autoPlay: false },
+    },
   );
-  
 
   const [isPreview, setIsPreview] = useState(false);
   const [isToolsOpen, setToolsOpen] = useState(false);
@@ -167,11 +168,9 @@ export function EditorClient({
     setToolsOpen(false);
   };
 
-  
   const handleUpdateSettings = async (newSettings: any) => {
     setSettings(newSettings);
-    
-    
+
     const res = await updateEventSettingsAction(eventId, newSettings);
     if (res.error) {
       toast.error("Erro ao salvar configurações");
@@ -179,7 +178,6 @@ export function EditorClient({
       toast.success("Configurações salvas!");
     }
   };
-  
 
   return (
     <div className="h-[100dvh] flex flex-col bg-slate-100 overflow-hidden relative font-sans antialiased">

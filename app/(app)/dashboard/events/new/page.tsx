@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -14,18 +14,41 @@ import { createEventAction } from "@/features/events/actions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 
 export default function NewEventPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Inicialização segura para o TypeScript
   const form = useForm<CreateEventInput>({
     resolver: zodResolver(CreateEventSchema),
     defaultValues: {
@@ -33,37 +56,38 @@ export default function NewEventPage() {
       slug: "",
       eventType: "wedding",
       // Cast para undefined ser aceito inicialmente como Date
-      date: undefined as unknown as Date, 
-    }
+      date: undefined as unknown as Date,
+    },
   });
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const title = e.target.value;
-    form.setValue('title', title);
-    
+    form.setValue("title", title);
+
     // Slugify
     const slug = title
       .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9\s-]/g, "")
       .trim()
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
-      
-    form.setValue('slug', slug);
+
+    form.setValue("slug", slug);
   };
 
   const onSubmit = async (data: CreateEventInput) => {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append('title', data.title);
-      formData.append('slug', data.slug);
-      formData.append('eventType', data.eventType);
-      
+      formData.append("title", data.title);
+      formData.append("slug", data.slug);
+      formData.append("eventType", data.eventType);
+
       // Converte Date para String YYYY-MM-DD
       if (data.date) {
-        formData.append('date', format(data.date, 'yyyy-MM-dd'));
+        formData.append("date", format(data.date, "yyyy-MM-dd"));
       } else {
         toast.error("Por favor, selecione uma data.");
         return;
@@ -75,7 +99,7 @@ export default function NewEventPage() {
         toast.error("Erro ao criar", { description: result.error });
       } else {
         toast.success("Evento criado com sucesso!");
-        router.push(`/dashboard/events`); 
+        router.push(`/dashboard/events`);
       }
     } catch (error) {
       console.error(error);
@@ -89,13 +113,16 @@ export default function NewEventPage() {
     <div className="max-w-2xl mx-auto py-8 px-4">
       <Card className="shadow-lg border-slate-200">
         <CardHeader className="bg-slate-50/50 border-b pb-6">
-          <CardTitle className="text-xl text-slate-800">Criar Novo Convite</CardTitle>
-          <CardDescription>Vamos configurar os detalhes básicos do evento.</CardDescription>
+          <CardTitle className="text-xl text-slate-800">
+            Criar Novo Convite
+          </CardTitle>
+          <CardDescription>
+            Vamos configurar os detalhes básicos do evento.
+          </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              
               {/* CAMPO TÍTULO */}
               <FormField
                 control={form.control}
@@ -104,9 +131,9 @@ export default function NewEventPage() {
                   <FormItem>
                     <FormLabel>Nome do Evento</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Ex: Casamento de Ana & João" 
-                        {...field} 
+                      <Input
+                        placeholder="Ex: Casamento de Ana & João"
+                        {...field}
                         onChange={handleTitleChange}
                         className="text-lg font-medium"
                       />
@@ -124,7 +151,10 @@ export default function NewEventPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Categoria</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione..." />
@@ -132,10 +162,12 @@ export default function NewEventPage() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="wedding">💍 Casamento</SelectItem>
-                          <SelectItem value="birthday">🎂 Aniversário</SelectItem>
-                          <SelectItem value="baby_shower">👶 Chá de Bebê</SelectItem>
-                          <SelectItem value="corporate">💼 Corporativo</SelectItem>
-                          <SelectItem value="other">🎉 Outro</SelectItem>
+                          <SelectItem value="birthday">
+                            🎂 Aniversário
+                          </SelectItem>
+                          <SelectItem value="corporate">
+                            💼 Corporativo
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -157,7 +189,7 @@ export default function NewEventPage() {
                               variant={"outline"}
                               className={cn(
                                 "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value ? (
@@ -197,10 +229,10 @@ export default function NewEventPage() {
                         convite.app/
                       </span>
                       <FormControl>
-                        <Input 
-                          placeholder="ana-e-joao" 
-                          className="rounded-l-none font-mono text-sm" 
-                          {...field} 
+                        <Input
+                          placeholder="ana-e-joao"
+                          className="rounded-l-none font-mono text-sm"
+                          {...field}
                         />
                       </FormControl>
                     </div>
@@ -213,9 +245,9 @@ export default function NewEventPage() {
               />
 
               <div className="flex justify-end pt-4 border-t mt-4">
-                <Button 
-                  type="submit" 
-                  className="bg-primary hover:bg-primary/90 font-bold min-w-40" 
+                <Button
+                  type="submit"
+                  className="bg-primary hover:bg-primary/90 font-bold min-w-40"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -227,7 +259,6 @@ export default function NewEventPage() {
                   )}
                 </Button>
               </div>
-
             </form>
           </Form>
         </CardContent>

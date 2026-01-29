@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/image-upload";
 import { cn } from "@/lib/utils";
+import { ScheduleForm } from "./forms/schedule-form";
 
 import {
   TypographyControls,
@@ -17,6 +18,7 @@ import {
   SizeControls,
 } from "./panels/style-controls";
 import { MenuForm } from "./forms/menu-form";
+import { CarouselForm } from "./forms/carousel-form";
 
 const LABEL_MAP: Record<string, string> = {
   HERO: "Capa",
@@ -27,6 +29,8 @@ const LABEL_MAP: Record<string, string> = {
   COUNTDOWN: "Cronómetro",
   RSVP: "Confirmação",
   COLUMNS: "Colunas",
+  SCHEDULE: "Programa",
+  CAROUSEL: "Carrossel"
 };
 
 // --- RADIOGRAFIA DE ESTILOS (CAPACIDADES) ---
@@ -37,10 +41,10 @@ const BLOCK_CAPABILITIES: Record<
     textColor: boolean;
     backgroundColor: boolean;
     sizing: boolean;
-    objectFit: boolean; // NOVO: Controla se aparece o dropdown de ajuste
+    objectFit: boolean; 
   }
 > = {
-  // HERO: Tem texto, fundo, imagem de fundo (precisa de fit), tamanho
+
   HERO: {
     typography: true,
     textColor: true,
@@ -103,14 +107,28 @@ const BLOCK_CAPABILITIES: Record<
     objectFit: false,
   },
 
-  MENU: { 
-    typography: true, 
-    textColor: true, 
-    backgroundColor: true, 
-    sizing: false, 
-    objectFit: false 
+  MENU: {
+    typography: true,
+    textColor: true,
+    backgroundColor: true,
+    sizing: false,
+    objectFit: false,
   },
 
+  SCHEDULE: {
+    typography: true,
+    textColor: true,
+    backgroundColor: true,
+    sizing: true,
+    objectFit: false,
+  },
+  CAROUSEL: {
+    typography: false,
+    textColor: false,
+    backgroundColor: true,
+    sizing: true,
+    objectFit: true,
+  },
   // COLUNAS: Apenas fundo. Tamanho automático.
   COLUMNS: {
     typography: false,
@@ -489,6 +507,20 @@ export const BlockSettingsManager = ({
         {block.type === "MENU" && (
           <MenuForm
             content={block.content || { sections: [] }}
+            onUpdate={(newContent: any) => handleContentChange(newContent)}
+          />
+        )}
+
+        {block.type === "SCHEDULE" && (
+          <ScheduleForm
+            content={block.content || { items: [] }}
+            onUpdate={(newContent: any) => handleContentChange(newContent)}
+          />
+        )}
+
+        {block.type === "CAROUSEL" && (
+          <CarouselForm
+            content={block.content || { images: [] }}
             onUpdate={(newContent: any) => handleContentChange(newContent)}
           />
         )}

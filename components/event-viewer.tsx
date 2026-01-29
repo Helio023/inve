@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { DEFAULT_PAGE_STYLES } from "@/features/editor/types";
 import { EventInteractionProvider } from "@/features/editor/components/event-interaction-context";
 import { BackgroundMusicPlayer } from "./BackgroundMusicPlayer";
+import { IntroScreen } from "./IntroScreen";
 
 interface EventViewerProps {
   pages: any[];
@@ -17,6 +18,7 @@ interface EventViewerProps {
     music?: { isEnabled: boolean; url?: string; autoPlay: boolean };
     navigation?: { direction: "horizontal" | "vertical"; effect: "slide" | "fade" | "scale" | "cube" };
   };
+  guestName?: string;
 }
 
 export function EventViewer({
@@ -24,16 +26,32 @@ export function EventViewer({
   isPublished,
   isEditorPreview,
   settings,
+  guestName,
 }: EventViewerProps) {
   const [[page, direction], setPage] = useState([0, 0]);
   
-  // Refs para lógica de toque manual (Vertical Mode)
+  const [hasEntered, setHasEntered] = useState(false);
+  const [playMusic, setPlayMusic] = useState(false);
+
   const touchStartY = useRef(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const navDirection = settings?.navigation?.direction || "horizontal";
   const navEffect = settings?.navigation?.effect || "slide";
   const activePage = pages[page] || pages[0];
+
+  const handleEnterEvent = () => {
+    setHasEntered(true);
+    if (settings?.music?.isEnabled) {
+      setPlayMusic(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditorPreview) {
+      setHasEntered(true);
+    }
+  }, [isEditorPreview]);
 
   const paginate = useCallback((newDirection: number) => {
     const newPage = page + newDirection;
@@ -42,52 +60,35 @@ export function EventViewer({
     }
   }, [page, pages.length]);
 
-  // --- LÓGICA DE TOQUE INTELIGENTE (VERTICAL) ---
+  // --- LÓGICA DE TOQUE (Swipe) ---
   const handleTouchStart = (e: React.TouchEvent) => {
-    // Guarda onde o dedo tocou inicialmente
     touchStartY.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (navDirection !== "vertical") return;
-
     const touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchStartY.current - touchEndY; // Positivo = Swipe Up (Próximo)
-    const threshold = 60; // Sensibilidade
+    const deltaY = touchStartY.current - touchEndY;
+    const threshold = 60;
     const container = scrollContainerRef.current;
-
     if (!container) return;
-
-    // Lógica: 
-    // 1. Swipe UP (Ir para Próximo) -> Só se estivermos no final do scroll
-    // 2. Swipe DOWN (Ir para Anterior) -> Só se estivermos no topo do scroll
 
     const isAtBottom = Math.abs(container.scrollHeight - container.scrollTop - container.clientHeight) < 2;
     const isAtTop = container.scrollTop === 0;
 
-    // Próximo Slide
-    if (deltaY > threshold && isAtBottom) {
-      paginate(1);
-    }
-    
-    // Slide Anterior
-    if (deltaY < -threshold && isAtTop) {
-      paginate(-1);
-    }
+    if (deltaY > threshold && isAtBottom) paginate(1);
+    if (deltaY < -threshold && isAtTop) paginate(-1);
   };
 
-  // --- LÓGICA DE ARRASTO (HORIZONTAL - FRAMER MOTION) ---
   const onDragEnd = (e: any, { offset, velocity }: any) => {
     const swipeConfidenceThreshold = 10000;
     const swipePowerX = Math.abs(offset.x) * velocity.x;
-
     if (navDirection === "horizontal") {
       if (offset.x < -50 || swipePowerX < -swipeConfidenceThreshold) paginate(1);
       else if (offset.x > 50 || swipePowerX > swipeConfidenceThreshold) paginate(-1);
     }
   };
 
-  // Teclado
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (navDirection === "horizontal") {
@@ -102,7 +103,7 @@ export function EventViewer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [paginate, navDirection]);
 
-  // --- VARIANTES DE ANIMAÇÃO ---
+  // Variantes
   const variants = {
     slide: {
       enter: (direction: number) => {
@@ -144,6 +145,7 @@ export function EventViewer({
   };
 
   const currentVariant = (variants as any)[navEffect] || variants.slide;
+  const navBtnClass = "absolute z-50 p-2.5 rounded-full shadow-2xl bg-white/80 backdrop-blur-md border border-white/50 text-slate-800 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-200";
 
   if (!pages || pages.length === 0) return <div>Sem conteúdo.</div>;
 
@@ -161,129 +163,98 @@ export function EventViewer({
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden select-none p-4">
-      <EventInteractionProvider>
-        <div 
-          className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"
-          style={{ perspective: "1000px" }} 
-        >
-          {/* BOTÕES DE NAVEGAÇÃO (Apenas Desktop) */}
-          <div className="hidden md:block">
+      
+      {/* Container do Telemóvel */}
+      <div 
+        className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"
+        style={{ perspective: "1000px" }} 
+      >
+        
+        {/* --- CORREÇÃO AQUI: INTRO SCREEN DENTRO DO MOCKUP --- */}
+        {!isEditorPreview && !hasEntered && (
+          <IntroScreen 
+            title={pages[0]?.content?.title || "Bem-vindo"} 
+            subtitle="Você tem um convite especial"
+            coverImage={pages[0]?.content?.image}
+            guestName={guestName}
+            onEnter={handleEnterEvent}
+          />
+        )}
+        {/* --------------------------------------------------- */}
+
+        <EventInteractionProvider>
+            {/* Botões de Navegação */}
             {page > 0 && (
-              <button
-                onClick={() => paginate(-1)}
-                className={cn(
-                  "absolute z-50 h-8 w-8 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                  navDirection === "horizontal" ? "left-4 top-1/2 -translate-y-1/2" : "top-4 left-1/2 -translate-x-1/2"
-                )}
-              >
-                {navDirection === "horizontal" ? <ChevronLeft className="w-5 h-5 text-slate-800" /> : <ChevronUp className="w-5 h-5 text-slate-800" />}
+              <button onClick={() => paginate(-1)} className={cn(navBtnClass, navDirection === "horizontal" ? "left-3 top-1/2 -translate-y-1/2" : "top-4 left-1/2 -translate-x-1/2")}>
+                {navDirection === "horizontal" ? <ChevronLeft className="w-6 h-6" /> : <ChevronUp className="w-6 h-6" />}
               </button>
             )}
             {page < pages.length - 1 && (
-              <button
-                onClick={() => paginate(1)}
-                className={cn(
-                  "absolute z-50 h-8 w-8 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                  navDirection === "horizontal" ? "right-4 top-1/2 -translate-y-1/2" : "bottom-12 left-1/2 -translate-x-1/2"
-                )}
-              >
-                {navDirection === "horizontal" ? <ChevronRight className="w-5 h-5 text-slate-800" /> : <ChevronDown className="w-5 h-5 text-slate-800" />}
+              <button onClick={() => paginate(1)} className={cn(navBtnClass, navDirection === "horizontal" ? "right-3 top-1/2 -translate-y-1/2" : "bottom-14 left-1/2 -translate-x-1/2")}>
+                {navDirection === "horizontal" ? <ChevronRight className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
               </button>
             )}
-          </div>
 
-          <AnimatePresence initial={false} custom={direction} mode="popLayout">
-            <motion.div
-              key={page}
-              custom={direction}
-              variants={currentVariant}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                y: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.3 },
-                rotateX: { duration: 0.5 },
-              }}
-              
-              // --- CORREÇÃO DE ARRASTO ---
-              // Se for Vertical, DESATIVAMOS o drag do Framer Motion para não bloquear o scroll
-              drag={navDirection === "horizontal" ? "x" : false}
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.5}
-              onDragEnd={onDragEnd}
-              // --------------------------
-
-              className="h-full w-full absolute inset-0 z-0 flex flex-col bg-white"
-              style={{
-                backgroundColor: pageStyles.backgroundColor,
-                backgroundImage: pageStyles.backgroundImage ? `url(${pageStyles.backgroundImage})` : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                // Removemos touch-action fixo para permitir a lógica manual funcionar
-              }}
-            >
-              {pageStyles.backgroundImage && (
-                <div className="absolute inset-0 z-0 pointer-events-none" style={{ backgroundColor: `rgba(0,0,0,${pageStyles.backgroundOpacity})` }} />
-              )}
-
-              {/* 
-                  CONTAINER COM SCROLL 
-                  Ouvimos os toques aqui para detetar quando o utilizador quer mudar de slide
-              */}
-              <div
-                ref={scrollContainerRef}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                className="w-full h-full overflow-y-auto no-scrollbar relative z-10 flex flex-col"
+            {/* Slides */}
+            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+              <motion.div
+                key={page}
+                custom={direction}
+                variants={currentVariant}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, y: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.3 } }}
+                drag={navDirection === "horizontal" ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.5}
+                onDragEnd={onDragEnd}
+                className="h-full w-full absolute inset-0 z-0 flex flex-col bg-white"
                 style={{
-                  paddingTop: `${pageStyles.paddingTop}px`,
-                  paddingBottom: `${pageStyles.paddingBottom}px`,
-                  paddingLeft: `${pageStyles.paddingLeft}px`,
-                  paddingRight: `${pageStyles.paddingRight}px`,
+                  backgroundColor: pageStyles.backgroundColor,
+                  backgroundImage: pageStyles.backgroundImage ? `url(${pageStyles.backgroundImage})` : "none",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
                 }}
               >
-                <div className="flex flex-col min-h-full">
-                  {activePage.blocks.map((block: any) => (
-                    <PublicBlockRenderer key={block.id} block={block} isPreview={isEditorPreview} />
-                  ))}
-                  {/* Espaço extra no final para facilitar o swipe up no último elemento */}
-                  <div className="h-10 w-full shrink-0" />
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+                {pageStyles.backgroundImage && ( <div className="absolute inset-0 z-0 pointer-events-none" style={{ backgroundColor: `rgba(0,0,0,${pageStyles.backgroundOpacity})` }} /> )}
 
-          {/* INDICADORES */}
-          <div 
-             className={cn(
-               "absolute z-50 flex justify-center gap-2 pointer-events-none transition-all",
-               navDirection === "horizontal" 
-                 ? "bottom-4 left-0 right-0 flex-row" 
-                 : "right-2 top-1/2 -translate-y-1/2 flex-col"
-             )}
-          >
-            {pages.map((_, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "rounded-full shadow-sm transition-all duration-300 backdrop-blur-sm",
-                  idx === page ? "bg-slate-900" : "bg-slate-400/40",
-                  navDirection === "horizontal" 
-                     ? (idx === page ? "w-4 h-1.5" : "w-1.5 h-1.5")
-                     : (idx === page ? "h-4 w-1.5" : "h-1.5 w-1.5")
-                )}
-              />
-            ))}
-          </div>
-        </div>
-      </EventInteractionProvider>
+                <div
+                  ref={scrollContainerRef}
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                  className="w-full h-full overflow-y-auto no-scrollbar relative z-10 flex flex-col"
+                  style={{
+                    paddingTop: `${pageStyles.paddingTop}px`,
+                    paddingBottom: `${pageStyles.paddingBottom}px`,
+                    paddingLeft: `${pageStyles.paddingLeft}px`,
+                    paddingRight: `${pageStyles.paddingRight}px`,
+                    touchAction: navDirection === "horizontal" ? "pan-y" : "pan-x"
+                  }}
+                >
+                  <div className="flex flex-col min-h-full">
+                    {activePage.blocks.map((block: any) => (
+                      <PublicBlockRenderer key={block.id} block={block} isPreview={isEditorPreview} />
+                    ))}
+                    <div className="h-20 w-full shrink-0" />
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Dots */}
+            <div className={cn("absolute z-40 flex justify-center gap-2 pointer-events-none transition-all", navDirection === "horizontal" ? "bottom-4 left-0 right-0 flex-row" : "right-2 top-1/2 -translate-y-1/2 flex-col")}>
+              {pages.map((_, idx) => (
+                <div key={idx} className={cn("rounded-full shadow-sm transition-all duration-300 backdrop-blur-sm border border-white/20", idx === page ? "bg-white scale-125" : "bg-white/40", navDirection === "horizontal" ? (idx === page ? "w-4 h-1.5" : "w-1.5 h-1.5") : (idx === page ? "h-4 w-1.5" : "h-1.5 w-1.5"))} />
+              ))}
+            </div>
+        </EventInteractionProvider>
+      </div>
 
       {settings?.music?.isEnabled && settings?.music?.url && (
         <BackgroundMusicPlayer
           url={settings.music.url}
-          autoPlay={settings.music.autoPlay}
+          autoPlay={playMusic}
         />
       )}
 

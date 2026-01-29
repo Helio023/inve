@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -10,8 +8,16 @@ import { Button } from "@/components/ui/button";
 import { RsvpBlock } from "./rsvp-block";
 import { DEFAULT_STYLES } from "@/features/editor/types";
 import { MenuRenderer } from "@/features/editor/components/blocks/menu-render";
+import { ScheduleRenderer } from "@/features/editor/components/blocks/schedule-render";
+import { CarouselRenderer } from "@/features/editor/components/blocks/carousel-render";
 
-export function PublicBlockRenderer({ block, isPreview = false }: { block: any, isPreview?: boolean }) {
+export function PublicBlockRenderer({
+  block,
+  isPreview = false,
+}: {
+  block: any;
+  isPreview?: boolean;
+}) {
   const { type, content, styles: blockStyles } = block;
 
   const s = { ...DEFAULT_STYLES, ...blockStyles };
@@ -30,10 +36,18 @@ export function PublicBlockRenderer({ block, isPreview = false }: { block: any, 
     const diff = target - now;
     if (diff > 0) {
       setTimeLeft({
-        d: Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, "0"),
-        h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, "0"),
-        m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, "0"),
-        s: Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, "0"),
+        d: Math.floor(diff / (1000 * 60 * 60 * 24))
+          .toString()
+          .padStart(2, "0"),
+        h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+          .toString()
+          .padStart(2, "0"),
+        m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+          .toString()
+          .padStart(2, "0"),
+        s: Math.floor((diff % (1000 * 60)) / 1000)
+          .toString()
+          .padStart(2, "0"),
       });
     }
   }, [content?.date, type]);
@@ -105,8 +119,10 @@ export function PublicBlockRenderer({ block, isPreview = false }: { block: any, 
   // --- CORREÇÃO DE SINTAXE AQUI ---
   const getEmbedUrl = (url: string) => {
     if (!url) return "";
-    if (url.includes("youtube.com/watch?v=")) return url.replace("watch?v=", "embed/");
-    if (url.includes("youtu.be/")) return `https://www.youtube.com/embed/${url.split("/").pop()}`;
+    if (url.includes("youtube.com/watch?v="))
+      return url.replace("watch?v=", "embed/");
+    if (url.includes("youtu.be/"))
+      return `https://www.youtube.com/embed/${url.split("/").pop()}`;
     return url;
   };
   // --------------------------------
@@ -225,17 +241,20 @@ export function PublicBlockRenderer({ block, isPreview = false }: { block: any, 
         />
       )}
 
-     {type === "VIDEO" && content.url && (
+      {type === "CAROUSEL" && <CarouselRenderer content={content} styles={s} />}
+
+      {type === "VIDEO" && content.url && (
         <div className="w-full h-full min-h-[200px] overflow-hidden rounded-lg relative bg-black">
           <iframe
             src={(() => {
               let src = getEmbedUrl(content.url);
               const params = [];
               if (s.videoAutoplay) params.push("autoplay=1");
-              if (s.videoMuted) params.push("mute=1"); 
-              if (s.videoLoop) params.push("loop=1&playlist=" + src.split("/").pop()); 
+              if (s.videoMuted) params.push("mute=1");
+              if (s.videoLoop)
+                params.push("loop=1&playlist=" + src.split("/").pop());
               if (!s.videoControls) params.push("controls=0");
-              
+
               return params.length > 0 ? `${src}?${params.join("&")}` : src;
             })()}
             className="w-full h-full absolute inset-0"
@@ -246,7 +265,7 @@ export function PublicBlockRenderer({ block, isPreview = false }: { block: any, 
           />
         </div>
       )}
-      
+
       {/* MAPA CORRIGIDO (Transparente) */}
       {type === "MAP" && (
         <div
@@ -359,8 +378,12 @@ export function PublicBlockRenderer({ block, isPreview = false }: { block: any, 
       )}
 
       {type === "RSVP" && (
-        <div className={cn(isPreview ? "pointer-events-auto" : "pointer-events-auto")}>
-           <RsvpBlock content={content} styles={s} isEditorPreview={isPreview} />
+        <div
+          className={cn(
+            isPreview ? "pointer-events-auto" : "pointer-events-auto",
+          )}
+        >
+          <RsvpBlock content={content} styles={s} isEditorPreview={isPreview} />
         </div>
       )}
 
@@ -379,7 +402,11 @@ export function PublicBlockRenderer({ block, isPreview = false }: { block: any, 
           {[...Array(content.cols || 1)].map((_, i) => (
             <div key={i} className="flex flex-col">
               {(content.children?.[`col${i}`] || []).map((subBlock: any) => (
-                <PublicBlockRenderer key={subBlock.id} block={subBlock} isPreview={isPreview} />
+                <PublicBlockRenderer
+                  key={subBlock.id}
+                  block={subBlock}
+                  isPreview={isPreview}
+                />
               ))}
             </div>
           ))}
@@ -387,12 +414,10 @@ export function PublicBlockRenderer({ block, isPreview = false }: { block: any, 
       )}
 
       {type === "MENU" && (
-        <MenuRenderer 
-          content={content} 
-          styles={s} 
-          isPreview={isPreview} 
-        />
+        <MenuRenderer content={content} styles={s} isPreview={isPreview} />
       )}
+
+      {type === "SCHEDULE" && <ScheduleRenderer content={content} styles={s} />}
     </motion.div>
   );
 }

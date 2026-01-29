@@ -20,6 +20,8 @@ import { DEFAULT_STYLES } from "../types";
 import { RsvpBlock } from "@/components/rsvp-block";
 import { CountdownRenderer } from "./blocks/countdown-renderer";
 import { MenuRenderer } from "./blocks/menu-render";
+import { ScheduleRenderer } from "./blocks/schedule-render";
+import { CarouselRenderer } from "./blocks/carousel-render";
 
 export const BlockRenderer = ({
   block,
@@ -213,14 +215,14 @@ export const BlockRenderer = ({
         </p>
       )}
 
-      {/* IMAGE: Alterado para ocupar 100% do container e remover altura automática */}
+     
       {block.type === "IMAGE" &&
         (block.content.url ? (
           <img
             src={block.content.url}
             style={{
               width: "100%",
-              height: "100%", // Força preenchimento da altura definida pelo utilizador
+              height: "100%",
               display: "block",
               objectFit: s.objectFit as any,
             }}
@@ -231,15 +233,16 @@ export const BlockRenderer = ({
             SEM IMAGEM
           </div>
         ))}
-
-      {/* VIDEO: Removido aspect-video para respeitar dimensões do utilizador */}
+      {block.type === "CAROUSEL" && (
+        <CarouselRenderer content={block.content} styles={s} />
+      )}
+  
       {block.type === "VIDEO" && (
         <div className="w-full h-full bg-slate-950 flex items-center justify-center text-white">
           <Video className="w-10 h-10 opacity-50" />
         </div>
       )}
 
-      {/* MAPA: Removido aspect-video para respeitar dimensões do utilizador */}
       {block.type === "MAP" && (
         <div
           style={{
@@ -378,6 +381,9 @@ export const BlockRenderer = ({
           styles={s}
           isPreview={isPreview}
         />
+      )}
+      {block.type === "SCHEDULE" && (
+        <ScheduleRenderer content={block.content} styles={s} />
       )}
     </motion.div>
   );

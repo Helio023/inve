@@ -22,6 +22,35 @@ const INITIAL_BLOCK_DATA: Record<BlockType, any> = {
       }
     ] 
   }, 
+   SCHEDULE: {
+    title: "Programa do Evento",
+    items: [
+      { 
+        time: "09:00", 
+        endTime: "09:30", 
+        activity: "Receção e Credenciação", 
+        location: "Hall de Entrada", 
+        speaker: "Equipa de Staff", 
+        description: "Entrega de crachás e welcome coffee." 
+      },
+      { 
+        time: "10:00", 
+        endTime: "11:00",
+        activity: "O Futuro da Tecnologia", 
+        location: "Auditório Principal",
+        speaker: "Ana Pereira (CEO)",
+        description: "" 
+      }
+    ]
+  },
+    CAROUSEL: {
+    images: [], 
+    autoplay: true,
+    interval: 3, 
+    effect: "slide", 
+    height: "300px" 
+  },
+
 };
 
 export function useEditor(initialPages: IPage[] = []) {

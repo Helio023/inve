@@ -4,11 +4,12 @@ export const SITE_CONFIG = {
 };
 
 export interface PlanDefinition {
-  key: string; // Identificador único no código (slug)
+  key: string;
   name: string;
   description: string;
   price: number;
   isPopular?: boolean;
+
   credits: {
     wedding: number;
     birthday: number;
@@ -17,30 +18,29 @@ export interface PlanDefinition {
   };
 }
 
-
 export const PLANS: PlanDefinition[] = [
   {
     key: "starter",
     name: "Starter",
-    description: "Ideal para freelancers. 1 Convite de qualquer tipo.",
+    description: "Ideal para freelancers. Experimente a plataforma.",
     price: 1199,
-    credits: { wedding: 1, birthday: 1, corporate: 1 },
+    credits: { wedding: 1, birthday: 1, corporate: 0 }, 
     isPopular: false,
   },
   {
     key: "pro",
     name: "Profissional",
-    description: "O mais vendido. 5 Convites para expandir seu negócio.",
+    description: "O mais vendido. Expanda o seu negócio.",
     price: 3199,
-    credits: { wedding: 5, birthday: 5, corporate: 5 },
+    credits: { wedding: 3, birthday: 5, corporate: 2 },
     isPopular: true,
   },
   {
     key: "elite",
     name: "Agência Elite",
-    description: "Volume alto. 20 Convites com suporte prioritário.",
+    description: "Volume alto com suporte prioritário.",
     price: 6199,
-    credits: { wedding: 20, birthday: 20, corporate: 20 },
+    credits: { wedding: 10, birthday: 15, corporate: 10 },
     isPopular: false,
   },
 ];
