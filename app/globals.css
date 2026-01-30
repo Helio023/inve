@@ -46,10 +46,7 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-/* 
-  PALETA INVITE SAAS: ROYAL BLUE & SLATE 
-  Cores convertidas para OKLCH para suportar a v4 do Tailwind.
-*/
+
 :root {
   --radius: 0.75rem; /* 12px - Mais moderno que o padrão */
 
@@ -156,6 +153,18 @@
   --sidebar-accent-foreground: oklch(0.98 0.01 240);
   --sidebar-border: oklch(0.25 0.03 240);
   --sidebar-ring: oklch(0.65 0.18 260);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Compensa a altura da Navbar fixa */
+}
+
+
+@media (max-width: 768px) {
+  html {
+    scroll-padding-top: 70px;
+  }
 }
 
 @layer base {

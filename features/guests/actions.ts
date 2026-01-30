@@ -22,6 +22,13 @@ export async function addGuestAction(formData: FormData) {
     const phone = formData.get("phone") as string;
     const maxAdults = Number(formData.get("maxAdults") || 1);
 
+    const validUntilString = formData.get("validUntil") as string;
+    const validUntil = validUntilString
+      ? new Date(validUntilString)
+      : undefined;
+    const tableName = formData.get("tableName") as string;
+    const sessionLabel = formData.get("sessionLabel") as string;
+
     await validateOwnership(eventId);
 
     const event = await Event.findById(eventId).select("agencyId");
@@ -32,11 +39,14 @@ export async function addGuestAction(formData: FormData) {
       agencyId: event.agencyId,
       name,
       phone,
-
       inviteToken: uuidv4().slice(0, 8),
       status: "PENDING",
       confirmedAdults: 0,
+
+      tableName: tableName || undefined,
+      sessionLabel: sessionLabel || undefined,
       maxAllowedGuests: maxAdults,
+      validUntil: validUntil,
     });
 
     revalidatePath(`/dashboard/events/${eventId}/guests`);
@@ -46,7 +56,6 @@ export async function addGuestAction(formData: FormData) {
     return { error: "Erro ao adicionar convidado." };
   }
 }
-
 export async function deleteGuestAction(guestId: string, eventId: string) {
   try {
     await connectDB();
@@ -59,88 +68,47 @@ export async function deleteGuestAction(guestId: string, eventId: string) {
   }
 }
 
-
-// export async function submitRsvpAction(formData: FormData) {
-//   try {
-//     await connectDB();
-    
-//     const token = formData.get('token') as string;
-//     const status = formData.get('status') as 'CONFIRMED' | 'DECLINED' | 'PENDING';
-//     const adults = Number(formData.get('adults') || 1);
-//     const kids = Number(formData.get('kids') || 0);
-//     const message = formData.get('message') as string;
-
-//     // 1. Validar Token
-//     const guest = await Guest.findOne({ inviteToken: token });
-    
-//     if (!guest) {
-//       return { error: "Convite inválido ou expirado." };
-//     }
-
-//     // 2. Atualizar Dados
-//     guest.status = status;
-//     guest.confirmedAdults = status === 'CONFIRMED' ? adults : 0;
-//     guest.confirmedKids = status === 'CONFIRMED' ? kids : 0;
-//     guest.messageToHosts = message;
-//     guest.hasOpened = true; 
-    
-//     await guest.save();
-
- 
-//     revalidatePath(`/dashboard/guests`);
-
-//     return { success: true };
-
-//   } catch (error) {
-//     console.error("Erro no RSVP:", error);
-//     return { error: "Erro ao enviar resposta." };
-//   }
-// }
-
-
 export async function submitRsvpAction(formData: FormData) {
   try {
     await connectDB();
-    
-    const token = formData.get('token') as string;
-    const status = formData.get('status') as 'CONFIRMED' | 'DECLINED' | 'PENDING';
-    const adults = Number(formData.get('adults') || 1);
-    const kids = Number(formData.get('kids') || 0);
-    const message = formData.get('message') as string;
 
-    const menuChoicesRaw = formData.get('menuChoices') as string;
+    const token = formData.get("token") as string;
+    const status = formData.get("status") as
+      | "CONFIRMED"
+      | "DECLINED"
+      | "PENDING";
+    const adults = Number(formData.get("adults") || 1);
+    const kids = Number(formData.get("kids") || 0);
+    const message = formData.get("message") as string;
+
+    const menuChoicesRaw = formData.get("menuChoices") as string;
     const menuChoices = menuChoicesRaw ? JSON.parse(menuChoicesRaw) : [];
 
     const guest = await Guest.findOne({ inviteToken: token });
-    
+
     if (!guest) {
       return { error: "Convite inválido ou expirado." };
     }
 
-  
     guest.status = status;
-    guest.confirmedAdults = status === 'CONFIRMED' ? adults : 0;
-    guest.confirmedKids = status === 'CONFIRMED' ? kids : 0;
+    guest.confirmedAdults = status === "CONFIRMED" ? adults : 0;
+    guest.confirmedKids = status === "CONFIRMED" ? kids : 0;
     guest.messageToHosts = message;
-    guest.hasOpened = true; 
-    
+    guest.hasOpened = true;
 
     if (menuChoices && menuChoices.length > 0) {
       guest.menuChoices = menuChoices;
     }
-    
-    
+
     await guest.save();
 
- 
-    revalidatePath(`/dashboard/guests`); 
-    
+    revalidatePath(`/dashboard/guests`);
+
     if (guest.eventId) {
-        revalidatePath(`/dashboard/events/${guest.eventId}/guests`);
+      revalidatePath(`/dashboard/events/${guest.eventId}/guests`);
     }
 
     return { success: true };
-
   } catch (error) {
     console.error("Erro no RSVP:", error);
     return { error: "Erro ao enviar resposta." };

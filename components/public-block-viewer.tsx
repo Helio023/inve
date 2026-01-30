@@ -14,9 +14,11 @@ import { CarouselRenderer } from "@/features/editor/components/blocks/carousel-r
 export function PublicBlockRenderer({
   block,
   isPreview = false,
+  guest,
 }: {
   block: any;
   isPreview?: boolean;
+  guest?: any;
 }) {
   const { type, content, styles: blockStyles } = block;
 
@@ -365,7 +367,7 @@ export function PublicBlockRenderer({
             <div key={i} className="flex flex-col items-center">
               <div
                 className="w-12 h-12 flex items-center justify-center font-bold text-xl transition-all"
-                style={countdownItemStyle} // Usa os estilos específicos definidos acima
+                style={countdownItemStyle} 
               >
                 {t.v}
               </div>
@@ -383,7 +385,7 @@ export function PublicBlockRenderer({
             isPreview ? "pointer-events-auto" : "pointer-events-auto",
           )}
         >
-          <RsvpBlock content={content} styles={s} isEditorPreview={isPreview} />
+          <RsvpBlock content={content} styles={s} isEditorPreview={isPreview} guest={guest}/>
         </div>
       )}
 

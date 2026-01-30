@@ -48,7 +48,7 @@ export default async function EventGuestsPage({ params }: PageProps) {
     baseUrl = `${protocol}://${agency.slug}.${rootDomain}/${event.slug}`;
   }
 
-  // --- CORREÇÃO DE SERIALIZAÇÃO AQUI ---
+
   const serializedGuests = guests.map((g: any) => ({
     ...g,
     _id: g._id.toString(),
@@ -59,9 +59,7 @@ export default async function EventGuestsPage({ params }: PageProps) {
       : new Date().toISOString(),
     updatedAt: g.updatedAt
       ? g.updatedAt.toISOString()
-      : new Date().toISOString(),
-    // Limpeza profunda do menuChoices para evitar erros de objeto
-    menuChoices: g.menuChoices ? JSON.parse(JSON.stringify(g.menuChoices)) : [],
+      : new Date().toISOString(),    menuChoices: g.menuChoices ? JSON.parse(JSON.stringify(g.menuChoices)) : [],
   }));
   // --------------------------------------
 

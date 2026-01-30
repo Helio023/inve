@@ -12,7 +12,7 @@ const handleAuth = async () => {
 
 export const ourFileRouter = {
   // Rota de Imagens (que já existia)
-  eventImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+  eventImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(async () => await handleAuth())
     .onUploadComplete(async ({ metadata, file }) => {
       console.log("Upload de imagem por:", metadata.userId);

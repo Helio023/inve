@@ -41,10 +41,7 @@ export function MobileSidebar() {
           </SheetDescription>
         </div>
 
-        {/* 
-           Passamos setOpen para a Sidebar.
-           Isso permite que a Sidebar feche o Sheet ao clicar em um link.
-        */}
+      
         <Sidebar setOpen={setOpen} />
       </SheetContent>
     </Sheet>

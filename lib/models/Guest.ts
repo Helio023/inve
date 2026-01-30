@@ -14,6 +14,10 @@ export interface IGuest extends Document {
   confirmedKids: number;
 
   maxAllowedGuests: number;
+  validUntil?: Date;
+
+  tableName?: string;
+  sessionLabel?: string;
 
   menuChoices?: { section: string; item: string }[];
 
@@ -51,12 +55,16 @@ const GuestSchema = new Schema<IGuest>(
     confirmedKids: { type: Number, default: 0 },
 
     maxAllowedGuests: { type: Number, default: 1 },
+    validUntil: { type: Date },
+
+    tableName: String,
+    sessionLabel: String,
 
     menuChoices: [
       {
         section: String,
         item: String,
-        _id: false
+        _id: false,
       },
     ],
 

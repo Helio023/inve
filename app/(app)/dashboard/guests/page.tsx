@@ -30,7 +30,7 @@ import {
   CalendarDays,
   Filter,
   User as UserIcon,
-  Utensils, // <--- NOVO ÍCONE
+  Utensils, 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
