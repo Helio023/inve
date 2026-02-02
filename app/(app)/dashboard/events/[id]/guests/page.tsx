@@ -17,32 +17,39 @@ interface PageProps {
 
 export default async function EventGuestsPage({ params }: PageProps) {
   const { id } = await params;
+
+  // 1. Verificação de Sessão
   const session = await auth();
   if (!session) redirect("/login");
 
   await connectDB();
 
-  // 1. Buscar Dados do Evento e Agência
+  // 2. Buscar Dados do Evento e Agência
   const event = await Event.findById(id).lean();
   if (!event) return <div>Evento não encontrado</div>;
 
   const agency = await Agency.findById(event.agencyId).lean();
   if (!agency) return <div>Agência não encontrada</div>;
 
-  // 2. Buscar Lista de Convidados
+  // 3. Buscar Lista de Convidados
   const guests = await Guest.find({ eventId: id })
     .sort({ createdAt: -1 })
     .lean();
 
-  // 3. Montar URL Base
+  // 4. Montar URL Base (CORRIGIDO)
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
-  const cleanDomain = rootDomain.replace(/^https?:\/\//, "");
+
+  const cleanDomain = rootDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+
   const isLocalhost = cleanDomain.includes("localhost");
+  const isVercelDomain = cleanDomain.includes("vercel.app");
+
+  // Define o protocolo baseado no ambiente
   const protocol = isLocalhost ? "http" : "https";
 
   let baseUrl = "";
-   if (isLocalhost) {
-    
+
+  if (isLocalhost || isVercelDomain) {
     baseUrl = `${protocol}://${cleanDomain}/sites/${agency.slug}/${event.slug}`;
   } else {
     baseUrl = `${protocol}://${agency.slug}.${cleanDomain}/${event.slug}`;
@@ -102,16 +109,19 @@ export default async function EventGuestsPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Grid Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Formulário de Adicionar */}
         <div className="lg:col-span-1">
           <AddGuestForm eventId={id} />
         </div>
 
+        {/* Lista de Convidados */}
         <div className="lg:col-span-2">
           <GuestList
             guests={serializedGuests}
             eventId={id}
-            baseUrl={baseUrl}
+            baseUrl={baseUrl} // Agora passa a URL correta dependendo do ambiente
             eventDescription={event.description}
           />
         </div>
