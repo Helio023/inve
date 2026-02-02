@@ -22,6 +22,7 @@ import { CountdownRenderer } from "./blocks/countdown-renderer";
 import { MenuRenderer } from "./blocks/menu-render";
 import { ScheduleRenderer } from "./blocks/schedule-render";
 import { CarouselRenderer } from "./blocks/carousel-render";
+import { Button } from "@/components/ui/button";
 
 export const BlockRenderer = ({
   block,
@@ -215,7 +216,6 @@ export const BlockRenderer = ({
         </p>
       )}
 
-     
       {block.type === "IMAGE" &&
         (block.content.url ? (
           <img
@@ -236,37 +236,34 @@ export const BlockRenderer = ({
       {block.type === "CAROUSEL" && (
         <CarouselRenderer content={block.content} styles={s} />
       )}
-  
+
       {block.type === "VIDEO" && (
         <div className="w-full h-full bg-slate-950 flex items-center justify-center text-white">
           <Video className="w-10 h-10 opacity-50" />
         </div>
       )}
+      
 
+      {/* --- CÓDIGO DO EDITOR (LIMPO / SEM ESTILOS FIXOS) --- */}
       {block.type === "MAP" && (
         <div
           style={{
             width: "100%",
             height: "100%",
-            minHeight: s.height === "auto" ? "200px" : undefined,
             display: "flex",
             flexDirection: "column",
+            // Mantemos apenas um min-height estrutural para o bloco não desaparecer se estiver em "Auto"
+            minHeight: s.height === "auto" ? "200px" : undefined, 
           }}
         >
-          {/* MOLDURA DO MAPA */}
-          <div
-            className="relative w-full flex-1 overflow-hidden"
-            style={{
-              backgroundColor: "transparent",
-
-              borderRadius: s.borderRadius ? `${s.borderRadius}px` : undefined,
-              borderWidth: s.borderWidth ? `${s.borderWidth}px` : undefined,
-              borderColor: s.borderColor,
-              borderStyle: s.borderStyle as any,
-            }}
-          >
+          {/* CONTAINER DO IFRAME (Ocupa o espaço restante) */}
+          <div style={{ position: "relative", width: "100%", flex: 1 }}>
+            
+            {/* Overlay invisível para permitir arrastar */}
             {!isPreview && (
-              <div className="absolute inset-0 z-10 cursor-move" />
+              <div 
+                style={{ position: "absolute", inset: 0, zIndex: 10, cursor: "move" }} 
+              />
             )}
 
             {block.content.link ? (
@@ -274,7 +271,8 @@ export const BlockRenderer = ({
                 width="100%"
                 height="100%"
                 loading="lazy"
-                style={{ border: 0 }}
+                title="Map Preview"
+                style={{ border: 0, display: "block", pointerEvents: "none" }}
                 src={
                   block.content.link.includes("embed")
                     ? block.content.link
@@ -282,37 +280,44 @@ export const BlockRenderer = ({
                 }
               />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                <MapPin className="w-8 h-8 opacity-50" />
-                <p className="text-[10px] uppercase font-bold mt-1">Mapa</p>
+              // Placeholder simples sem cores fixas (apenas cinza claro para indicar área)
+              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.05)" }}>
+                <MapPin className="w-8 h-8 opacity-20" />
               </div>
             )}
           </div>
 
-          {/* TEXTO DO ENDEREÇO (Mantendo estilos consistentes) */}
+  
           {block.content.address && (
-            <p
-              style={{
-                marginTop: "0.75rem", // mt-3 equivalente
-                fontSize: `${s.fontSize}px`,
-                fontWeight: s.fontWeight as any,
-                fontStyle: s.fontStyle as any,
-                fontFamily: s.fontFamily,
-                color: s.color, // <--- Garante que a cor funciona
-                textAlign: s.textAlign as any,
-              }}
-            >
-              {block.content.address}
-            </p>
+            <div style={{ width: "100%" }}>
+         
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: `${s.fontSize}px`,
+                  fontWeight: s.fontWeight as any,
+                  fontStyle: s.fontStyle as any,
+                  fontFamily: s.fontFamily,
+                  color: s.color,
+                  lineHeight: 1.4,
+                  textAlign: s.textAlign as any,
+                 
+                  paddingTop: "0.5em" 
+                }}
+              >
+                {block.content.address}
+              </p>
+            </div>
           )}
         </div>
       )}
-      {/* COUNTDOWN: Usa o componente isolado que criamos antes */}
+
+   
       {block.type === "COUNTDOWN" && (
         <CountdownRenderer date={block.content?.date} styles={block.styles} />
       )}
 
-      {/* RSVP: Renderiza o componente real */}
+     
       {block.type === "RSVP" && (
         <div
           className={cn(
@@ -385,6 +390,10 @@ export const BlockRenderer = ({
       {block.type === "SCHEDULE" && (
         <ScheduleRenderer content={block.content} styles={s} />
       )}
+
+
+     
+   
     </motion.div>
   );
 };

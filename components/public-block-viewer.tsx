@@ -268,29 +268,24 @@ export function PublicBlockRenderer({
         </div>
       )}
 
-      {/* MAPA CORRIGIDO (Transparente) */}
       {type === "MAP" && (
         <div
-          className="w-full h-full flex flex-col"
-          style={{ minHeight: s.height === "auto" ? "200px" : undefined }}
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: s.height === "auto" ? "200px" : undefined,
+          }}
         >
-          <div
-            className="w-full flex-1 relative overflow-hidden"
-            style={{
-              backgroundColor: "transparent",
-              borderRadius: `${s.borderRadius}px`,
-              borderWidth: `${s.borderWidth}px`,
-              borderColor: s.borderColor,
-              borderStyle: s.borderStyle as any,
-            }}
-          >
+          <div style={{ position: "relative", width: "100%", flex: 1 }}>
             {content.link ? (
               <iframe
                 width="100%"
                 height="100%"
                 loading="lazy"
                 title="Localização"
-                style={{ border: 0 }}
+                style={{ border: 0, display: "block" }}
                 src={
                   content.link.includes("embed")
                     ? content.link
@@ -298,60 +293,29 @@ export function PublicBlockRenderer({
                 }
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-slate-400">
-                <MapPin className="w-8 h-8" />
-              </div>
+              <div style={{ width: "100%", height: "100%" }} />
             )}
           </div>
 
-          <div
-            className="mt-3 flex flex-col gap-3"
-            style={{
-              alignItems:
-                s.textAlign === "left"
-                  ? "flex-start"
-                  : s.textAlign === "right"
-                    ? "flex-end"
-                    : "center",
-              textAlign: s.textAlign as any,
-            }}
-          >
-            {content.address && (
+          {content.address && (
+            <div style={{ width: "100%" }}>
               <p
-                className="leading-relaxed opacity-90"
                 style={{
+                  margin: 0,
                   fontFamily: s.fontFamily,
                   color: s.color,
                   fontSize: `${s.fontSize}px`,
                   fontWeight: s.fontWeight as any,
                   fontStyle: s.fontStyle as any,
+                  textAlign: s.textAlign as any,
+                  lineHeight: 1.4,
+                  paddingTop: "0.5em", // Espaçamento proporcional à fonte
                 }}
               >
                 {content.address}
               </p>
-            )}
-
-            {content.link && (
-              <Button
-                asChild
-                variant="outline"
-                style={{
-                  color: s.color,
-                  borderColor: s.color,
-                  borderRadius: "9999px",
-                }}
-                className="h-8 px-4 text-xs uppercase font-bold tracking-widest hover:bg-black/5 transition-colors"
-              >
-                <a
-                  href={content.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Abrir GPS
-                </a>
-              </Button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -367,7 +331,7 @@ export function PublicBlockRenderer({
             <div key={i} className="flex flex-col items-center">
               <div
                 className="w-12 h-12 flex items-center justify-center font-bold text-xl transition-all"
-                style={countdownItemStyle} 
+                style={countdownItemStyle}
               >
                 {t.v}
               </div>
@@ -385,7 +349,12 @@ export function PublicBlockRenderer({
             isPreview ? "pointer-events-auto" : "pointer-events-auto",
           )}
         >
-          <RsvpBlock content={content} styles={s} isEditorPreview={isPreview} guest={guest}/>
+          <RsvpBlock
+            content={content}
+            styles={s}
+            isEditorPreview={isPreview}
+            guest={guest}
+          />
         </div>
       )}
 
@@ -420,6 +389,7 @@ export function PublicBlockRenderer({
       )}
 
       {type === "SCHEDULE" && <ScheduleRenderer content={content} styles={s} />}
+
     </motion.div>
   );
 }

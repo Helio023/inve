@@ -20,6 +20,7 @@ interface EventViewerProps {
   pages: any[];
   isPublished?: boolean;
   isEditorPreview?: boolean;
+  
   settings?: {
     music?: { isEnabled: boolean; url?: string; autoPlay: boolean };
     navigation?: {
@@ -38,6 +39,7 @@ export function EventViewer({
   settings,
   guestName,
   guest,
+   
 }: EventViewerProps) {
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -216,7 +218,7 @@ export function EventViewer({
   const pageStyles = { ...DEFAULT_PAGE_STYLES, ...(activePage.styles || {}) };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden select-none p-0 md:p-4">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
       {/* Container do Telemóvel */}
       <div
         className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"
@@ -371,6 +373,7 @@ export function EventViewer({
         <BackgroundMusicPlayer url={settings.music.url} autoPlay={playMusic} />
       )}
 
+    
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;

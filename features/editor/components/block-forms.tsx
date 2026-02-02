@@ -30,7 +30,8 @@ const LABEL_MAP: Record<string, string> = {
   RSVP: "Confirmação",
   COLUMNS: "Colunas",
   SCHEDULE: "Programa",
-  CAROUSEL: "Carrossel"
+  CAROUSEL: "Carrossel",
+  DIVIDER: "Divisor",
 };
 
 // --- RADIOGRAFIA DE ESTILOS (CAPACIDADES) ---
@@ -41,10 +42,9 @@ const BLOCK_CAPABILITIES: Record<
     textColor: boolean;
     backgroundColor: boolean;
     sizing: boolean;
-    objectFit: boolean; 
+    objectFit: boolean;
   }
 > = {
-
   HERO: {
     typography: true,
     textColor: true,
@@ -53,7 +53,6 @@ const BLOCK_CAPABILITIES: Record<
     objectFit: true,
   },
 
-  // TEXT: Apenas texto e fundo. Tamanho sim. Fit não.
   TEXT: {
     typography: true,
     textColor: true,
@@ -62,7 +61,6 @@ const BLOCK_CAPABILITIES: Record<
     objectFit: false,
   },
 
-  // IMAGE: Sem texto. Fundo sim. Tamanho sim. Fit essencial.
   IMAGE: {
     typography: false,
     textColor: false,
@@ -71,7 +69,14 @@ const BLOCK_CAPABILITIES: Record<
     objectFit: true,
   },
 
-  // VIDEO: Sem texto. Fundo sim. Tamanho sim. Fit não (iframe trata disso).
+  DIVIDER: {
+    typography: false,
+    textColor: false,
+    backgroundColor: false,
+    sizing: true,
+    objectFit: false,
+  },
+
   VIDEO: {
     typography: false,
     textColor: false,
@@ -524,6 +529,8 @@ export const BlockSettingsManager = ({
             onUpdate={(newContent: any) => handleContentChange(newContent)}
           />
         )}
+
+     
       </TabsContent>
 
       {/* ABA DE DESIGN */}

@@ -42,6 +42,7 @@ import {
   ChevronRight,
   Utensils,
   CalendarDays,
+  Minus 
 } from "lucide-react";
 import {
   Sheet,
@@ -86,6 +87,7 @@ const Toolbox = ({
     { type: "MENU", label: "Menu", icon: Utensils, color: "text-amber-500" }, 
     { type: "SCHEDULE", label: "Programa", icon: CalendarDays, color: "text-blue-500" },
     { type: "CAROUSEL", label: "Galeria", icon: Images, color: "text-purple-500" },
+
     ...(!isNested
       ? [
           {
@@ -484,6 +486,8 @@ export function EditorClient({
           autoPlay={settings.music.autoPlay}
         />
       )}
+
+    
     </div>
   );
 }
