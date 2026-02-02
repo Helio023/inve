@@ -18,25 +18,25 @@ interface PageProps {
 export default async function EventGuestsPage({ params }: PageProps) {
   const { id } = await params;
 
-  // 1. Verificação de Sessão
+
   const session = await auth();
   if (!session) redirect("/login");
 
   await connectDB();
 
-  // 2. Buscar Dados do Evento e Agência
+
   const event = await Event.findById(id).lean();
   if (!event) return <div>Evento não encontrado</div>;
 
   const agency = await Agency.findById(event.agencyId).lean();
   if (!agency) return <div>Agência não encontrada</div>;
 
-  // 3. Buscar Lista de Convidados
+
   const guests = await Guest.find({ eventId: id })
     .sort({ createdAt: -1 })
     .lean();
 
-  // 4. Montar URL Base (CORRIGIDO)
+
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
 
   const cleanDomain = rootDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");

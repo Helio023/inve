@@ -13,7 +13,7 @@ interface Props {
   searchParams: Promise<{ c?: string }>;
 }
 
-// 1. Geração de Metadata (Mantém-se, mas adicionei a busca por imagem de forma segura)
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   await connectDB();
@@ -24,15 +24,47 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!event) return { title: "Evento não encontrado" };
 
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
+  const cleanDomain = rootDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+
+  let imageUrl = event.coverImage || "";
+  if (imageUrl && !imageUrl.startsWith("http")) {
+    imageUrl = `${protocol}://${cleanDomain}${imageUrl}`;
+  }
+
+  const finalImages = imageUrl 
+    ? [
+        { 
+          url: imageUrl, 
+          width: 1200,
+          height: 630,
+          alt: event.title 
+        }
+      ] 
+    : [];
+
   return {
     title: event.title,
     description: event.description || "Você recebeu um convite especial.",
+    metadataBase: new URL(`${protocol}://${cleanDomain}`), 
     openGraph: {
-      images: event.coverImage ? [{ url: event.coverImage }] : [],
+      title: event.title,
+      description: event.description || "Você recebeu um convite especial.",
+      url: `${protocol}://${cleanDomain}/${slug}`, 
+      siteName: "Nome da Sua App",
+      images: finalImages,
+      type: "website",
+    },
+  
+    twitter: {
+      card: "summary_large_image",
+      title: event.title,
+      description: event.description || "Você recebeu um convite especial.",
+      images: finalImages,
     },
   };
 }
-
 // 2. Componente da Página
 export default async function PublicEventPage({ params, searchParams }: Props) {
   const { site, slug } = await params;

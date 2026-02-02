@@ -216,7 +216,7 @@ export function EventViewer({
   const pageStyles = { ...DEFAULT_PAGE_STYLES, ...(activePage.styles || {}) };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden select-none p-4">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden select-none p-0 md:p-4">
       {/* Container do Telemóvel */}
       <div
         className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"

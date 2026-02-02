@@ -61,6 +61,3 @@ export default async function EventSettingsPage({ params }: PageProps) {
 }
 
 
-// Temas / Paletas de Cores (Presets)
-// Atualmente, o utilizador tem de escolher cores elemento a elemento.
-// Seria incrível ter um botão "Aplicar Tema Rústico" que muda todas as fontes e cores de uma vez.
