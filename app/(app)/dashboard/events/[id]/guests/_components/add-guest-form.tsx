@@ -79,7 +79,7 @@ export function AddGuestForm({ eventId }: { eventId: string }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxAdults">Máx. Pessoas</Label>
+              <Label htmlFor="maxAdults">Máx. Adultos</Label>
               <Input
                 id="maxAdults"
                 name="maxAdults"
@@ -88,6 +88,18 @@ export function AddGuestForm({ eventId }: { eventId: string }) {
                 defaultValue="1"
                 required
               />
+
+              <div className="space-y-2">
+                <Label htmlFor="maxKids">Máx. Crianças</Label>
+                <Input
+                  id="maxKids"
+                  name="maxKids"
+                  type="number"
+                  min="0"
+                  defaultValue="0"
+                  required
+                />
+              </div>
             </div>
           </div>
 

@@ -154,7 +154,7 @@ export function AudioUpload({ value, onChange, disabled }: AudioUploadProps) {
           Selecione o ficheiro MP3
         </p>
         <p className="text-[10px] text-slate-400">
-          Máximo 8MB
+          Máximo 4MB
         </p>
       </div>
     </div>

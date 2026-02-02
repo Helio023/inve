@@ -1,5 +1,3 @@
-
-
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import { Event } from "@/lib/models/Event";
@@ -38,16 +36,17 @@ export default async function EventGuestsPage({ params }: PageProps) {
 
   // 3. Montar URL Base
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
-  const isLocalhost = rootDomain.includes("localhost");
+  const cleanDomain = rootDomain.replace(/^https?:\/\//, "");
+  const isLocalhost = cleanDomain.includes("localhost");
   const protocol = isLocalhost ? "http" : "https";
 
   let baseUrl = "";
-  if (isLocalhost) {
-    baseUrl = `${protocol}://${rootDomain}/sites/${agency.slug}/${event.slug}`;
+   if (isLocalhost) {
+    
+    baseUrl = `${protocol}://${cleanDomain}/sites/${agency.slug}/${event.slug}`;
   } else {
-    baseUrl = `${protocol}://${agency.slug}.${rootDomain}/${event.slug}`;
+    baseUrl = `${protocol}://${agency.slug}.${cleanDomain}/${event.slug}`;
   }
-
 
   const serializedGuests = guests.map((g: any) => ({
     ...g,
@@ -59,9 +58,9 @@ export default async function EventGuestsPage({ params }: PageProps) {
       : new Date().toISOString(),
     updatedAt: g.updatedAt
       ? g.updatedAt.toISOString()
-      : new Date().toISOString(),    menuChoices: g.menuChoices ? JSON.parse(JSON.stringify(g.menuChoices)) : [],
+      : new Date().toISOString(),
+    menuChoices: g.menuChoices ? JSON.parse(JSON.stringify(g.menuChoices)) : [],
   }));
-  // --------------------------------------
 
   return (
     <div className="space-y-6">

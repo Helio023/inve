@@ -28,9 +28,9 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     onClientUploadComplete: (res) => {
       if (res && res.length > 0) {
         const uploadedUrl = res[0].url;
-        onChange(uploadedUrl); // Atualiza o form pai
+        onChange(uploadedUrl); 
 
-        // Limpa estado local para usar a URL final
+
         setFile(null);
         setLocalBlob(null);
 
@@ -64,20 +64,15 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // --- RENDERIZAÇÃO ---
-
-  // Se tiver imagem (seja local ou salva), mostra o preview
   if (imageToShow) {
     return (
       <div className="relative w-full h-52 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group">
-        {/* USANDO IMG PADRÃO PARA EVITAR ERROS DO NEXT/IMAGE */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageToShow}
           alt="Preview"
           className={cn(
             "w-full h-full object-cover transition-opacity duration-300",
-            isUploading ? "opacity-50" : "opacity-100"
+            isUploading ? "opacity-50" : "opacity-100",
           )}
         />
 
@@ -127,7 +122,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       onClick={() => fileInputRef.current?.click()}
       className={cn(
         "w-full h-40 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 p-4 flex flex-col items-center justify-center gap-3 text-center cursor-pointer transition-all hover:bg-slate-100 hover:border-blue-400 group",
-        disabled && "opacity-50 cursor-not-allowed"
+        disabled && "opacity-50 cursor-not-allowed",
       )}
     >
       <input

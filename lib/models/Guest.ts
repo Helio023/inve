@@ -12,6 +12,9 @@ export interface IGuest extends Document {
   status: "PENDING" | "CONFIRMED" | "DECLINED";
   confirmedAdults: number;
   confirmedKids: number;
+  arrivedAdults: number;
+  arrivedKids: number;
+  maxAllowedChildren: number;
 
   maxAllowedGuests: number;
   validUntil?: Date;
@@ -24,6 +27,8 @@ export interface IGuest extends Document {
   dietaryNotes?: string;
   songRequest?: string;
   messageToHosts?: string;
+  checkedIn: boolean;
+  checkedInAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +41,7 @@ const GuestSchema = new Schema<IGuest>(
       required: true,
       index: true,
     },
+
     agencyId: { type: Schema.Types.ObjectId, ref: "Agency", required: true },
     name: { type: String, required: true },
     phone: String,
@@ -52,10 +58,17 @@ const GuestSchema = new Schema<IGuest>(
       default: "PENDING",
     },
     confirmedAdults: { type: Number, default: 0 },
+    maxAllowedChildren: { type: Number, default: 0 },
     confirmedKids: { type: Number, default: 0 },
 
     maxAllowedGuests: { type: Number, default: 1 },
     validUntil: { type: Date },
+
+    checkedIn: { type: Boolean, default: false },
+    checkedInAt: { type: Date },
+
+    arrivedAdults: { type: Number, default: 0 },
+    arrivedKids: { type: Number, default: 0 },
 
     tableName: String,
     sessionLabel: String,
