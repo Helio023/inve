@@ -1,5 +1,5 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
-import { v4 as uuidv4 } from "uuid"; 
+import { v4 as uuidv4 } from "uuid";
 
 const TimelineItemSchema = new Schema({
   title: { type: String, required: true },
@@ -43,18 +43,29 @@ const RsvpConfigSchema = new Schema({
   showGuestList: { type: Boolean, default: false },
 });
 
-const EventSettingsSchema = new Schema({
-  music: {
-    isEnabled: { type: Boolean, default: false },
-    url: String,
-    autoPlay: { type: Boolean, default: false },
-    showControl: { type: Boolean, default: true },
+const EventSettingsSchema = new Schema(
+  {
+    music: {
+      isEnabled: { type: Boolean, default: false },
+      url: String,
+      autoPlay: { type: Boolean, default: false },
+      showControl: { type: Boolean, default: true },
+    },
+    navigation: {
+      direction: {
+        type: String,
+        enum: ["horizontal", "vertical"],
+        default: "horizontal",
+      },
+      effect: {
+        type: String,
+        enum: ["slide", "fade", "scale", "cube"],
+        default: "slide",
+      },
+    },
   },
-  navigation: {
-    direction: { type: String, enum: ["horizontal", "vertical"], default: "horizontal" },
-    effect: { type: String, enum: ["slide", "fade"], default: "slide" },
-  }
-}, { _id: false });
+  { _id: false },
+);
 
 // --- Interface Principal ---
 export interface IEvent extends Document {
@@ -64,12 +75,10 @@ export interface IEvent extends Document {
   eventType: "wedding" | "birthday" | "corporate" | "baby_shower" | "other";
   date: Date;
   hasPaid: boolean;
-  
-  
+
   clientName?: string;
   clientEmail?: string;
-  managementToken: string; 
-
+  managementToken: string;
 
   description?: string;
   coverImage?: string;
@@ -90,10 +99,10 @@ export interface IEvent extends Document {
       autoPlay: boolean;
       showControl: boolean;
     };
-  
+
     navigation?: {
       direction: "horizontal" | "vertical";
-      effect: "slide" | "fade";
+      effect: "slide" | "fade" | "scale" | "cube";
     };
   };
 
@@ -112,17 +121,15 @@ const EventSchema = new Schema<IEvent>(
     hasPaid: { type: Boolean, default: false },
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true, index: true },
-    
-   
+
     clientName: String,
     clientEmail: String,
-    managementToken: { 
-      type: String, 
-      default: () => uuidv4(), 
-      unique: true, 
-      index: true 
+    managementToken: {
+      type: String,
+      default: () => uuidv4(),
+      unique: true,
+      index: true,
     },
-    
 
     eventType: {
       type: String,
@@ -134,9 +141,9 @@ const EventSchema = new Schema<IEvent>(
 
     description: { type: String },
     coverImage: { type: String },
- 
+
     designContent: { type: Schema.Types.Mixed, default: [] },
-    
+
     timeline: [TimelineItemSchema],
     gifts: { type: GiftRegistrySchema, default: {} },
     rsvpConfig: { type: RsvpConfigSchema, default: {} },

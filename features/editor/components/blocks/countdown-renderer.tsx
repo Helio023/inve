@@ -1,21 +1,13 @@
+
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { DEFAULT_STYLES } from "../../types";
+import { getBackgroundStyle } from "@/features/editor/utils";
 
-export function CountdownRenderer({
-  date,
-  styles,
-}: {
-  date: string;
-  styles?: any;
-}) {
-  const [timeLeft, setTimeLeft] = useState({
-    d: "00",
-    h: "00",
-    m: "00",
-    s: "00",
-  });
+export function CountdownRenderer({ date, styles }: { date: string; styles?: any }) {
+  const [timeLeft, setTimeLeft] = useState({ d: "00", h: "00", m: "00", s: "00" });
 
   const calculateTime = useCallback(() => {
     if (!date) return;
@@ -42,39 +34,36 @@ export function CountdownRenderer({
 
   const s = { ...DEFAULT_STYLES, ...styles };
 
-  const getShadow = (shadowType: string) => {
-    if (shadowType === "sm") return "0 1px 2px rgba(0,0,0,0.05)";
-    if (shadowType === "md") return "0 4px 6px -1px rgba(0,0,0,0.1)";
-    if (shadowType === "lg") return "0 10px 15px -3px rgba(0,0,0,0.1)";
-    return "none";
-  };
-
+  // --- ESTILOS DE CAMADAS ---
+  
+  // 1. Box do Número (Item)
+  const itemBg = getBackgroundStyle(s.itemBackgroundColor);
   const boxStyle = {
-    backgroundColor: s.itemBackgroundColor || "transparent",
+    ...itemBg, // Suporta gradiente no item
     color: s.itemColor || s.color, 
-    borderRadius: `${s.itemBorderRadius || 0}px`,
-    borderWidth: `${s.itemBorderWidth || 0}px`,
-    // --- CORREÇÃO: Prioriza a cor da borda específica do item ---
-    borderColor: s.itemBorderColor || s.itemColor || "currentColor", 
-    // --- CORREÇÃO: Usa o estilo da borda específico do item ---
+    borderRadius: `${s.itemBorderRadius ?? 8}px`,
+    borderWidth: `${s.itemBorderWidth ?? 0}px`,
+    borderColor: s.itemBorderColor || s.itemColor || "currentColor",
     borderStyle: s.itemBorderStyle || "solid",
-    // ----------------------------------------------------------
-    boxShadow: getShadow(s.itemShadow),
+    boxShadow: s.itemShadow === "none" ? "none" : "0 2px 4px rgba(0,0,0,0.1)",
   };
 
+  // 2. O Número em si (Usa estilos de 'title' se definidos, senão herda)
   const numberStyle = {
-    fontSize: `${s.fontSize}px`,
-    fontWeight: s.fontWeight,
-    fontFamily: s.fontFamily,
-    fontStyle: s.fontStyle,
-    color: s.itemColor || s.color,
+    fontSize: s.titleFontSize ? `${s.titleFontSize}px` : `${s.fontSize * 1.5}px`,
+    fontWeight: s.titleFontWeight || "bold",
+    fontFamily: s.titleFontFamily || s.fontFamily,
+    color: s.titleColor || s.itemColor || s.color,
   };
 
+  // 3. A Legenda (Dias, Horas) - Usa estilos de 'label'
   const labelStyle = {
-    fontSize: `${s.fontSize * 0.4}px`,
-    fontWeight: s.fontWeight,
-    fontFamily: s.fontFamily,
-    color: s.color,
+    fontSize: s.labelFontSize ? `${s.labelFontSize}px` : `${s.fontSize * 0.5}px`,
+    fontWeight: s.labelFontWeight || "normal",
+    fontFamily: s.fontFamily, // Geralmente herda a fonte global
+    color: s.labelColor || s.color, // Cor global se não houver específica
+    textTransform: (s.labelTextTransform || "uppercase") as any,
+    marginTop: "4px"
   };
 
   return (
@@ -87,15 +76,12 @@ export function CountdownRenderer({
       ].map((t, i) => (
         <div key={i} className="flex flex-col items-center">
           <div
-            className="flex aspect-square min-w-[3.5rem] items-center justify-center font-bold leading-none shadow-sm transition-all"
+            className="flex aspect-square min-w-[3.5rem] items-center justify-center leading-none transition-all px-2"
             style={{ ...boxStyle, ...numberStyle }}
           >
             {t.v}
           </div>
-          <span
-            className="mt-1 font-bold uppercase tracking-wider opacity-80"
-            style={labelStyle}
-          >
+          <span style={labelStyle}>
             {t.l}
           </span>
         </div>

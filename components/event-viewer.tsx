@@ -15,12 +15,14 @@ import { DEFAULT_PAGE_STYLES } from "@/features/editor/types";
 import { EventInteractionProvider } from "@/features/editor/components/event-interaction-context";
 import { BackgroundMusicPlayer } from "./BackgroundMusicPlayer";
 import { IntroScreen } from "./IntroScreen";
+// Import correto da função utilitária
+import { getBackgroundStyle } from "@/features/editor/utils";
 
 interface EventViewerProps {
   pages: any[];
   isPublished?: boolean;
   isEditorPreview?: boolean;
-  
+  disableMusic?: boolean; // Adicionado para consistência
   settings?: {
     music?: { isEnabled: boolean; url?: string; autoPlay: boolean };
     navigation?: {
@@ -36,10 +38,10 @@ export function EventViewer({
   pages,
   isPublished,
   isEditorPreview,
+  disableMusic = false,
   settings,
   guestName,
   guest,
-   
 }: EventViewerProps) {
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -127,7 +129,7 @@ export function EventViewer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [paginate, navDirection]);
 
-  // Variantes
+  // Variantes (Mantidas iguais)
   const variants = {
     slide: {
       enter: (direction: number) => {
@@ -217,6 +219,9 @@ export function EventViewer({
 
   const pageStyles = { ...DEFAULT_PAGE_STYLES, ...(activePage.styles || {}) };
 
+  // 1. Calcula o estilo base (Sólido ou Gradiente)
+  const backgroundStyle = getBackgroundStyle(pageStyles.backgroundColor);
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
       {/* Container do Telemóvel */}
@@ -294,19 +299,26 @@ export function EventViewer({
               onDragEnd={onDragEnd}
               className="h-full w-full absolute inset-0 z-0 flex flex-col bg-white"
               style={{
-                backgroundColor: pageStyles.backgroundColor,
-                backgroundImage: pageStyles.backgroundImage
-                  ? `url(${pageStyles.backgroundImage})`
-                  : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                // 2. Aplica o estilo base (Gradiente ou Cor Sólida)
+                ...backgroundStyle,
+
+                // 3. Aplica Imagem de Fundo (APENAS se existir)
+                ...(pageStyles.backgroundImage
+                  ? {
+                      backgroundImage: `url(${pageStyles.backgroundImage})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                    }
+                  : {}),
               }}
             >
               {pageStyles.backgroundImage && (
                 <div
                   className="absolute inset-0 z-0 pointer-events-none"
                   style={{
-                    backgroundColor: `rgba(0,0,0,${pageStyles.backgroundOpacity})`,
+                    backgroundColor: "black",
+                    opacity: pageStyles.backgroundOpacity || 0,
                   }}
                 />
               )}
@@ -369,11 +381,10 @@ export function EventViewer({
         </EventInteractionProvider>
       </div>
 
-      {settings?.music?.isEnabled && settings?.music?.url && (
+      {!disableMusic && settings?.music?.isEnabled && settings?.music?.url && (
         <BackgroundMusicPlayer url={settings.music.url} autoPlay={playMusic} />
       )}
 
-    
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;

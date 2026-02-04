@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { submitRsvpAction } from "@/features/guests/actions";
 import { DEFAULT_STYLES } from "@/features/editor/types";
 import { useEventInteraction } from "@/features/editor/components/event-interaction-context";
+import { getBackgroundStyle } from "@/features/editor/utils";
 
 interface RsvpBlockProps {
   content: any;
@@ -34,25 +35,19 @@ export function RsvpBlock({
   const searchParams = useSearchParams();
   const token = searchParams.get("c");
 
-  // Inicializar estado com base nos dados do convidado
   const [status, setStatus] = useState<"PENDING" | "CONFIRMED" | "DECLINED">(
     guest?.status || "PENDING",
   );
   const [loading, setLoading] = useState(false);
-
-  // Se o convidado já respondeu, mostramos a tela de sucesso
   const [isDone, setIsDone] = useState(
     !isEditorPreview && guest && guest.status !== "PENDING",
   );
 
-  // Acessar contexto do Menu (se existir)
   let menuSelections: any[] = [];
   try {
     const ctx = useEventInteraction();
     menuSelections = ctx.menuSelections;
-  } catch (e) {
-    // Ignora se estiver fora do provider
-  }
+  } catch (e) {}
 
   const s = { ...DEFAULT_STYLES, ...styles };
 
@@ -63,64 +58,75 @@ export function RsvpBlock({
     return "none";
   };
 
+  // --- ESTILOS DE CAMADAS (ATUALIZADO) ---
+
+  // 1. Estilo dos Campos (Inputs)
+  const inputBg = getBackgroundStyle(s.inputBackgroundColor);
   const inputStyle = {
-    backgroundColor: s.inputBackgroundColor,
-    color: s.inputTextColor,
+    ...inputBg,
+    color: s.inputTextColor || s.inputColor, // Suporte legado
     borderColor: s.inputBorderColor,
     borderRadius: `${s.inputBorderRadius || 8}px`,
     boxShadow: getShadow(s.inputShadow),
     fontSize: `${s.fontSize}px`,
     borderWidth: `${s.inputBorderWidth ?? 1}px`,
     borderStyle: s.inputBorderStyle || "solid",
+    fontFamily: s.fontFamily, // Herda a fonte global
   };
 
+  // 2. Estilo do Botão (Btn)
+  const btnBg = getBackgroundStyle(s.btnBackgroundColor);
   const btnStyle = {
-    backgroundColor: s.btnBackgroundColor,
-    color: s.btnTextColor,
-    borderRadius: `${s.btnRadius}px`,
+    ...btnBg,
+    color: s.btnColor || s.btnTextColor,
+    borderRadius: `${s.btnBorderRadius || s.btnRadius}px`,
     boxShadow: getShadow(s.btnShadow),
-    fontSize: `${s.fontSize * 1.1}px`,
+    fontSize: s.btnFontSize ? `${s.btnFontSize}px` : `${s.fontSize * 1.1}px`,
+    fontWeight: s.btnFontWeight || "bold",
+    fontFamily: s.btnFontFamily || s.fontFamily,
     borderWidth: `${s.btnBorderWidth || 0}px`,
     borderColor: s.btnBorderColor || "transparent",
     borderStyle: s.btnBorderStyle || "solid",
-    opacity: 1,
+    paddingTop: s.btnPaddingTop ? `${s.btnPaddingTop}px` : undefined,
+    paddingBottom: s.btnPaddingBottom ? `${s.btnPaddingBottom}px` : undefined,
   };
 
-  const baseTextStyle = {
-    color: s.color,
-    fontFamily: s.fontFamily,
-    fontSize: `${s.fontSize}px`,
-    fontWeight: s.fontWeight,
-    fontStyle: s.fontStyle,
+  // 3. Estilo das Etiquetas (Labels)
+  const labelStyle = {
+    color: s.labelColor || s.color,
+    fontFamily: s.fontFamily, // Labels geralmente herdam
+    fontSize: s.labelFontSize ? `${s.labelFontSize}px` : `${s.fontSize * 0.85}px`,
+    fontWeight: s.labelFontWeight || "bold",
+    textTransform: (s.labelTextTransform || "uppercase") as any,
+    display: "block",
+    marginBottom: "0.25rem"
   };
 
+  // 4. Estilo do Título Principal
   const titleStyle = {
-    ...baseTextStyle,
-    fontSize: `${s.fontSize * 1.5}px`,
-    textAlign: s.textAlign,
+    color: s.titleColor || s.color,
+    fontFamily: s.titleFontFamily || s.fontFamily,
+    fontSize: s.titleFontSize ? `${s.titleFontSize}px` : `${s.fontSize * 1.5}px`,
+    fontWeight: s.titleFontWeight || "bold",
+    textTransform: (s.titleTextTransform || "none") as any,
+    textAlign: s.titleTextAlign ? (s.titleTextAlign as any) : (s.textAlign as any),
     marginBottom: "1.5rem",
-    lineHeight: 1.2,
+    lineHeight: s.titleLineHeight || 1.2,
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Validação de token apenas se não for preview
     if (!token && !isEditorPreview) {
       toast.error("Link inválido.");
       return;
     }
-
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     formData.append("token", token || "");
     formData.append("status", status);
-
-    // Anexar escolhas do menu
     if (menuSelections.length > 0) {
       formData.append("menuChoices", JSON.stringify(menuSelections));
     }
-
     const res = await submitRsvpAction(formData);
     if (res.error) {
       toast.error(res.error);
@@ -130,7 +136,6 @@ export function RsvpBlock({
     setLoading(false);
   };
 
-  // --- TELA DE SUCESSO (PERSISTENTE) ---
   if (isDone && !isEditorPreview) {
     const isConfirmed = status === "CONFIRMED";
     return (
@@ -160,7 +165,6 @@ export function RsvpBlock({
               : "Lamentamos que não possa vir."
             : "A sua resposta foi enviada com sucesso."}
         </p>
-
         <button
           onClick={() => setIsDone(false)}
           className="text-xs underline text-slate-400 mt-4 hover:text-slate-600"
@@ -171,25 +175,25 @@ export function RsvpBlock({
     );
   }
 
-  // --- FORMULÁRIO DE RESPOSTA ---
   return (
     <div className="w-full">
       <div className="flex flex-col">
-        <h2 className="font-bold" style={titleStyle}>
+        <h2 style={titleStyle}>
           {content.title || "Confirme sua Presença"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
+            {/* OPÇÃO SIM */}
             <label
               style={{
                 ...inputStyle,
                 textAlign: "center",
                 cursor: "pointer",
                 borderColor:
-                  status === "CONFIRMED" ? "#22c55e" : inputStyle.borderColor,
+                  status === "CONFIRMED" ? "#22c55e" : s.inputBorderColor,
               }}
-              className={`border p-4 flex flex-col items-center gap-2 transition-all ${status === "CONFIRMED" ? "ring-2 ring-green-500 ring-offset-1" : "hover:brightness-95"}`}
+              className={`p-4 flex flex-col items-center gap-2 transition-all ${status === "CONFIRMED" ? "ring-2 ring-green-500 ring-offset-1" : "hover:brightness-95"}`}
             >
               <input
                 type="radio"
@@ -201,12 +205,12 @@ export function RsvpBlock({
                 className="w-8 h-8"
                 style={{
                   color: status === "CONFIRMED" ? "#16a34a" : s.inputTextColor,
-                  opacity: status === "CONFIRMED" ? 1 : 0.7,
+                  opacity: status === "CONFIRMED" ? 1 : 0.5,
                 }}
               />
               <span
-                className="font-bold"
                 style={{
+                  fontWeight: "bold",
                   fontSize: `${s.fontSize * 0.9}px`,
                   color: status === "CONFIRMED" ? "#15803d" : s.inputTextColor,
                 }}
@@ -222,9 +226,9 @@ export function RsvpBlock({
                 textAlign: "center",
                 cursor: "pointer",
                 borderColor:
-                  status === "DECLINED" ? "#ef4444" : inputStyle.borderColor,
+                  status === "DECLINED" ? "#ef4444" : s.inputBorderColor,
               }}
-              className={`border p-4 flex flex-col items-center gap-2 transition-all ${status === "DECLINED" ? "ring-2 ring-red-500 ring-offset-1" : "hover:brightness-95"}`}
+              className={`p-4 flex flex-col items-center gap-2 transition-all ${status === "DECLINED" ? "ring-2 ring-red-500 ring-offset-1" : "hover:brightness-95"}`}
             >
               <input
                 type="radio"
@@ -236,12 +240,12 @@ export function RsvpBlock({
                 className="w-8 h-8"
                 style={{
                   color: status === "DECLINED" ? "#dc2626" : s.inputTextColor,
-                  opacity: status === "DECLINED" ? 1 : 0.7,
+                  opacity: status === "DECLINED" ? 1 : 0.5,
                 }}
               />
               <span
-                className="font-bold"
                 style={{
+                  fontWeight: "bold",
                   fontSize: `${s.fontSize * 0.9}px`,
                   color: status === "DECLINED" ? "#b91c1c" : s.inputTextColor,
                 }}
@@ -253,7 +257,6 @@ export function RsvpBlock({
 
           {status === "CONFIRMED" && (
             <div className="space-y-4 animate-in slide-in-from-top-2 fade-in">
-              {/* Aviso de Limite de Convidados */}
               {guest?.maxAllowedGuests > 0 && (
                 <div className="text-xs text-center p-2 bg-blue-50 text-blue-600 rounded border border-blue-100 flex items-center justify-center gap-2">
                   <AlertCircle className="w-3 h-3" />
@@ -262,8 +265,8 @@ export function RsvpBlock({
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 text-left">
-                  <Label style={baseTextStyle}>Adultos</Label>
+                <div className="text-left">
+                  <Label style={labelStyle}>Adultos</Label>
                   <Input
                     type="number"
                     name="adults"
@@ -275,8 +278,8 @@ export function RsvpBlock({
                   />
                 </div>
 
-                <div className="space-y-2 text-left">
-                  <Label style={baseTextStyle}>Crianças</Label>
+                <div className="text-left">
+                  <Label style={labelStyle}>Crianças</Label>
                   <Input
                     type="number"
                     name="kids"
@@ -292,8 +295,8 @@ export function RsvpBlock({
             </div>
           )}
 
-          <div className="space-y-2 text-left">
-            <Label style={baseTextStyle}>Mensagem (Opcional)</Label>
+          <div className="text-left">
+            <Label style={labelStyle}>Mensagem (Opcional)</Label>
             <Textarea
               name="message"
               placeholder="Deixe uma mensagem..."
@@ -305,7 +308,7 @@ export function RsvpBlock({
 
           <Button
             type="submit"
-            className="w-full h-12 font-bold transition-transform active:scale-95 hover:brightness-110"
+            className="w-full h-12 transition-transform active:scale-95 hover:brightness-110"
             disabled={loading || status === "PENDING"}
             style={btnStyle}
           >
