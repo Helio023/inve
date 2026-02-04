@@ -2,6 +2,7 @@ import connectDB from "@/lib/db";
 import { Event } from "@/lib/models/Event";
 import { Guest } from "@/lib/models/Guest";
 import { notFound } from "next/navigation";
+
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { CheckInDialog } from "../_components/check-in-dialog";
 import { ExportButton } from "@/app/(app)/dashboard/guests/_components/export-button";
 import { Badge } from "@/components/ui/badge";
+import { ClientDate } from "../_components/client-date";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -61,33 +63,33 @@ export default async function HostDashboardPage({
 
   const agency = event.agencyId as any;
 
-  // 2. Buscar Todos os Convidados
   const rawGuests = await Guest.find({ eventId: id }).sort({ name: 1 }).lean();
 
-  // --- CORREÇÃO DE SANITIZAÇÃO (RESOLVE O ERRO DE "PLAIN OBJECT") ---
   const guests = rawGuests.map((g: any) => {
-    // Truque: JSON stringify/parse remove todos os métodos internos do Mongoose (Buffers, toJSON, etc.)
-    // tornando o objeto puramente "Plain".
     const plainGuest = JSON.parse(JSON.stringify(g));
 
     return {
       ...plainGuest,
-      // Forçamos strings nos IDs para garantir
+
       _id: plainGuest._id ? plainGuest._id.toString() : "",
       eventId: plainGuest.eventId ? plainGuest.eventId.toString() : "",
-      agencyId: plainGuest.agencyId ? plainGuest.agencyId.toString() : null, // <--- AQUI ESTAVA O ERRO
-      
-      // Garantir números (evita NaN)
+      agencyId: plainGuest.agencyId?.toString() || null, 
+
       confirmedAdults: plainGuest.confirmedAdults || 0,
       confirmedKids: plainGuest.confirmedKids || 0,
       arrivedAdults: plainGuest.arrivedAdults || 0,
       arrivedKids: plainGuest.arrivedKids || 0,
-      
-      // Garantir strings ISO nas datas
-      checkedInAt: plainGuest.checkedInAt ? new Date(plainGuest.checkedInAt).toISOString() : null,
-      createdAt: plainGuest.createdAt ? new Date(plainGuest.createdAt).toISOString() : null,
-      updatedAt: plainGuest.updatedAt ? new Date(plainGuest.updatedAt).toISOString() : null,
-      
+
+      checkedInAt: plainGuest.checkedInAt
+        ? new Date(plainGuest.checkedInAt).toISOString()
+        : null,
+      createdAt: plainGuest.createdAt
+        ? new Date(plainGuest.createdAt).toISOString()
+        : null,
+      updatedAt: plainGuest.updatedAt
+        ? new Date(plainGuest.updatedAt).toISOString()
+        : null,
+
       // Menu
       menuChoices: plainGuest.menuChoices || [],
     };
@@ -100,23 +102,24 @@ export default async function HostDashboardPage({
 
   const adultsExpected = confirmedRSVP.reduce(
     (acc, g) => acc + g.confirmedAdults,
-    0
+    0,
   );
   const kidsExpected = confirmedRSVP.reduce(
     (acc, g) => acc + g.confirmedKids,
-    0
+    0,
   );
 
   // 4. Cálculos de Portaria
   const presentFamilies = confirmedRSVP.filter((g) => g.checkedIn);
   const totalPeopleInside = presentFamilies.reduce(
     (acc, g) => acc + g.arrivedAdults + g.arrivedKids,
-    0
+    0,
   );
 
-  const progressPercentage = confirmedRSVP.length > 0 
-    ? (presentFamilies.length / confirmedRSVP.length) * 100 
-    : 0;
+  const progressPercentage =
+    confirmedRSVP.length > 0
+      ? (presentFamilies.length / confirmedRSVP.length) * 100
+      : 0;
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-24 font-sans">
@@ -331,14 +334,7 @@ export default async function HostDashboardPage({
                                   variant="outline"
                                   className="text-[9px] py-0 h-4 bg-green-100 text-green-700 border-green-200"
                                 >
-                                  Entrou{" "}
-                                  {new Date(
-                                    guest.checkedInAt
-                                  ).toLocaleTimeString("pt-MZ", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    timeZone: "Africa/Maputo"
-                                  })}
+                                  <ClientDate date={guest.checkedInAt} />
                                 </Badge>
                               )}
                             </div>
