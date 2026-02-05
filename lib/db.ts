@@ -1,4 +1,8 @@
 import mongoose from 'mongoose';
+import "@/lib/models/Event";
+import "@/lib/models/Guest";
+import "@/lib/models/Agency"; 
+import "@/lib/models/User";
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
@@ -6,7 +10,7 @@ if (!MONGODB_URI) {
   throw new Error('Por favor defina MONGODB_URI no .env');
 }
 
-// Cache global para evitar reconexões em Hot Reload
+
 let cached = global.mongoose;
 
 if (!cached) {

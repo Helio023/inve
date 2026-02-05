@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -15,14 +16,13 @@ import { DEFAULT_PAGE_STYLES } from "@/features/editor/types";
 import { EventInteractionProvider } from "@/features/editor/components/event-interaction-context";
 import { BackgroundMusicPlayer } from "./BackgroundMusicPlayer";
 import { IntroScreen } from "./IntroScreen";
-// Import correto da função utilitária
 import { getBackgroundStyle } from "@/features/editor/utils";
 
 interface EventViewerProps {
   pages: any[];
   isPublished?: boolean;
   isEditorPreview?: boolean;
-  disableMusic?: boolean; // Adicionado para consistência
+  disableMusic?: boolean;
   settings?: {
     music?: { isEnabled: boolean; url?: string; autoPlay: boolean };
     navigation?: {
@@ -44,10 +44,8 @@ export function EventViewer({
   guest,
 }: EventViewerProps) {
   const [[page, direction], setPage] = useState([0, 0]);
-
   const [hasEntered, setHasEntered] = useState(false);
   const [playMusic, setPlayMusic] = useState(false);
-
   const touchStartY = useRef(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -60,32 +58,25 @@ export function EventViewer({
 
   const handleEnterEvent = () => {
     setHasEntered(true);
-    if (settings?.music?.isEnabled) {
-      setPlayMusic(true);
-    }
+    if (settings?.music?.isEnabled) setPlayMusic(true);
   };
 
   useEffect(() => {
-    if (isEditorPreview) {
-      setHasEntered(true);
-    }
+    if (isEditorPreview) setHasEntered(true);
   }, [isEditorPreview]);
 
   const paginate = useCallback(
     (newDirection: number) => {
       const newPage = page + newDirection;
-      if (newPage >= 0 && newPage < pages.length) {
+      if (newPage >= 0 && newPage < pages.length)
         setPage([newPage, newDirection]);
-      }
     },
     [page, pages.length],
   );
 
-  // --- LÓGICA DE TOQUE (Swipe) ---
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
   };
-
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (navDirection !== "vertical") return;
     const touchEndY = e.changedTouches[0].clientY;
@@ -93,13 +84,11 @@ export function EventViewer({
     const threshold = 60;
     const container = scrollContainerRef.current;
     if (!container) return;
-
     const isAtBottom =
       Math.abs(
         container.scrollHeight - container.scrollTop - container.clientHeight,
       ) < 2;
     const isAtTop = container.scrollTop === 0;
-
     if (deltaY > threshold && isAtBottom) paginate(1);
     if (deltaY < -threshold && isAtTop) paginate(-1);
   };
@@ -129,7 +118,6 @@ export function EventViewer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [paginate, navDirection]);
 
-  // Variantes (Mantidas iguais)
   const variants = {
     slide: {
       enter: (direction: number) => {
@@ -150,29 +138,9 @@ export function EventViewer({
       exit: { opacity: 0, zIndex: 0 },
     },
     scale: {
-      enter: (direction: number) => {
-        if (navDirection === "vertical")
-          return {
-            y: direction > 0 ? "100%" : "-100%",
-            scale: 1,
-            opacity: 1,
-            zIndex: 2,
-          };
-        return {
-          x: direction > 0 ? "100%" : "-100%",
-          scale: 1,
-          opacity: 1,
-          zIndex: 2,
-        };
-      },
-      center: { x: 0, y: 0, scale: 1, opacity: 1, zIndex: 2 },
-      exit: (direction: number) => ({
-        x: 0,
-        y: 0,
-        scale: 0.9,
-        opacity: 0.5,
-        zIndex: 0,
-      }),
+      enter: { opacity: 0, scale: 0.8, zIndex: 1 },
+      center: { opacity: 1, scale: 1, zIndex: 2 },
+      exit: { opacity: 0, scale: 1.1, zIndex: 0 },
     },
     cube: {
       enter: (direction: number) => ({
@@ -182,21 +150,13 @@ export function EventViewer({
         scale: 0.8,
         zIndex: 1,
       }),
-      center: {
-        rotateX: 0,
-        rotateY: 0,
-        opacity: 1,
-        scale: 1,
-        zIndex: 2,
-        transition: { duration: 0.4 },
-      },
+      center: { rotateX: 0, rotateY: 0, opacity: 1, scale: 1, zIndex: 2 },
       exit: (direction: number) => ({
         rotateX: navDirection === "vertical" ? (direction < 0 ? 90 : -90) : 0,
         rotateY: navDirection === "horizontal" ? (direction < 0 ? 90 : -90) : 0,
         opacity: 0,
         scale: 0.8,
         zIndex: 0,
-        transition: { duration: 0.4 },
       }),
     },
   };
@@ -206,8 +166,7 @@ export function EventViewer({
     "absolute z-50 p-2.5 rounded-full shadow-2xl bg-white/80 backdrop-blur-md border border-white/50 text-slate-800 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-200";
 
   if (!pages || pages.length === 0) return <div>Sem conteúdo.</div>;
-
-  if (!isPublished && !isEditorPreview) {
+  if (!isPublished && !isEditorPreview)
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
         <Lock className="w-12 h-12 text-slate-500 mb-4" />
@@ -215,16 +174,12 @@ export function EventViewer({
         <p className="text-slate-400 mt-2">Este link ainda não está ativo.</p>
       </div>
     );
-  }
 
   const pageStyles = { ...DEFAULT_PAGE_STYLES, ...(activePage.styles || {}) };
-
-  // 1. Calcula o estilo base (Sólido ou Gradiente)
   const backgroundStyle = getBackgroundStyle(pageStyles.backgroundColor);
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
-      {/* Container do Telemóvel */}
       <div
         className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"
         style={{ perspective: "1000px" }}
@@ -241,9 +196,7 @@ export function EventViewer({
             sessionLabel={guest?.sessionLabel}
           />
         )}
-
         <EventInteractionProvider>
-          {/* Botões de Navegação */}
           {page > 0 && (
             <button
               onClick={() => paginate(-1)}
@@ -278,9 +231,7 @@ export function EventViewer({
               )}
             </button>
           )}
-
-          {/* Slides */}
-          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+          <AnimatePresence initial={true} custom={direction} mode="popLayout">
             <motion.div
               key={page}
               custom={direction}
@@ -289,9 +240,10 @@ export function EventViewer({
               animate="center"
               exit="exit"
               transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                y: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.3 },
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                duration: 0.5,
               }}
               drag={navDirection === "horizontal" ? "x" : false}
               dragConstraints={{ left: 0, right: 0 }}
@@ -299,10 +251,7 @@ export function EventViewer({
               onDragEnd={onDragEnd}
               className="h-full w-full absolute inset-0 z-0 flex flex-col bg-white"
               style={{
-                // 2. Aplica o estilo base (Gradiente ou Cor Sólida)
                 ...backgroundStyle,
-
-                // 3. Aplica Imagem de Fundo (APENAS se existir)
                 ...(pageStyles.backgroundImage
                   ? {
                       backgroundImage: `url(${pageStyles.backgroundImage})`,
@@ -322,7 +271,6 @@ export function EventViewer({
                   }}
                 />
               )}
-
               <div
                 ref={scrollContainerRef}
                 onTouchStart={handleTouchStart}
@@ -344,6 +292,7 @@ export function EventViewer({
                       block={block}
                       isPreview={isEditorPreview}
                       guest={guest}
+                      canAnimate={hasEntered} 
                     />
                   ))}
                   <div className="h-20 w-full shrink-0" />
@@ -351,8 +300,6 @@ export function EventViewer({
               </div>
             </motion.div>
           </AnimatePresence>
-
-          {/* Dots */}
           <div
             className={cn(
               "absolute z-40 flex justify-center gap-2 pointer-events-none transition-all",
@@ -380,11 +327,9 @@ export function EventViewer({
           </div>
         </EventInteractionProvider>
       </div>
-
       {!disableMusic && settings?.music?.isEnabled && settings?.music?.url && (
         <BackgroundMusicPlayer url={settings.music.url} autoPlay={playMusic} />
       )}
-
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;
