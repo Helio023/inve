@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -179,9 +178,9 @@ export function EventViewer({
   const backgroundStyle = getBackgroundStyle(pageStyles.backgroundColor);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
+    <div className="min-h-screen-safe bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
       <div
-        className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"
+        className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl h-screen-safe md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"
         style={{ perspective: "1000px" }}
       >
         {!isEditorPreview && !hasEntered && (
@@ -292,7 +291,7 @@ export function EventViewer({
                       block={block}
                       isPreview={isEditorPreview}
                       guest={guest}
-                      canAnimate={hasEntered} 
+                      canAnimate={hasEntered}
                     />
                   ))}
                   <div className="h-20 w-full shrink-0" />

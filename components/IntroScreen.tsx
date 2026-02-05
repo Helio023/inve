@@ -29,11 +29,34 @@ export function IntroScreen({
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setShowButton(true), 500);
+    const timer = setTimeout(() => setShowButton(true), 500);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleEnter = () => {
+  const handleEnter = async () => {
+
+    try {
+      const AudioContext =
+        window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const audioCtx = new AudioContext();
+        if (audioCtx.state === "suspended") {
+          await audioCtx.resume();
+        }
+
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+      }
+    } catch (e) {
+      console.warn("AudioContext não suportado ou bloqueado:", e);
+    }
+
+   
     setIsOpen(true);
+
     setTimeout(() => {
       onEnter();
     }, 800);
@@ -43,13 +66,15 @@ export function IntroScreen({
     <AnimatePresence>
       {!isOpen && (
         <motion.div
+          key="intro-screen"
+          initial={{ opacity: 1 }}
           exit={{
             opacity: 0,
             scale: 1.1,
             filter: "blur(10px)",
-            transition: { duration: 0.8 },
+            transition: { duration: 0.8, ease: "easeInOut" },
           }}
-          className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white overflow-hidden"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900 text-white overflow-hidden"
         >
           {/* Fundo com imagem + Overlay escuro */}
           {coverImage && (
@@ -126,9 +151,9 @@ export function IntroScreen({
               )}
             </motion.div>
 
-            {/* BOTÃO DE SELO */}
+            {/* BOTÃO DE ABERTURA */}
             {isExpired ? (
-              <div className="bg-red-500/90 text-white p-4 rounded-xl border border-red-400 backdrop-blur-md animate-in zoom-in">
+              <div className="bg-red-500/90 text-white p-4 rounded-xl border border-red-400 backdrop-blur-md">
                 <p className="font-bold uppercase tracking-widest text-xs mb-1">
                   Convite Expirado
                 </p>
@@ -142,14 +167,14 @@ export function IntroScreen({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleEnter}
-                  className="group relative flex items-center justify-center w-24 h-24 mt-4 cursor-pointer"
+                  className="group relative flex items-center justify-center w-24 h-24 mt-4 cursor-pointer outline-none"
                 >
-                  {/* Efeito de "Pulse" */}
+                  {/* Efeitos Visuais de Pulse */}
                   <div className="absolute inset-0 rounded-full bg-white/10 animate-ping opacity-75" />
                   <div className="absolute inset-2 rounded-full bg-white/20 blur-md" />
 
-                  {/* O Botão Físico */}
-                  <div className="relative w-full h-full bg-amber-100 rounded-full shadow-[0_0_30px_rgba(251,191,36,0.3)] flex items-center justify-center border-4 border-slate-900/10">
+                  {/* O Botão Principal (Selo) */}
+                  <div className="relative w-full h-full bg-amber-100 rounded-full shadow-[0_0_30px_rgba(251,191,36,0.3)] flex items-center justify-center border-4 border-slate-900/10 transition-colors group-active:bg-amber-200">
                     <MailOpen className="w-8 h-8 text-slate-900 group-hover:scale-110 transition-transform" />
                   </div>
                 </motion.button>
@@ -162,7 +187,7 @@ export function IntroScreen({
               transition={{ delay: 1.5 }}
               className="text-[10px] uppercase tracking-widest text-white/40 mt-2"
             >
-              Toque para abrir
+              {isExpired ? "" : "Toque para abrir"}
             </motion.p>
           </div>
         </motion.div>
