@@ -38,7 +38,7 @@ export function StepCredentials({ form }: StepProps) {
           <FormItem>
             <FormLabel>Senha</FormLabel>
             <FormControl>
-              {/* Usando o novo componente */}
+          
               <PasswordInput placeholder="******" {...field} />
             </FormControl>
             <FormMessage />
@@ -53,7 +53,7 @@ export function StepCredentials({ form }: StepProps) {
           <FormItem>
             <FormLabel>Confirmar Senha</FormLabel>
             <FormControl>
-              {/* Usando o novo componente */}
+            
               <PasswordInput placeholder="******" {...field} />
             </FormControl>
             <FormMessage />

@@ -12,33 +12,37 @@ interface ImageUploadProps {
   value?: string;
   onChange: (url: string) => void;
   disabled?: boolean;
+  endpoint?: "eventImage" | "agencyLogo";
 }
 
-export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
+export function ImageUpload({
+  value,
+  onChange,
+  disabled,
+  endpoint = "eventImage",
+}: ImageUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [localBlob, setLocalBlob] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Lógica de Prioridade: Mostra o blob local se existir, senão mostra o valor do banco
   const imageToShow = localBlob || value;
 
-  const { startUpload, isUploading } = useUploadThing("eventImage", {
+  // @ts-ignore - Dependendo da versão do UT o tipo pode reclamar, mas o valor via string funciona
+  const { startUpload, isUploading } = useUploadThing(endpoint, {
     onUploadProgress: (p) => setProgress(p),
     onClientUploadComplete: (res) => {
       if (res && res.length > 0) {
         const uploadedUrl = res[0].url;
-        onChange(uploadedUrl); 
-
-
+        onChange(uploadedUrl);
         setFile(null);
         setLocalBlob(null);
-
         toast.success("Upload concluído!");
       }
     },
     onUploadError: (e) => {
-      toast.error("Erro no upload: " + e.message);
+      console.error("Upload Error:", e);
+      toast.error("Erro no upload. Tente novamente.");
       setProgress(0);
     },
   });
@@ -46,17 +50,25 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
+      if (selectedFile.size > 2 * 1024 * 1024) {
+        toast.error("Imagem muito grande. Máximo 2MB");
+        return;
+      }
       setFile(selectedFile);
       setLocalBlob(URL.createObjectURL(selectedFile));
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!file) return;
     await startUpload([file]);
   };
 
-  const onRemove = () => {
+  const onRemove = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setFile(null);
     setLocalBlob(null);
     setProgress(0);
@@ -71,12 +83,10 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
           src={imageToShow}
           alt="Preview"
           className={cn(
-            "w-full h-full object-cover transition-opacity duration-300",
-            isUploading ? "opacity-50" : "opacity-100",
+            "w-full h-full object-cover",
+            isUploading && "opacity-50",
           )}
         />
-
-        {/* Botão Remover */}
         {!isUploading && (
           <div className="absolute top-2 right-2 z-10">
             <Button
@@ -84,14 +94,12 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
               onClick={onRemove}
               variant="destructive"
               size="icon"
-              className="h-8 w-8 rounded-full shadow-md opacity-90 hover:opacity-100"
+              className="h-8 w-8 rounded-full shadow-md"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         )}
-
-        {/* Overlay de Confirmação (Aparece se for arquivo local) */}
         {localBlob && !isUploading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
             <Button
@@ -99,16 +107,13 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
               onClick={handleUpload}
               className="bg-blue-600 hover:bg-blue-700 font-bold shadow-lg"
             >
-              <CloudUpload className="mr-2 h-4 w-4" /> Confirmar Upload
+              <CloudUpload className="mr-2 h-4 w-4" /> Confirmar Foto
             </Button>
           </div>
         )}
-
-        {/* Barra de Progresso */}
         {isUploading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20 px-6">
             <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
-            <p className="text-white text-sm font-medium mb-2">{progress}%</p>
             <Progress value={progress} className="h-2 w-full bg-white/20" />
           </div>
         )}
@@ -116,7 +121,6 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     );
   }
 
-  // Estado Vazio (Dropzone)
   return (
     <div
       onClick={() => fileInputRef.current?.click()}
@@ -129,17 +133,14 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
         type="file"
         ref={fileInputRef}
         onChange={handleFileSelect}
-        accept="image/png, image/jpeg, image/jpg, image/webp"
+        accept="image/*"
         className="hidden"
         disabled={disabled}
       />
-
       <div className="p-3 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform">
         <ImageIcon className="w-6 h-6 text-blue-500" />
       </div>
-      <p className="text-sm font-medium text-slate-700">
-        Toque para selecionar imagem
-      </p>
+      <p className="text-sm font-medium text-slate-700">Adicionar Logotipo</p>
     </div>
   );
 }

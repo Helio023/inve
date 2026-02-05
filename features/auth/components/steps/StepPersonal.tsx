@@ -34,7 +34,7 @@ export function StepPersonal({ form }: StepProps) {
               <Input placeholder="84 123 4567" {...field} />
             </FormControl>
             <FormDescription>
-                Usaremos para validar sua conta via M-Pesa/SMS.
+                Usaremos para validar sua conta ou contactá-lo se necessário.
             </FormDescription>
             <FormMessage />
           </FormItem>

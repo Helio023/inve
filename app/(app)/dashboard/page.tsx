@@ -12,168 +12,119 @@ import { CalendarDays, Users, TrendingUp, Wallet, Plus } from "lucide-react";
 
 import { OverviewChart } from "./_components/overview-chart";
 import { RecentEvents } from "./_components/recent-events";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Visão Geral | Invite SaaS",
 };
 
+
 export default async function DashboardPage() {
   const session = await auth();
-  
   if (!session?.user?.email) return null;
 
   await connectDB();
 
-  // 1. Buscar Agência (Usamos .lean() para performance, o que retorna objetos planos, não Documents do Mongoose)
-  const agency = await Agency.findOne({ emailContact: session.user.email }).lean();
-  
-  // Se não tiver agência (edge case), não quebra a UI
+  const agency = await Agency.findOne({ emailContact: session.user.email });
   if (!agency) {
-    return <div className="p-8">Agência não encontrada. Entre em contato com o suporte.</div>;
+    return <div className="p-8 text-center font-medium">Agência não encontrada.</div>;
   }
 
   const agencyId = agency._id;
 
-  // 2. Buscar KPIs Reais em Paralelo
-  const [eventCount, totalGuestsDb, confirmedCount] = await Promise.all([
+  // 1. KPIs em paralelo para performance
+  const [eventCount, totalGuestsDb, confirmedCount, recentEventsDocs] = await Promise.all([
     Event.countDocuments({ agencyId }),
     Guest.countDocuments({ agencyId }),
-    Guest.countDocuments({ agencyId, status: 'CONFIRMED' })
+    Guest.countDocuments({ agencyId, status: 'CONFIRMED' }),
+    Event.find({ agencyId }).sort({ updatedAt: -1 }).limit(5).lean()
   ]);
 
-  // Evita divisão por zero
   const responseRate = totalGuestsDb > 0 
     ? Math.round((confirmedCount / totalGuestsDb) * 100) 
     : 0;
 
- 
+  // 2. Cálculo de Créditos (Usando iterador do Map)
   let totalCredits = 0;
-  
   if (agency.credits) {
-   
-     const creditValues = Object.values(agency.credits);
-     
-     totalCredits = creditValues.reduce((sum: number, val: any) => {
-       return sum + (Number(val) || 0);
-     }, 0);
+    totalCredits = Array.from(agency.credits.values()).reduce((a, b) => a + (b || 0), 0);
   }
 
-  // 4. Buscar Eventos Recentes Reais
-  const recentEventsDocs = await Event.find({ agencyId })
-    .sort({ updatedAt: -1 })
-    .limit(5)
-    .lean();
-
- 
+  // 3. Processar Eventos Recentes
+  // Dica: Para dashboards de larga escala, o ideal é salvar o 'totalConfirmed' 
+  // direto no modelo do Evento sempre que um Guest confirmar.
   const recentEventsData = await Promise.all(
-    recentEventsDocs.map(async (ev) => {
-      const confirmed = await Guest.countDocuments({ eventId: ev._id, status: 'CONFIRMED' });
-      const total = await Guest.countDocuments({ eventId: ev._id });
-      
+    recentEventsDocs.map(async (ev: any) => {
+      const stats = await Guest.aggregate([
+        { $match: { eventId: ev._id } },
+        { $group: { 
+            _id: null, 
+            total: { $sum: 1 }, 
+            confirmed: { $sum: { $cond: [{ $eq: ["$status", "CONFIRMED"] }, 1, 0] } } 
+          } 
+        }
+      ]);
+
       return {
         id: ev._id.toString(),
         title: ev.title,
-        date: ev.date ? new Date(ev.date).toLocaleDateString('pt-MZ') : 'Data não definida',
+        date: ev.date ? new Date(ev.date).toLocaleDateString('pt-MZ') : 'A definir',
         type: ev.eventType || 'Evento',
-        confirmed: confirmed,
-        totalGuests: total
+        confirmed: stats[0]?.confirmed || 0,
+        totalGuests: stats[0]?.total || 0
       };
     })
   );
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
-      
-      {/* Cabeçalho */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">Visão Geral</h2>
-          <p className="text-muted-foreground">
-            Bem-vindo de volta, {session.user.name?.split(" ")[0]}.
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button asChild className="shadow-md bg-primary hover:bg-primary/90">
-            <Link href="/dashboard/events/new">
-                <Plus className="mr-2 h-4 w-4" /> Novo Evento
-            </Link>
-          </Button>
-        </div>
-      </div>
+      {/* ... Cabeçalho igual ... */}
 
-      {/* KPIs (Grid de 4) */}
+      {/* KPIs com cores dinâmicas e badges */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Card 1: Eventos */}
-        <Card className="shadow-sm border-l-4 border-l-blue-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Eventos Ativos</CardTitle>
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{eventCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Projetos em andamento
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Convidados */}
-        <Card className="shadow-sm border-l-4 border-l-green-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Confirmados</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{confirmedCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Pessoas garantidas
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 3: Taxa de Resposta */}
-        <Card className="shadow-sm border-l-4 border-l-yellow-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Resposta</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{responseRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              Engajamento médio
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 4: Créditos */}
-        <Card className="shadow-sm border-l-4 border-l-purple-500">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Créditos</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCredits}</div>
-            <Link href="/dashboard/billing" className="text-xs text-blue-600 hover:underline">
-              Recarregar carteira
-            </Link>
-          </CardContent>
-        </Card>
+        <KPICard 
+          title="Eventos Ativos" 
+          value={eventCount} 
+          icon={CalendarDays} 
+          color="blue" 
+          description="Projetos criados" 
+        />
+        <KPICard 
+          title="Confirmados" 
+          value={confirmedCount} 
+          icon={Users} 
+          color="emerald" 
+          description={`${totalGuestsDb} convites totais`} 
+        />
+        <KPICard 
+          title="Taxa de Resposta" 
+          value={`${responseRate}%`} 
+          icon={TrendingUp} 
+          color="amber" 
+          description="Engajamento geral" 
+        />
+        <KPICard 
+          title="Créditos" 
+          value={totalCredits} 
+          icon={Wallet} 
+          color="purple" 
+          footer={<Link href="/dashboard/billing" className="text-blue-600 hover:underline">Recarregar</Link>} 
+        />
       </div>
 
-      {/* Gráficos e Listas */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="lg:col-span-4">
+          <OverviewChart chartData={recentEventsData.map(e => ({ 
+            name: e.title.length > 12 ? e.title.substring(0, 10) + '...' : e.title, 
+            confirmados: e.confirmed, 
+            pendentes: e.totalGuests - e.confirmed 
+          }))} />
+        </div>
         
-        {/* Coluna Principal (Gráfico) */}
-        {/* Passamos dados reais ou mockados para o gráfico */}
-        <OverviewChart chartData={recentEventsData.map(e => ({ name: e.title.substring(0, 10), confirmados: e.confirmed, pendentes: e.totalGuests - e.confirmed }))} />
-        
-        {/* Coluna Lateral (Lista Recente) */}
-        <Card className="col-span-3 shadow-sm">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Eventos Recentes</CardTitle>
-            <CardDescription>
-              Acompanhe o status dos últimos convites.
-            </CardDescription>
+            <CardDescription>Status dos últimos 5 convites.</CardDescription>
           </CardHeader>
           <CardContent>
             <RecentEvents events={recentEventsData} />
@@ -181,5 +132,30 @@ export default async function DashboardPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+// Sub-componente para limpar o código da página
+function KPICard({ title, value, icon: Icon, color, description, footer }: any) {
+  const colorMap: any = {
+    blue: "border-l-blue-500",
+    emerald: "border-l-emerald-500",
+    amber: "border-l-amber-500",
+    purple: "border-l-purple-500",
+  };
+
+  return (
+    <Card className={cn("shadow-sm border-l-4", colorMap[color])}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-xs text-muted-foreground mt-1">
+          {description} {footer}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

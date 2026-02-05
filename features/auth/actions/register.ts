@@ -10,19 +10,18 @@ export async function registerAction(formData: FormData) {
   try {
     const rawData = Object.fromEntries(formData.entries());
     
-    // --- CORREÇÃO AQUI ---
+   
     const validatedFields = RegisterSchema.safeParse(rawData);
 
     if (!validatedFields.success) {
-      // Usamos .issues[0] em vez de .errors[0] para agradar o TypeScript estrito
-      // Ou usamos flatten() se quisermos todos os erros
+     
       return { 
         error: validatedFields.error.issues[0].message 
       };
     }
 
     const data = validatedFields.data;
-    // ---------------------
+  
 
     await connectDB();
 

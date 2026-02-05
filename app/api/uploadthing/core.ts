@@ -11,22 +11,28 @@ const handleAuth = async () => {
 };
 
 export const ourFileRouter = {
-  // Rota de Imagens (que já existia)
+
   eventImage: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
     .middleware(async () => await handleAuth())
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload de imagem por:", metadata.userId);
       return { uploadedBy: metadata.userId, url: file.url };
     }),
 
-  
+  agencyLogo: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
+    .middleware(async () => {
+   
+      return { isRegistration: true };
+    })
+    .onUploadComplete(async ({ file }) => {
+      console.log("Logo de registro enviado:", file.url);
+      return { url: file.url };
+    }),
+
   audioUploader: f({ audio: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(async () => await handleAuth())
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("Upload de áudio por:", metadata.userId);
       return { uploadedBy: metadata.userId, url: file.url };
     }),
-    
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

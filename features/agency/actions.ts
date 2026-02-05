@@ -1,3 +1,4 @@
+
 "use server";
 
 import { auth } from "@/lib/auth";
@@ -6,6 +7,18 @@ import { Agency } from "@/lib/models/Agency";
 import { User } from "@/lib/models/User";
 import { UpdateAgencySchema } from "./schemas";
 import { revalidatePath } from "next/cache";
+
+
+const slugify = (text: string) =>
+  text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .normalize("NFD") 
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-");
 
 export async function updateAgencyAction(formData: FormData) {
   const session = await auth();
@@ -22,22 +35,31 @@ export async function updateAgencyAction(formData: FormData) {
   };
 
   const validated = UpdateAgencySchema.safeParse(rawData);
-
-  if (!validated.success) {
-    return { error: validated.error.issues[0].message };
-  }
+  if (!validated.success) return { error: validated.error.issues[0].message };
 
   try {
     await connectDB();
     
-    // 1. Encontrar o user para saber qual é a agência
     const user = await User.findOne({ email: session.user.email });
     if (!user?.agencyId) return { error: "Agência não encontrada." };
 
-    // 2. Atualizar a Agência
+    const newName = validated.data.name;
+    const newSlug = slugify(newName);
+
+  
+    const slugExists = await Agency.findOne({ 
+      slug: newSlug, 
+      _id: { $ne: user.agencyId } 
+    });
+
+    if (slugExists) {
+      return { error: "Já existe uma agência com um nome similar. Tente variar um pouco." };
+    }
+
     await Agency.findByIdAndUpdate(user.agencyId, {
       $set: {
-        name: validated.data.name,
+        name: newName,
+        slug: newSlug, 
         phone: validated.data.phone,
         emailContact: validated.data.emailContact,
         logoUrl: validated.data.logoUrl,
@@ -50,6 +72,7 @@ export async function updateAgencyAction(formData: FormData) {
     });
 
     revalidatePath("/dashboard/settings");
+    revalidatePath("/dashboard");
     return { success: true };
 
   } catch (error) {

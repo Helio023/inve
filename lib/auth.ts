@@ -1,12 +1,11 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import connectDB from "@/lib/db";
-import { User } from "@/lib/models/User";
+import { User as UserModel } from "@/lib/models/User";
 import { Agency } from "@/lib/models/Agency";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
-// Schema simples para validar dentro do Authorize
 const AuthSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -22,34 +21,46 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const { email, password } = validatedFields.data;
 
           await connectDB();
-          
-          // Busca usuário e inclui a senha (que está escondida por padrão)
-          const user = await User.findOne({ email }).select("+password");
 
-          if (!user || !user.password) return null;
+          // 1. Busca usuário
+          const userDoc = await UserModel.findOne({ email }).select(
+            "+password",
+          );
 
-          // Verifica senha
-          const passwordsMatch = await bcrypt.compare(password, user.password);
+          if (!userDoc || !userDoc.password) return null;
+
+          // 2. Verifica senha
+          const passwordsMatch = await bcrypt.compare(
+            password,
+            userDoc.password,
+          );
 
           if (passwordsMatch) {
-            // VERIFICAÇÃO EXTRA: O usuário tem uma agência? Ela está aprovada?
-            // Se for SUPER_ADMIN, passa direto
-            if (user.role !== 'SUPER_ADMIN') {
-               const agency = await Agency.findById(user.agencyId);
-               
-               if (!agency) throw new Error("Agência não encontrada.");
-               
-               if (agency.verificationStatus === 'PENDING') {
-                 // Truque: lançar erro aqui fará o login falhar
-                 throw new Error("Sua conta ainda está em análise.");
-               }
-               
-               if (agency.verificationStatus === 'SUSPENDED' || agency.verificationStatus === 'REJECTED') {
-                 throw new Error("Conta suspensa ou rejeitada.");
-               }
+            // 3. Verificações de Agência
+            if (userDoc.role !== "SUPER_ADMIN") {
+              const agency = await Agency.findById(userDoc.agencyId);
+
+              if (!agency) throw new Error("Agência não encontrada.");
+
+              if (agency.verificationStatus === "PENDING") {
+                throw new Error("Sua conta ainda está em análise.");
+              }
+
+              if (
+                agency.verificationStatus === "SUSPENDED" ||
+                agency.verificationStatus === "REJECTED"
+              ) {
+                throw new Error("Conta suspensa ou rejeitada.");
+              }
             }
 
-            return user;
+            return {
+              id: userDoc._id.toString(),
+              name: userDoc.name,
+              email: userDoc.email,
+              role: userDoc.role,
+              agencyId: userDoc.agencyId?.toString(),
+            };
           }
         }
         return null;
@@ -57,25 +68,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/login", // Página customizada de login
+    signIn: "/login",
   },
   callbacks: {
-    // Adiciona o ID e Role à sessão para usar no Frontend
-    async session({ session, token }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
+    async jwt({ token, user }) {
+      
+      if (user) {
+        token.role = user.role;
+        token.agencyId = user.agencyId;
       }
-      if (token.role && session.user) {
+      return token;
+    },
+    async session({ session, token }) {
+   
+      if (session.user) {
+        session.user.id = token.sub as string;
         // @ts-ignore
-        session.user.role = token.role; // Precisará estender tipos do NextAuth
+        session.user.role = token.role;
+        // @ts-ignore
+        session.user.agencyId = token.agencyId;
       }
       return session;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = (user as any).role;
-      }
-      return token;
-    }
-  }
+  },
 });

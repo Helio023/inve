@@ -1,6 +1,4 @@
 import mongoose, { Schema, Model, Document } from 'mongoose';
-
-// 1. A Interface TypeScript (Tipagem forte)
 export interface IAgency extends Document {
   name: string;
   slug: string;

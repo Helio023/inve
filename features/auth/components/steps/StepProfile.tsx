@@ -1,52 +1,81 @@
+"use client";
+
 import { UseFormReturn } from "react-hook-form";
 import { RegisterInput } from "../../schemas";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage,
+  FormDescription 
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Briefcase, Users } from "lucide-react";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Briefcase, Users, MapPin } from "lucide-react";
+import { ImageUpload } from "@/components/image-upload"; 
 
 interface StepProps {
   form: UseFormReturn<RegisterInput>;
 }
 
+const PROVINCIAS = [
+  "Cabo Delgado",
+  "Gaza",
+  "Inhambane",
+  "Manica",
+  "Maputo Cidade",
+  "Maputo Província",
+  "Nampula",
+  "Niassa",
+  "Sofala",
+  "Tete",
+  "Zambézia",
+];
+
 export function StepProfile({ form }: StepProps) {
   return (
-    <div className="space-y-6">
-      {/* Radio Group Customizado (Freelancer vs Agência) */}
+    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+      
+      {/* 1. Tipo de Conta */}
       <FormField
         control={form.control}
         name="accountType"
         render={({ field }) => (
           <FormItem className="space-y-3">
-            <FormLabel>Tipo de Conta</FormLabel>
+            <FormLabel className="text-sm font-bold text-slate-700">Tipo de Negócio</FormLabel>
             <FormControl>
               <RadioGroup
                 onValueChange={field.onChange}
                 defaultValue={field.value}
                 className="grid grid-cols-2 gap-4"
               >
-                {/* Opção 1 */}
                 <FormItem>
                   <FormControl>
                     <RadioGroupItem value="FREELANCER" className="peer sr-only" />
                   </FormControl>
-                  <FormLabel className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                    <Briefcase className="mb-3 h-6 w-6" />
-                    <span className="font-bold">Freelancer</span>
-                    <span className="text-xs text-muted-foreground mt-1">Trabalho só</span>
+                  <FormLabel className="flex flex-col items-center justify-center rounded-xl border-2 border-slate-100 bg-white p-4 hover:bg-slate-50 peer-data-[state=checked]:border-blue-600 peer-data-[state=checked]:bg-blue-50/50 cursor-pointer transition-all">
+                    <Briefcase className="mb-2 h-6 w-6 text-slate-400 peer-data-[state=checked]:text-blue-600" />
+                    <span className="font-bold text-sm">Freelancer</span>
+                    <span className="text-[10px] text-slate-500 text-center leading-tight mt-1">Trabalho Individual</span>
                   </FormLabel>
                 </FormItem>
                 
-                {/* Opção 2 */}
                 <FormItem>
                   <FormControl>
                     <RadioGroupItem value="AGENCY" className="peer sr-only" />
                   </FormControl>
-                  <FormLabel className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                    <Users className="mb-3 h-6 w-6" />
-                    <span className="font-bold">Agência</span>
-                    <span className="text-xs text-muted-foreground mt-1">Tenho equipe</span>
+                  <FormLabel className="flex flex-col items-center justify-center rounded-xl border-2 border-slate-100 bg-white p-4 hover:bg-slate-50 peer-data-[state=checked]:border-blue-600 peer-data-[state=checked]:bg-blue-50/50 cursor-pointer transition-all">
+                    <Users className="mb-2 h-6 w-6 text-slate-400 peer-data-[state=checked]:text-blue-600" />
+                    <span className="font-bold text-sm">Agência</span>
+                    <span className="text-[10px] text-slate-500 text-center leading-tight mt-1">Equipa ou Empresa</span>
                   </FormLabel>
                 </FormItem>
               </RadioGroup>
@@ -56,28 +85,26 @@ export function StepProfile({ form }: StepProps) {
         )}
       />
 
-      <div className="grid grid-cols-2 gap-4">
-        {/* Select Shadcn */}
+      {/* 2. Localização */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="province"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Província</FormLabel>
+              <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Província</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
+                  <SelectTrigger className="h-11 rounded-lg border-slate-200">
+                    <SelectValue placeholder="Onde atua?" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="Maputo Cidade">Maputo Cidade</SelectItem>
-                  <SelectItem value="Maputo Província">Maputo Província</SelectItem>
-                  <SelectItem value="Gaza">Gaza</SelectItem>
-                  <SelectItem value="Inhambane">Inhambane</SelectItem>
-                  <SelectItem value="Sofala">Sofala</SelectItem>
-                  <SelectItem value="Nampula">Nampula</SelectItem>
-                  {/* ... outros */}
+                  {PROVINCIAS.map((prov) => (
+                    <SelectItem key={prov} value={prov}>
+                      {prov}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -90,9 +117,16 @@ export function StepProfile({ form }: StepProps) {
           name="district"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Distrito</FormLabel>
+              <FormLabel className="text-xs font-bold uppercase tracking-wider text-slate-500">Distrito / Cidade</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Marracuene" {...field} />
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input 
+                    placeholder="Ex: Marracuene" 
+                    className="h-11 pl-9 rounded-lg border-slate-200"
+                    {...field} 
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -100,28 +134,25 @@ export function StepProfile({ form }: StepProps) {
         />
       </div>
 
-      {/* Upload de Arquivo (Input Nativo estilizado, pois Shadcn não tem File Input complexo) */}
+     
       <FormField
-        control={form.control}
-        name="logo"
-        render={({ field: { value, onChange, ...fieldProps } }) => (
-          <FormItem>
-            <FormLabel>Logotipo (Opcional)</FormLabel>
-            <FormControl>
-              <Input
-                {...fieldProps}
-                type="file"
-                accept="image/*"
-                onChange={(event) => {
-                  onChange(event.target.files);
-                }}
-                className="cursor-pointer file:text-primary file:font-medium"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+  control={form.control}
+  name="logoUrl" 
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Logotipo da Agência</FormLabel>
+      <FormControl>
+        <ImageUpload
+          value={field.value}
+          onChange={field.onChange}
+          endpoint="agencyLogo" 
+          disabled={form.formState.isSubmitting}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
     </div>
   );
 }

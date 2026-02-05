@@ -7,7 +7,7 @@ import { Transaction } from "@/lib/models/Finance";
 
 export async function updateAgencyStatus(
   agencyId: string,
-  status: "APPROVED" | "REJECTED"
+  status: "APPROVED" | "REJECTED",
 ) {
   try {
     await connectDB();
@@ -18,14 +18,14 @@ export async function updateAgencyStatus(
         verificationStatus: status,
         isActive: status === "APPROVED",
       },
-      { new: true }
+      { new: true },
     );
 
     if (!agency) {
       return { error: "Agência não encontrada." };
     }
 
-    // Revalida a página do admin para sumir com o item da lista instantaneamente
+   
     revalidatePath("/admin");
 
     return { success: true };
@@ -37,7 +37,7 @@ export async function updateAgencyStatus(
 
 export async function updateTransactionStatus(
   txId: string,
-  status: "APPROVED" | "REJECTED"
+  status: "APPROVED" | "REJECTED",
 ) {
   try {
     await connectDB();
@@ -82,5 +82,38 @@ export async function updateTransactionStatus(
   } catch (error) {
     console.error("Erro na transação:", error);
     return { error: "Erro ao processar pagamento." };
+  }
+}
+
+
+export async function toggleAgencyAccess(agencyId: string, action: "BLOCK" | "UNBLOCK") {
+  try {
+    await connectDB();
+    await Agency.findByIdAndUpdate(agencyId, {
+      isActive: action === "UNBLOCK",
+      verificationStatus: action === "BLOCK" ? "SUSPENDED" : "APPROVED"
+    });
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    return { error: "Falha ao alterar status da agência" };
+  }
+}
+
+
+export async function adjustAgencyCredits(agencyId: string, type: string, amount: number) {
+  try {
+    await connectDB();
+    const agency = await Agency.findById(agencyId);
+    if (!agency) return { error: "Agência não encontrada" };
+    
+    const current = agency.credits.get(type) || 0;
+    agency.credits.set(type, Math.max(0, current + amount));
+    
+    await agency.save();
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro ao ajustar créditos" };
   }
 }
