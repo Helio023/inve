@@ -6,27 +6,31 @@
 //   ],
 // };
 
-// export async function proxy(req: NextRequest) {
+// export default async function proxy(req: NextRequest) {
 //   const url = req.nextUrl;
-
 //   const hostname = req.headers.get("host") || "";
+
 //   const rootDomain = (
 //     process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000"
 //   ).replace(/^https?:\/\//, "");
 
-//   const isSubdomain = hostname.includes(rootDomain) && hostname !== rootDomain;
+//   const currenthost = hostname.replace("www.", "");
 
-//   if (isSubdomain) {
-//     const subdomain = hostname.replace(`.${rootDomain}`, "");
+//   if (currenthost === rootDomain) {
+//     return NextResponse.next();
+//   }
+
+//   if (hostname.includes(`.${rootDomain}`)) {
+
+//     const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
 
 //     return NextResponse.rewrite(
-//       new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url),
+//       new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
 //     );
 //   }
 
 //   return NextResponse.next();
 // }
-
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -36,29 +40,23 @@ export const config = {
   ],
 };
 
-export default async function proxy(req: NextRequest) {
+export default function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get("host") || "";
 
-  const rootDomain = (
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000"
-  ).replace(/^https?:\/\//, "");
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "qonvip.com";
 
-  
-  const currenthost = hostname.replace("www.", "");
+  const isMainApp = hostname === rootDomain || hostname === `www.${rootDomain}`;
 
-
-  if (currenthost === rootDomain) {
+  if (isMainApp) {
     return NextResponse.next();
   }
 
+  const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
 
-  if (hostname.includes(`.${rootDomain}`)) {
- 
-    const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
-
+  if (subdomain && subdomain !== hostname) {
     return NextResponse.rewrite(
-      new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
+      new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url),
     );
   }
 

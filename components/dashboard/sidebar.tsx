@@ -12,6 +12,7 @@ import {
   Users,
   ShieldCheck,
 } from "lucide-react";
+import { Logo } from "../logo";
 
 const sidebarItems = [
   { title: "Visão Geral", href: "/dashboard", icon: LayoutDashboard },
@@ -38,12 +39,7 @@ export function Sidebar({ className, setOpen }: SidebarProps) {
       {/* --- LOGO --- */}
       <div className="flex items-center gap-2 px-4 mb-6 mt-6 md:mt-2">
         <Link href="/" className="cursor-pointer flex items-center gap-2 mt-4">
-          <div className="h-9 w-9 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-blue-200">
-            Q
-          </div>
-          <span className="font-black text-2xl text-slate-800 tracking-tighter">
-            Vite
-          </span>
+          <Logo/>
         </Link>
       </div>
 

@@ -16,25 +16,25 @@ import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 
 interface Props {
-  params: Promise<{ site: string }>;
+  params: Promise<{ subdomain: string }>;
 }
 
 export async function generateMetadata({ params }: Props) {
-  const { site } = await params;
+  const { subdomain } = await params;
   await connectDB();
-  const agency = await Agency.findOne({ slug: site }).select("name").lean();
+  const agency = await Agency.findOne({ slug: subdomain }).select("name").lean();
   return {
     title: agency ? `${agency.name} | Eventos` : "Agência não encontrada",
   };
 }
 
 export default async function AgencyLandingPage({ params }: Props) {
-  const { site } = await params;
+  const { subdomain } = await params;
 
   await connectDB();
 
   // 1. Buscar Agência pelo Subdomínio
-  const agency = await Agency.findOne({ slug: site }).lean();
+  const agency = await Agency.findOne({ slug: subdomain }).lean();
 
   if (!agency) {
     return notFound();
@@ -107,7 +107,7 @@ export default async function AgencyLandingPage({ params }: Props) {
                     asChild
                     className="w-full bg-slate-900 hover:bg-slate-800"
                   >
-                    <Link href={`/sites/${site}/${event.slug}`}>
+                    <Link href={`/sites/${subdomain}/${event.slug}`}>
                       Ver Convite <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
                   </Button>

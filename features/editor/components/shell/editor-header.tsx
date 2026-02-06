@@ -44,7 +44,7 @@ interface EditorHeaderProps {
   onUpdateSettings?: (newSettings: any) => void;
 }
 
-// 2. Transformar em componente não exportado primeiro
+
 const EditorHeaderComponent = ({
   activePageTitle,
   pageIndex,

@@ -50,9 +50,7 @@ export default async function DashboardPage() {
     totalCredits = Array.from(agency.credits.values()).reduce((a, b) => a + (b || 0), 0);
   }
 
-  // 3. Processar Eventos Recentes
-  // Dica: Para dashboards de larga escala, o ideal é salvar o 'totalConfirmed' 
-  // direto no modelo do Evento sempre que um Guest confirmar.
+
   const recentEventsData = await Promise.all(
     recentEventsDocs.map(async (ev: any) => {
       const stats = await Guest.aggregate([
@@ -78,9 +76,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
-      {/* ... Cabeçalho igual ... */}
-
-      {/* KPIs com cores dinâmicas e badges */}
+     
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard 
           title="Eventos Ativos" 

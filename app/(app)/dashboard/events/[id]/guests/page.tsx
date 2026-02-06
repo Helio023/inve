@@ -18,12 +18,10 @@ interface PageProps {
 export default async function EventGuestsPage({ params }: PageProps) {
   const { id } = await params;
 
-
   const session = await auth();
   if (!session) redirect("/login");
 
   await connectDB();
-
 
   const event = await Event.findById(id).lean();
   if (!event) return <div>Evento não encontrado</div>;
@@ -31,20 +29,16 @@ export default async function EventGuestsPage({ params }: PageProps) {
   const agency = await Agency.findById(event.agencyId).lean();
   if (!agency) return <div>Agência não encontrada</div>;
 
-
   const guests = await Guest.find({ eventId: id })
     .sort({ createdAt: -1 })
     .lean();
 
-
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
-
   const cleanDomain = rootDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
   const isLocalhost = cleanDomain.includes("localhost");
   const isVercelDomain = cleanDomain.includes("vercel.app");
 
-  // Define o protocolo baseado no ambiente
   const protocol = isLocalhost ? "http" : "https";
 
   let baseUrl = "";

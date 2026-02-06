@@ -8,7 +8,7 @@ import { Guest } from "@/lib/models/Guest";
 import { EventViewer } from "@/components/event-viewer";
 
 interface Props {
-  params: Promise<{ site: string; slug: string }>;
+  params: Promise<{ subdomain: string; slug: string }>;
 
   searchParams: Promise<{ c?: string }>;
 }
@@ -67,12 +67,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 // 2. Componente da Página
 export default async function PublicEventPage({ params, searchParams }: Props) {
-  const { site, slug } = await params;
+  const { subdomain, slug } = await params;
   const { c } = await searchParams; 
 
   await connectDB();
 
-  const agency = await Agency.findOne({ slug: site }).lean();
+  const agency = await Agency.findOne({ slug: subdomain }).lean();
   if (!agency) return notFound();
 
   const event = await Event.findOne({
