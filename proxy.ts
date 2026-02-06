@@ -41,7 +41,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   // Não faz nada. Deixa o Next.js carregar as rotas normais da pasta /app
   return NextResponse.next();
 }
