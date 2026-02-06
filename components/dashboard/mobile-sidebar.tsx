@@ -37,7 +37,7 @@ export function MobileSidebar() {
         <div className="sr-only">
           <SheetTitle>Menu de Navegação</SheetTitle>
           <SheetDescription>
-            Acesse as funcionalidades do Invite SaaS
+            Acesse as funcionalidades do Qonvip
           </SheetDescription>
         </div>
 

@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 import { LoginForm } from "@/features/auth/components/LoginForm";
+import { Logo } from "@/components/logo";
 
 export const metadata: Metadata = {
-  title: "Login | Invite SaaS",
+  title: "Login | Qonvip",
   description: "Acesse o painel administrativo para gerenciar seus convites digitais.",
 };
 
@@ -14,7 +15,7 @@ export default function LoginPage() {
           <span className="text-white font-bold text-xl">I</span>
         </div>
         <h1 className="text-xl font-semibold text-slate-800">
-          Invite SaaS
+          <Logo />
         </h1>
       </div>
 

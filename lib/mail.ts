@@ -8,13 +8,13 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   const resetLink = `${domain}/reset-password?token=${token}`;
 
   await resend.emails.send({
-    from: 'Invite SaaS <onboarding@resend.dev>', // Em produção, use seu domínio verificado
+    from: 'Qonvip <onboarding@resend.dev>', 
     to: email,
     subject: 'Redefinir sua senha',
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Redefinição de Senha</h2>
-        <p>Você solicitou a alteração da sua senha no Invite SaaS.</p>
+        <p>Você solicitou a alteração da sua senha no Qonvip.</p>
         <p>Clique no botão abaixo para criar uma nova senha:</p>
         <a href="${resetLink}" style="background-color: #2563EB; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0;">
           Redefinir Senha

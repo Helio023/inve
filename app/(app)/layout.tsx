@@ -29,7 +29,7 @@ export default async function AppLayout({
             <MobileSidebar />
 
             <div className="font-semibold text-slate-700 md:hidden">
-              Invite SaaS
+              Qonvip
             </div>
             
             <div className="hidden md:block font-medium text-slate-600">

@@ -15,7 +15,7 @@ import { RecentEvents } from "./_components/recent-events";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Visão Geral | Invite SaaS",
+  title: "Visão Geral | Qonvip",
 };
 
 

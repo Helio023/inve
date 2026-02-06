@@ -43,7 +43,7 @@ export default function NotFound() {
 
       {/* Rodapé discreto */}
       <div className="mt-12 text-xs text-slate-300 font-mono">
-        Invite SaaS &copy; {new Date().getFullYear()}
+        Qonvip &copy; {new Date().getFullYear()}
       </div>
     </div>
   );

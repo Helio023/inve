@@ -23,6 +23,7 @@ import {
   SheetDescription
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { Logo } from "../logo";
 
 export function Navbar() {
   const { data: session, status } = useSession();
@@ -75,14 +76,9 @@ export function Navbar() {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         
-        {/* LOGO QVITE */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="bg-blue-600 p-1.5 rounded-lg text-white shadow-lg shadow-blue-200 transition-transform group-hover:scale-110 group-hover:rotate-3">
-            <Sparkles className="w-5 h-5 fill-current" />
-          </div>
-          <span className="text-2xl font-black tracking-tighter text-slate-900">
-            Q<span className="text-blue-600">Vite</span>
-          </span>
+     
+        <Link href="/">
+          <Logo />
         </Link>
 
         {/* DESKTOP NAV */}

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SecurityForm } from "@/features/auth/components/security-form";
 
 export const metadata = {
-  title: "Configurações | Invite SaaS",
+  title: "Configurações | Qonvip",
 };
 
 export default async function SettingsPage() {

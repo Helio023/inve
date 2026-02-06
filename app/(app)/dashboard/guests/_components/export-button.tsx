@@ -102,7 +102,7 @@ export function ExportButton({
     const isPresentList = suffix.includes("Presentes");
 
     doc.setFontSize(18);
-    doc.text(`Invite SaaS - ${eventName}`, 14, 15);
+    doc.text(`Qonvip - ${eventName}`, 14, 15);
     doc.setFontSize(12);
     doc.text(
       isPresentList

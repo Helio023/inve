@@ -119,7 +119,7 @@ export default async function AgencyLandingPage({ params }: Props) {
 
         <footer className="text-center text-xs text-slate-400 mt-12">
           <p>
-            Powered by <strong>Invite SaaS</strong>
+            Powered by <strong>Qonvip</strong>
           </p>
         </footer>
       </div>

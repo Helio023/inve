@@ -12,13 +12,12 @@ import {
 import { CheckCircle2, MessageCircle, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Conta Criada | Invite SaaS",
+  title: "Conta Criada | Qonvip",
 };
 
-// Número do Admin (Substitua pelo seu número real)
-const ADMIN_PHONE = "258841234567"; // Exemplo: 84... ou 82...
+const ADMIN_PHONE = process.env.NEXT_PUBLIC_ADMIN_PHONE;
 const PRE_FILLED_MESSAGE = encodeURIComponent(
-  "Olá! Acabei de criar uma conta de Agência no Invite SaaS e gostaria de agilizar a verificação."
+  "Olá! Acabei de criar uma conta de Agência no Qonvip e gostaria de agilizar a verificação.",
 );
 
 export default function RegisterSuccessPage() {

@@ -61,8 +61,8 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Invite SaaS",
-  description: "Plataforma de convites digitais",
+  title: "Qonvip",
+  description: "Convites inteligentes, Experiências VIP.",
 };
 
 export const viewport = {

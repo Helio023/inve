@@ -14,7 +14,7 @@ export default function MarketingPage() {
               I
             </div>
             <span className="font-bold text-xl text-slate-800 tracking-tight">
-              Invite SaaS
+              Qonvip
             </span>
           </div>
 
@@ -80,7 +80,7 @@ export default function MarketingPage() {
 
       {/* --- FOOTER --- */}
       <footer className="bg-white border-t border-slate-200 py-8 text-center text-sm text-slate-500">
-        <p>© {new Date().getFullYear()} Invite SaaS Moçambique. Todos os direitos reservados.</p>
+        <p>© {new Date().getFullYear()} Qonvip Moçambique. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
