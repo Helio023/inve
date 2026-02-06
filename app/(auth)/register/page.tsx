@@ -2,6 +2,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { RegisterWizard } from '@/features/auth/components/RegisterWizard';
+import { Logo } from '@/components/logo';
 
 export const metadata: Metadata = {
   title: 'Criar Conta | QVite Moçambique',
@@ -17,9 +18,7 @@ export default function RegisterPage() {
         {/* Cabeçalho que flui no topo */}
         <header className="mb-10 text-center">
           <div className="mb-4">
-             <span className="text-5xl font-black tracking-tighter text-slate-900">
-               Q<span className="text-blue-600">Vite</span>
-             </span>
+             <Logo/>
           </div>
           
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">

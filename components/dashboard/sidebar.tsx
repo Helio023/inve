@@ -103,7 +103,7 @@ export function Sidebar({ className, setOpen }: SidebarProps) {
      
       <div className="px-6 py-8 mt-auto border-t border-slate-50">
         <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest text-center">
-          v0.1.0 • QVite
+          v0.1.0 • Qonvip
         </p>
       </div>
     </nav>

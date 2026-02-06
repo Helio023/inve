@@ -11,9 +11,6 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center p-4">
       <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
-        <div className="mx-auto h-12 w-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-200">
-          <span className="text-white font-bold text-xl">I</span>
-        </div>
         <h1 className="text-xl font-semibold text-slate-800">
           <Logo />
         </h1>
