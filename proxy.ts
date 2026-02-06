@@ -6,48 +6,99 @@
 //   ],
 // };
 
-// export default function middleware(req: NextRequest) {
+// export default function proxy(req: NextRequest) {
 //   const url = req.nextUrl;
-//   const hostname = req.headers.get("host") || "";
 
-//   // 1. Limpa a variável rootDomain de qualquer erro (remove https e www)
+//   const host = req.headers.get("host")?.split(":")[0] || "";
+
 //   const rootDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "qonvip.com")
 //     .replace(/^https?:\/\//, "")
-//     .replace("www.", "")
-//     .split(':')[0]; // Remove porta se houver (localhost:3000)
+//     .replace("www.", "");
 
-//   // 2. Limpa o hostname atual para comparação (ignora www)
-//   const currentHost = hostname.replace("www.", "").split(':')[0];
+//   const currentHost = host.replace("www.", "");
 
-//   // 3. Se for o domínio principal ou o www do domínio principal
-//   // EX: qonvip.com ou www.qonvip.com -> VAI PARA O DASHBOARD/LANDING PAGE
+//   if (currentHost.endsWith("localhost")) {
+//     const subdomain = currentHost.replace(".localhost", "");
+
+//     if (subdomain !== "localhost") {
+//       return NextResponse.rewrite(
+//         new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url),
+//       );
+//     }
+//     return NextResponse.next();
+//   }
+
 //   if (currentHost === rootDomain) {
 //     return NextResponse.next();
 //   }
 
-//   // 4. Lógica de Subdomínio (Site da Agência)
-//   // Se hostname for 'agencia-elite.qonvip.com' -> subdomain vira 'agencia-elite'
-//   const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
+//   if (currentHost.endsWith(`.${rootDomain}`)) {
+//     const subdomain = currentHost.replace(`.${rootDomain}`, "");
 
-//   // Só faz o rewrite se for um subdomínio real e não o próprio domínio
-//   if (subdomain && hostname.includes(`.${rootDomain}`)) {
 //     return NextResponse.rewrite(
-//       new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
+//       new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url),
 //     );
 //   }
+
 
 //   return NextResponse.next();
 // }
 
-import { NextRequest, NextResponse } from "next/server";
 
-export function proxy(req: NextRequest) {
-  // Não faz nada. Deixa o Next.js carregar as rotas normais da pasta /app
-  return NextResponse.next();
-}
+import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
 };
+
+export default function middleware(req: NextRequest) {
+  const url = req.nextUrl;
+  const host = req.headers.get("host") || "";
+
+
+  const rootDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "qonvip.com")
+    .replace(/^https?:\/\//, "")
+    .replace("www.", "")
+    .split(':')[0];
+
+
+  const currentHost = host.replace("www.", "").split(':')[0];
+
+
+  if (
+    url.pathname.includes(".") || 
+    url.pathname.startsWith("/_next") ||
+    url.pathname.startsWith("/api")
+  ) {
+    return NextResponse.next();
+  }
+
+
+  if (currentHost.endsWith("localhost")) {
+    const subdomain = currentHost.replace(".localhost", "");
+
+    if (subdomain !== "localhost") {
+      return NextResponse.rewrite(
+        new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
+      );
+    }
+    return NextResponse.next();
+  }
+
+  if (currentHost === rootDomain) {
+    return NextResponse.next();
+  }
+
+  if (currentHost.endsWith(`.${rootDomain}`)) {
+    const subdomain = currentHost.replace(`.${rootDomain}`, "");
+
+    return NextResponse.rewrite(
+      new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
+    );
+  }
+
+  return NextResponse.next();
+}

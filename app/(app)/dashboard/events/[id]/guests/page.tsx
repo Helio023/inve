@@ -33,17 +33,19 @@ export default async function EventGuestsPage({ params }: PageProps) {
     .sort({ createdAt: -1 })
     .lean();
 
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "qonvip.com";
   const cleanDomain = rootDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
-  const isLocalhost = cleanDomain.includes("localhost");
+  const isLocalhost = process.env.NODE_ENV === "development";
   const isVercelDomain = cleanDomain.includes("vercel.app");
 
   const protocol = isLocalhost ? "http" : "https";
 
   let baseUrl = "";
 
-  if (isLocalhost || isVercelDomain) {
+  if (isLocalhost) {
+    baseUrl = `${protocol}://${agency.slug}.localhost:3000/${event.slug}`;
+  } else if (isVercelDomain) {
     baseUrl = `${protocol}://${cleanDomain}/sites/${agency.slug}/${event.slug}`;
   } else {
     baseUrl = `${protocol}://${agency.slug}.${cleanDomain}/${event.slug}`;
@@ -115,7 +117,7 @@ export default async function EventGuestsPage({ params }: PageProps) {
           <GuestList
             guests={serializedGuests}
             eventId={id}
-            baseUrl={baseUrl} // Agora passa a URL correta dependendo do ambiente
+            baseUrl={baseUrl} 
             eventDescription={event.description}
           />
         </div>

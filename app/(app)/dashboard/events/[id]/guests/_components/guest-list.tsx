@@ -31,7 +31,7 @@ interface GuestListProps {
   guests: any[];
   eventId: string;
   baseUrl: string;
-  eventDescription?: string; // Prop opcional para texto customizado
+  eventDescription?: string;
 }
 
 export function GuestList({
@@ -40,18 +40,17 @@ export function GuestList({
   baseUrl,
   eventDescription,
 }: GuestListProps) {
-  // Estado para controlar qual ID está sendo deletado
   const [guestToDelete, setGuestToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // --- Função auxiliar para gerar o texto da mensagem ---
+  // Remove barra final da baseUrl se existir para evitar links como //evento
+  const safeBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+
   const generateMessage = (name: string, uniqueLink: string) => {
-    // Se a agência configurou um texto personalizado, usa ele
     if (eventDescription && eventDescription.trim() !== "") {
       return `Olá ${name}! 👋\n\n${eventDescription}\n\nLink do convite:\n${uniqueLink}`;
     }
 
-    // Caso contrário, usa o texto padrão
     return (
       `Olá ${name}! 👋\n\n` +
       `Você foi convidado para um momento muito especial.\n` +
@@ -62,22 +61,20 @@ export function GuestList({
 
   const confirmDelete = async () => {
     if (!guestToDelete) return;
-
     setIsDeleting(true);
     const res = await deleteGuestAction(guestToDelete, eventId);
-
     if (res.error) {
       toast.error("Erro ao remover convidado.");
     } else {
       toast.success("Convidado removido com sucesso.");
     }
-
     setIsDeleting(false);
-    setGuestToDelete(null); // Fecha o modal
+    setGuestToDelete(null);
   };
 
   const copyLink = (token: string, name: string) => {
-    const uniqueLink = `${baseUrl}?c=${token}`;
+    // Aqui usamos a safeBaseUrl que já não tem o /sites/
+    const uniqueLink = `${safeBaseUrl}?c=${token}`;
     const message = generateMessage(name, uniqueLink);
 
     navigator.clipboard.writeText(message);
@@ -85,11 +82,13 @@ export function GuestList({
   };
 
   const openWhatsApp = (phone: string, token: string, name: string) => {
-    const uniqueLink = `${baseUrl}?c=${token}`;
+    const uniqueLink = `${safeBaseUrl}?c=${token}`;
     const text = generateMessage(name, uniqueLink);
 
     const message = encodeURIComponent(text);
-    window.open(`https://wa.me/258${phone}?text=${message}`, "_blank");
+    // Remove espaços ou caracteres do telefone se houver
+    const cleanPhone = phone.replace(/\s+/g, "");
+    window.open(`https://wa.me/258${cleanPhone}?text=${message}`, "_blank");
   };
 
   if (guests.length === 0) {
@@ -112,7 +111,6 @@ export function GuestList({
             className="overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow"
           >
             <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              {/* Informações do Convidado */}
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <p className="font-bold text-slate-800 text-base">
@@ -128,9 +126,7 @@ export function GuestList({
                 </div>
               </div>
 
-              {/* Botões de Ação */}
               <div className="flex items-center gap-2 justify-end">
-                {/* Botão Copiar */}
                 <Button
                   variant="outline"
                   size="icon"
@@ -141,7 +137,6 @@ export function GuestList({
                   <Copy className="w-4 h-4" />
                 </Button>
 
-                {/* Botão WhatsApp (Verde) */}
                 {guest.phone && (
                   <Button
                     size="icon"
@@ -155,7 +150,6 @@ export function GuestList({
                   </Button>
                 )}
 
-                {/* Botão Excluir (Abre o Modal) */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -170,7 +164,6 @@ export function GuestList({
         ))}
       </div>
 
-      {/* --- MODAL DE CONFIRMAÇÃO (ALERT DIALOG) --- */}
       <AlertDialog
         open={!!guestToDelete}
         onOpenChange={() => !isDeleting && setGuestToDelete(null)}
@@ -180,7 +173,7 @@ export function GuestList({
             <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta ação não pode ser desfeita. Isso excluirá permanentemente o
-              convidado da lista e o link de convite dele deixará de funcionar.
+              convidado da lista e o link de convite deixará de funcionar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -189,7 +182,7 @@ export function GuestList({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
-                e.preventDefault(); // Impede fechar automático
+                e.preventDefault();
                 confirmDelete();
               }}
               disabled={isDeleting}
@@ -200,7 +193,7 @@ export function GuestList({
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Removendo...
                 </>
               ) : (
-                "Sim, excluir convidado"
+                "Sim, excluir"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -210,7 +203,6 @@ export function GuestList({
   );
 }
 
-// Componente visual de Status
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "CONFIRMED":
