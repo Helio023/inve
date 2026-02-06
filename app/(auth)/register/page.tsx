@@ -5,8 +5,8 @@ import { RegisterWizard } from '@/features/auth/components/RegisterWizard';
 import { Logo } from '@/components/logo';
 
 export const metadata: Metadata = {
-  title: 'Criar Conta | QVite Moçambique',
-  description: 'Registe a sua agência na QVite e comece a criar convites profissionais.',
+  title: 'Criar Conta | Qonvip Moçambique',
+  description: 'Registe a sua agência na Qonvip e comece a criar convites profissionais.',
 };
 
 export default function RegisterPage() {
@@ -17,7 +17,7 @@ export default function RegisterPage() {
         
         {/* Cabeçalho que flui no topo */}
         <header className="mb-10 text-center">
-          <div className="mb-4">
+          <div className="mb-4 flex justify-center">
              <Logo/>
           </div>
           
@@ -25,7 +25,7 @@ export default function RegisterPage() {
             Crie a sua conta de agência
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Já faz parte da QVite?{' '}
+            Já faz parte da Qonvip?{' '}
             <Link 
               href="/login" 
               className="font-bold text-blue-600 hover:underline"
@@ -43,7 +43,7 @@ export default function RegisterPage() {
         {/* Rodapé que aparece APÓS o formulário */}
         <footer className="mt-5 mb-2 text-center">
           <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">
-            © {new Date().getFullYear()} QVite • 
+            © {new Date().getFullYear()} Qonvip • 
           </p>
         </footer>
       </div>

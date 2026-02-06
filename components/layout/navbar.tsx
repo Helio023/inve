@@ -136,7 +136,7 @@ export function Navbar() {
                    <div className="bg-blue-600 p-1.5 rounded-lg text-white">
                       <Sparkles className="w-5 h-5 fill-current" />
                    </div>
-                   QVite
+                   Qonvip
                 </SheetTitle>
                 <SheetDescription className="text-sm font-medium text-slate-500">
                   SaaS de Convites Digitais Interativos.
@@ -189,7 +189,7 @@ export function Navbar() {
 
               <div className="p-8 text-center bg-slate-50 border-t border-slate-100">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                  © 2026 QVite • Feito em Moçambique
+                  © 2026 Qonvip • Feito em Moçambique
                 </p>
               </div>
 

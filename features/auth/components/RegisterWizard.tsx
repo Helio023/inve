@@ -193,7 +193,7 @@ export function RegisterWizard() {
           className="flex items-center justify-center gap-3 bg-white text-slate-600 p-5 rounded-2xl text-xs font-bold border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors"
         >
           <MessageCircle className="w-5 h-5 text-emerald-500" />
-          Dúvidas no registo? Suporte QVite
+          Dúvidas no registo? Suporte Qonvip
         </a>
       </div>
     </div>

@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo azul Qonvip -->
+  <rect width="32" height="32" rx="7" fill="#2563eb"/>
+  
+  <!-- O teu ícone exato, centralizado e redimensionado para 32x32 -->
+  <g transform="translate(4, 4) scale(1)">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a10 10 0 1 0 10 10V2h-10z" />
+      <path d="M12 12l8 8" />
+      <circle cx="16" cy="8" r="2" fill="white" stroke="none" />
+    </svg>
+  </g>
+</svg>
