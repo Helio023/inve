@@ -6,24 +6,31 @@
 //   ],
 // };
 
-// export default async function proxy(req: NextRequest) {
+// export default function middleware(req: NextRequest) {
 //   const url = req.nextUrl;
 //   const hostname = req.headers.get("host") || "";
 
-//   const rootDomain = (
-//     process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000"
-//   ).replace(/^https?:\/\//, "");
+//   // 1. Limpa a variável rootDomain de qualquer erro (remove https e www)
+//   const rootDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "qonvip.com")
+//     .replace(/^https?:\/\//, "")
+//     .replace("www.", "")
+//     .split(':')[0]; // Remove porta se houver (localhost:3000)
 
-//   const currenthost = hostname.replace("www.", "");
+//   // 2. Limpa o hostname atual para comparação (ignora www)
+//   const currentHost = hostname.replace("www.", "").split(':')[0];
 
-//   if (currenthost === rootDomain) {
+//   // 3. Se for o domínio principal ou o www do domínio principal
+//   // EX: qonvip.com ou www.qonvip.com -> VAI PARA O DASHBOARD/LANDING PAGE
+//   if (currentHost === rootDomain) {
 //     return NextResponse.next();
 //   }
 
-//   if (hostname.includes(`.${rootDomain}`)) {
+//   // 4. Lógica de Subdomínio (Site da Agência)
+//   // Se hostname for 'agencia-elite.qonvip.com' -> subdomain vira 'agencia-elite'
+//   const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
 
-//     const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
-
+//   // Só faz o rewrite se for um subdomínio real e não o próprio domínio
+//   if (subdomain && hostname.includes(`.${rootDomain}`)) {
 //     return NextResponse.rewrite(
 //       new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
 //     );
@@ -34,40 +41,13 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
-  ],
-};
-
-export default function proxy(req: NextRequest) {
-  const url = req.nextUrl;
-  const hostname = req.headers.get("host") || "";
-
-  // 1. LIMPEZA TOTAL DA VARIÁVEL
-  const rootDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "qonvip.com")
-    .replace(/^https?:\/\//, "") // Remove https:// se existir
-    .replace(/\/$/, "")          // Remove barra final se existir
-    .replace("www.", "");        // Remove www. se existir
-
-  // 2. LIMPEZA DO HOSTNAME ATUAL
-  const currentHost = hostname.replace("www.", "");
-
-  // 3. SE FOR O APP PRINCIPAL (DASHBOARD)
-  if (currentHost === rootDomain) {
-    return NextResponse.next();
-  }
-
-  // 4. SE FOR UM SUBDOMÍNIO (SITE DE AGÊNCIA)
-  // Ex: 'agencia.qonvip.com' -> subdomain vira 'agencia'
-  const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
-
-  if (subdomain && subdomain !== hostname && subdomain !== rootDomain) {
-    // REESCRITA PARA A PASTA DE SITES
-    return NextResponse.rewrite(
-      new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
-    );
-  }
-
+export function middleware(req: NextRequest) {
+  // Não faz nada. Deixa o Next.js carregar as rotas normais da pasta /app
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
+};
