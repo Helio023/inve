@@ -44,27 +44,26 @@ export default function proxy(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get("host") || "";
 
-
+  // 1. LIMPEZA TOTAL DA VARIÁVEL
   const rootDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "qonvip.com")
-    .replace(/^https?:\/\//, "")
-    .replace("www.", "");
+    .replace(/^https?:\/\//, "") // Remove https:// se existir
+    .replace(/\/$/, "")          // Remove barra final se existir
+    .replace("www.", "");        // Remove www. se existir
 
-  // 2. Limpa o hostname da requisição atual para comparação
+  // 2. LIMPEZA DO HOSTNAME ATUAL
   const currentHost = hostname.replace("www.", "");
 
-  // 3. Se for o domínio principal (App), não faz reescrita
-  // Ex: qonvip.com ou www.qonvip.com -> Segue para a pasta /app normal
+  // 3. SE FOR O APP PRINCIPAL (DASHBOARD)
   if (currentHost === rootDomain) {
     return NextResponse.next();
   }
 
-  // 4. Lógica de Subdomínio (Site da Agência)
-  // Se hostname for 'agencia.qonvip.com', o subdomain será 'agencia'
+  // 4. SE FOR UM SUBDOMÍNIO (SITE DE AGÊNCIA)
+  // Ex: 'agencia.qonvip.com' -> subdomain vira 'agencia'
   const subdomain = hostname.replace(`.${rootDomain}`, "").replace("www.", "");
 
-  // Se o subdomínio não for o próprio domínio e não for o hostname inteiro
   if (subdomain && subdomain !== hostname && subdomain !== rootDomain) {
-    // REESCRITA INTERNA: agencia.qonvip.com/evento -> /sites/agencia/evento
+    // REESCRITA PARA A PASTA DE SITES
     return NextResponse.rewrite(
       new URL(`/sites/${subdomain}${url.pathname}${url.search}`, req.url)
     );
