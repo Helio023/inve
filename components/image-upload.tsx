@@ -140,7 +140,7 @@ export function ImageUpload({
       <div className="p-3 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform">
         <ImageIcon className="w-6 h-6 text-blue-500" />
       </div>
-      <p className="text-sm font-medium text-slate-700">Adicionar Logotipo</p>
+      <p className="text-sm font-medium text-slate-700">Adicionar Imagem</p>
     </div>
   );
 }

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, memo } from "react"; // <--- 1. Importado 'memo'
+import { useState, useEffect, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Plus, Files, Trash2, Copy, ArrowLeft, ArrowRight } from "lucide-react";
+import { Plus, Trash2, Copy, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BlockRenderer } from "../block-renderer";
 import { getBackgroundStyle } from "../../utils";
 
-// 2. Definimos o componente mas não o exportamos diretamente
 const EditorCanvasComponent = ({
   activePage,
   selectedBlockId,
@@ -36,7 +35,6 @@ const EditorCanvasComponent = ({
   const isRealMobile =
     isMounted && typeof window !== "undefined" && window.innerWidth < 768;
 
-  // Calcula se é cor sólida ou gradiente
   const baseBackground = getBackgroundStyle(
     pageStyles.backgroundColor || "#ffffff",
   );
@@ -49,16 +47,13 @@ const EditorCanvasComponent = ({
       <div
         className={cn(
           "transition-all duration-500 ease-in-out overflow-hidden flex flex-col relative bg-white shadow-sm",
-          "w-[375px] h-[80vh] rounded-[30px] border-[8px] border-slate-800 shadow-2xl",
+          "w-full max-w-[420px] h-[85vh] rounded-[36px] border-[8px] border-slate-800 shadow-2xl",
           "max-md:!w-full max-md:!h-full max-md:!border-none max-md:!rounded-none max-md:!shadow-none",
           isPreview &&
             "shadow-none border-none rounded-none w-full h-full max-w-md mx-auto",
         )}
         style={{
-          // Aplica background-color OU background-image (gradiente)
           ...baseBackground,
-
-          // Se houver imagem, sobrepõe ao fundo base
           ...(pageStyles.backgroundImage
             ? {
                 backgroundImage: `url(${pageStyles.backgroundImage})`,
@@ -70,7 +65,6 @@ const EditorCanvasComponent = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Overlay (Película Escura) */}
         {pageStyles.backgroundImage && (
           <div
             className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-300"
@@ -81,9 +75,8 @@ const EditorCanvasComponent = ({
           />
         )}
 
-        {/* Área de Conteúdo */}
         <div
-          className="flex-1 overflow-y-auto no-scrollbar relative z-10"
+          className="flex-1 overflow-y-auto no-scrollbar relative z-10 flex flex-col"
           style={{
             paddingTop: `${pageStyles.paddingTop || 0}px`,
             paddingLeft: `${pageStyles.paddingLeft || 0}px`,
@@ -102,7 +95,9 @@ const EditorCanvasComponent = ({
               )}
             </div>
           ) : (
-            <div>
+            // CORREÇÃO AQUI: Adicionado 'h-full' para garantir que o container ocupe 100% da altura disponível
+            // Isso permite que filhos com height: 100% (convertido de 100dvh) funcionem.
+            <div className="flex flex-col min-h-full h-full">
               {activePage.blocks.map((block: any, index: number) => (
                 <BlockRenderer
                   key={block.id}
@@ -116,7 +111,7 @@ const EditorCanvasComponent = ({
                   onDuplicate={onDuplicateBlock}
                   onDelete={onDeleteBlock}
                   pages={pages}
-                   isFirst={index === 0} 
+                  isFirst={index === 0}
                   onCopyToPage={copyBlockToPage}
                 />
               ))}
@@ -124,7 +119,7 @@ const EditorCanvasComponent = ({
           )}
         </div>
 
-        {/* Indicador de Páginas (Dots) */}
+        {/* Dots */}
         <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 pointer-events-none z-20">
           {pages.map((p: any) => (
             <div
@@ -138,97 +133,30 @@ const EditorCanvasComponent = ({
         </div>
       </div>
 
-      {/* Navegação Inferior (Desktop) */}
+      {/* Navegação Inferior */}
       {!isPreview && (
         <div className="hidden md:flex absolute bottom-6 items-center gap-1 bg-white/90 backdrop-blur px-2 py-1.5 rounded-full shadow-xl border border-slate-200 z-30 animate-in slide-in-from-bottom-6">
-          {/* 1. Mover Página (Esquerda) */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => reorderPage("LEFT")}
-            disabled={pages.findIndex((p: any) => p.id === activePageId) === 0}
-            className="rounded-full w-8 h-8 hover:bg-slate-100 text-slate-500"
-            title="Mover para trás"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-          </Button>
-
+          <Button variant="ghost" size="icon" onClick={() => reorderPage("LEFT")} disabled={pages.findIndex((p: any) => p.id === activePageId) === 0} className="rounded-full w-8 h-8 hover:bg-slate-100 text-slate-500"><ArrowLeft className="w-3.5 h-3.5" /></Button>
           <div className="w-px h-4 bg-slate-200 mx-1" />
-
-          {/* 2. Adicionar Página */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={addPage}
-            className="rounded-full w-8 h-8 hover:bg-blue-50 text-blue-600"
-            title="Nova Página"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-
-          {/* 3. Duplicar Página (NOVO) */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => duplicatePage(activePageId)}
-            className="rounded-full w-8 h-8 hover:bg-purple-50 text-purple-600"
-            title="Duplicar Página Atual"
-          >
-            <Copy className="w-3.5 h-3.5" />
-          </Button>
-
+          <Button variant="ghost" size="icon" onClick={addPage} className="rounded-full w-8 h-8 hover:bg-blue-50 text-blue-600"><Plus className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="icon" onClick={() => duplicatePage(activePageId)} className="rounded-full w-8 h-8 hover:bg-purple-50 text-purple-600"><Copy className="w-3.5 h-3.5" /></Button>
           <div className="w-px h-4 bg-slate-200 mx-1" />
-
-          {/* 4. Paginação (Números) */}
           <div className="flex gap-1 px-1">
             {pages.map((p: any, idx: number) => (
-              <button
-                key={p.id}
-                onClick={() => setActivePageId(p.id)}
-                className={cn(
-                  "w-6 h-6 rounded-full text-[10px] font-bold border transition-all flex items-center justify-center",
-                  p.id === activePageId
-                    ? "bg-slate-900 text-white border-slate-900 shadow-md scale-110"
-                    : "bg-white text-slate-500 hover:border-slate-400 hover:text-slate-700",
-                )}
-              >
-                {idx + 1}
-              </button>
+              <button key={p.id} onClick={() => setActivePageId(p.id)} className={cn("w-6 h-6 rounded-full text-[10px] font-bold border transition-all flex items-center justify-center", p.id === activePageId ? "bg-slate-900 text-white border-slate-900 shadow-md scale-110" : "bg-white text-slate-500 hover:border-slate-400 hover:text-slate-700")}>{idx + 1}</button>
             ))}
           </div>
-
           <div className="w-px h-4 bg-slate-200 mx-1" />
-
-          {/* 5. Apagar Página */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full w-8 h-8 hover:bg-red-50 text-red-500"
-            disabled={pages.length <= 1}
-            onClick={() => deletePage(activePageId)}
-            title="Apagar Página"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </Button>
-
+          <Button variant="ghost" size="icon" className="rounded-full w-8 h-8 hover:bg-red-50 text-red-500" disabled={pages.length <= 1} onClick={() => deletePage(activePageId)}><Trash2 className="w-3.5 h-3.5" /></Button>
           <div className="w-px h-4 bg-slate-200 mx-1" />
-
-          {/* 6. Mover Página (Direita) */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => reorderPage("RIGHT")}
-            disabled={
-              pages.findIndex((p: any) => p.id === activePageId) ===
-              pages.length - 1
-            }
-            className="rounded-full w-8 h-8 hover:bg-slate-100 text-slate-500"
-            title="Mover para frente"
-          >
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Button>
+          <Button variant="ghost" size="icon" onClick={() => reorderPage("RIGHT")} disabled={pages.findIndex((p: any) => p.id === activePageId) === pages.length - 1} className="rounded-full w-8 h-8 hover:bg-slate-100 text-slate-500"><ArrowRight className="w-3.5 h-3.5" /></Button>
         </div>
       )}
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </main>
   );
 };

@@ -10,7 +10,7 @@ export type BlockType =
   | "MENU"
   | "SCHEDULE"
   | "CAROUSEL"
-
+  // | "DIVIDER"; // Garanta que DIVIDER está aqui
 
 export type AnimationType =
   | "none"
@@ -32,11 +32,6 @@ export const DEFAULT_STYLES = {
   videoMuted: false,
   videoControls: true,
 
-  // =================================================================
-  // ESTILOS GLOBAIS (CONTAINER)
-  // =================================================================
-  
-  // Dimensões e Fundo
   backgroundColor: "transparent",
   width: "100%",
   height: "auto",
@@ -65,7 +60,7 @@ export const DEFAULT_STYLES = {
   animationDelay: 0,
 
   // =================================================================
-  // ESTILOS DE TIPOGRAFIA BASE (Herdados se não houver específico)
+  // ESTILOS DE TIPOGRAFIA BASE
   // =================================================================
   fontSize: 16,
   textAlign: "center" as const,
@@ -78,10 +73,10 @@ export const DEFAULT_STYLES = {
   textTransform: "none",
 
   // =================================================================
-  // ESTILOS ESPECÍFICOS POR CAMADA (OVERRIDES)
+  // OVERRIDES POR CAMADA (Corrigido e Expandido)
   // =================================================================
 
-  // 1. Títulos (Hero, Schedule, RSVP Title)
+  // 1. Títulos
   titleFontFamily: "inherit",
   titleFontSize: 24,
   titleColor: "inherit",
@@ -89,6 +84,7 @@ export const DEFAULT_STYLES = {
   titleLineHeight: 1.2,
   titleLetterSpacing: 0,
   titleTextTransform: "none",
+  titleTextAlign: "center" as const, // Adicionado para override específico
 
   // 2. Subtítulos / Descrições
   descFontFamily: "inherit",
@@ -96,14 +92,17 @@ export const DEFAULT_STYLES = {
   descColor: "inherit",
   descFontWeight: "normal",
   descLineHeight: 1.5,
+  descTextAlign: "center" as const,
 
-  // 3. Labels (Etiquetas dos Inputs)
+  // 3. Labels
   labelColor: "#64748b",
   labelFontSize: 12,
   labelFontWeight: "bold",
   labelTextTransform: "uppercase",
+  labelFontFamily: "inherit",
+  labelTextAlign: "left" as const,
 
-  // 4. Botões (RSVP, Link Mapa)
+  // 4. Botões
   btnFontFamily: "inherit",
   btnFontSize: 14,
   btnFontWeight: "bold",
@@ -116,19 +115,26 @@ export const DEFAULT_STYLES = {
   btnShadow: "none" as const,
   btnPaddingTop: 12,
   btnPaddingBottom: 12,
+  btnPaddingLeft: 24,  // Adicionado
+  btnPaddingRight: 24, // Adicionado
+  btnTextTransform: "none",
 
-  // 5. Inputs (Campos de Texto)
+  // 5. Inputs (Campos de Texto) - EXPANDIDO PARA SUPORTE TOTAL
   inputBackgroundColor: "#ffffff",
-  inputTextColor: "#000000", // Corrigido de inputColor para inputTextColor para clareza
-  inputColor: "#000000",     // Mantemos ambos por compatibilidade
+  inputTextColor: "#000000",
+  inputColor: "#000000",
   inputBorderColor: "#e2e8f0",
   inputBorderRadius: 8,
   inputBorderWidth: 1,
   inputBorderStyle: "solid" as BorderStyle,
   inputShadow: "none" as const,
   inputHeight: 40,
+  inputFontSize: 14,         // Novo: Essencial para input
+  inputFontFamily: "inherit", // Novo
+  inputPaddingLeft: 12,      // Novo
+  inputPaddingRight: 12,     // Novo
 
-  // 6. Itens Especiais (Caixas do Cronómetro)
+  // 6. Itens (Cronômetro, Cards)
   itemBackgroundColor: "transparent",
   itemColor: "inherit",
   itemBorderRadius: 8,
@@ -136,11 +142,13 @@ export const DEFAULT_STYLES = {
   itemBorderColor: "#000000",
   itemBorderStyle: "solid" as BorderStyle,
   itemShadow: "none" as const,
+  itemFontSize: 20,         // Novo: Para números do cronômetro
+  itemFontWeight: "bold",   // Novo
 };
 
 export const DEFAULT_PAGE_STYLES = {
   backgroundColor: "#ffffff",
-  backgroundImage: "", // Adicionado para clareza
+  backgroundImage: "",
   backgroundOpacity: 0,
   paddingTop: 0,
   paddingBottom: 0,
@@ -152,7 +160,6 @@ export interface IBlock {
   id: string;
   type: BlockType;
   content: any;
-  // Permite chaves dinâmicas para suportar btnColor, titleFontSize, etc.
   styles: Partial<typeof DEFAULT_STYLES> & Record<string, any>; 
 }
 

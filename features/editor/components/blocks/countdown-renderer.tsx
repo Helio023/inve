@@ -1,10 +1,8 @@
-
-
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { DEFAULT_STYLES } from "../../types";
-import { getBackgroundStyle } from "@/features/editor/utils";
+import { getBackgroundStyle, getTypographyStyle } from "@/features/editor/utils";
 
 export function CountdownRenderer({ date, styles }: { date: string; styles?: any }) {
   const [timeLeft, setTimeLeft] = useState({ d: "00", h: "00", m: "00", s: "00" });
@@ -34,36 +32,29 @@ export function CountdownRenderer({ date, styles }: { date: string; styles?: any
 
   const s = { ...DEFAULT_STYLES, ...styles };
 
-  // --- ESTILOS DE CAMADAS ---
-  
-  // 1. Box do Número (Item)
-  const itemBg = getBackgroundStyle(s.itemBackgroundColor);
+  // 1. Box Style
   const boxStyle = {
-    ...itemBg, // Suporta gradiente no item
-    color: s.itemColor || s.color, 
+    ...getBackgroundStyle(s.itemBackgroundColor),
     borderRadius: `${s.itemBorderRadius ?? 8}px`,
     borderWidth: `${s.itemBorderWidth ?? 0}px`,
-    borderColor: s.itemBorderColor || s.itemColor || "currentColor",
+    borderColor: s.itemBorderColor || "transparent",
     borderStyle: s.itemBorderStyle || "solid",
     boxShadow: s.itemShadow === "none" ? "none" : "0 2px 4px rgba(0,0,0,0.1)",
+    color: s.itemColor || s.color, // Cor do texto herda global se não houver específica
   };
 
-  // 2. O Número em si (Usa estilos de 'title' se definidos, senão herda)
+
   const numberStyle = {
-    fontSize: s.titleFontSize ? `${s.titleFontSize}px` : `${s.fontSize * 1.5}px`,
-    fontWeight: s.titleFontWeight || "bold",
-    fontFamily: s.titleFontFamily || s.fontFamily,
-    color: s.titleColor || s.itemColor || s.color,
+      ...getTypographyStyle(s, "title"), // Herda fontFamily, letterSpacing, etc
+      fontSize: s.titleFontSize ? `${s.titleFontSize}px` : "1.5em",
+      color: s.titleColor || s.itemColor || s.color, // Cascata de cor
+      marginBottom: 0
   };
 
-  // 3. A Legenda (Dias, Horas) - Usa estilos de 'label'
   const labelStyle = {
-    fontSize: s.labelFontSize ? `${s.labelFontSize}px` : `${s.fontSize * 0.5}px`,
-    fontWeight: s.labelFontWeight || "normal",
-    fontFamily: s.fontFamily, // Geralmente herda a fonte global
-    color: s.labelColor || s.color, // Cor global se não houver específica
-    textTransform: (s.labelTextTransform || "uppercase") as any,
-    marginTop: "4px"
+      ...getTypographyStyle(s, "label"),
+      marginTop: "4px",
+      opacity: 0.8
   };
 
   return (
@@ -76,10 +67,10 @@ export function CountdownRenderer({ date, styles }: { date: string; styles?: any
       ].map((t, i) => (
         <div key={i} className="flex flex-col items-center">
           <div
-            className="flex aspect-square min-w-[3.5rem] items-center justify-center leading-none transition-all px-2"
-            style={{ ...boxStyle, ...numberStyle }}
+            className="flex aspect-square min-w-14 items-center justify-center leading-none transition-all px-2"
+            style={boxStyle}
           >
-            {t.v}
+            <span style={numberStyle}>{t.v}</span>
           </div>
           <span style={labelStyle}>
             {t.l}

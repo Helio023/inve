@@ -1,16 +1,18 @@
-/* Novas cores */
-
-
 @import "tailwindcss";
-@import "tw-animate-css";
 
+/* --- 1. CONFIGURAÇÃO DO TEMA (Tailwind v4) --- */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  /* Fontes mapeadas */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  
+  /* Cores do Sistema */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -40,6 +42,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Border Radius System */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -47,12 +51,29 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Animações */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0 }
+    to { height: var(--radix-accordion-content-height) }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height) }
+    to { height: 0 }
+  }
 }
 
+/* --- 2. VARIÁVEIS CSS (HSL + OKLCH Fallbacks) --- */
 :root {
   --radius: 0.75rem;
+  
+  /* Variável JS Fallback (Mobile Normalizer) */
+  --vh: 1vh; 
 
-  /* --- FALLBACKS HSL (MODO CLARO) --- */
+  /* HSL Fallbacks (Modo Claro) */
   --background: hsl(240, 15%, 98%);
   --foreground: hsl(240, 10%, 15%);
   --card: hsl(0, 0%, 100%);
@@ -87,7 +108,7 @@
   --sidebar-ring: hsl(245, 85%, 55%);
 }
 
-/* --- MODERN ENHANCEMENT (OKLCH MODO CLARO) --- */
+/* OKLCH Moderno (Modo Claro) */
 @supports (color: oklch(0% 0 0)) {
   :root {
     --background: oklch(0.985 0.005 240);
@@ -126,7 +147,7 @@
 }
 
 .dark {
-  /* --- FALLBACKS HSL (MODO ESCURO) --- */
+  /* HSL Fallbacks (Modo Escuro) */
   --background: hsl(240, 10%, 12%);
   --foreground: hsl(240, 5%, 98%);
   --card: hsl(240, 10%, 15%);
@@ -161,7 +182,7 @@
   --sidebar-ring: hsl(245, 75%, 65%);
 }
 
-/* --- MODERN ENHANCEMENT (OKLCH MODO ESCURO) --- */
+/* OKLCH Moderno (Modo Escuro) */
 @supports (color: oklch(0% 0 0)) {
   .dark {
     --background: oklch(0.12 0.03 240);
@@ -194,52 +215,96 @@
   }
 }
 
-html, body {
-  scroll-behavior: smooth;
-  scroll-padding-top: 80px;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-
-}
-
-/* Unidades de altura resilientes para mobile */
+/* --- 3. MOBILE NORMALIZE & RESETS VISUAIS --- */
 @layer base {
-  .min-h-screen-safe {
-    min-height: 100vh; 
-    min-height: -webkit-fill-available; 
-    min-height: 100dvh; 
-  }
-  .backdrop-blur-md, 
-  .backdrop-blur-lg,
-  .backdrop-blur-sm {
-    -webkit-backdrop-filter: blur(var(--tw-backdrop-blur));
-    backdrop-filter: blur(var(--tw-backdrop-blur));
-}}
-
-
-
-@media (max-width: 768px) {
-  html {
-    scroll-padding-top: 70px;
-  }
-}
-
-@layer base {
+  /* 
+    Reset Seguro Universal 
+    Define border-box e remove bordas padrão sem remover cores de outline 
+    (Isso corrige o problema dos ícones com borda cinza)
+  */
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    border-style: solid;
+    border-width: 0;
+    box-sizing: border-box;
   }
+
+  /* SVG Protection: Garante que ícones não ganhem bordas indesejadas */
+  svg {
+    border: none !important;
+    outline: none !important;
+  }
+
+  html {
+    overscroll-behavior-y: none; /* Previne efeito elástico no topo/fundo */
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%; /* Previne zoom de fonte ao girar tela */
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent; /* Remove azul ao tocar */
+  }
+
   body {
     @apply bg-background text-foreground;
-    /* Suavização de fontes para telas mais simples */
+    
+    font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+
+    /* Resolução de altura (Fallback Chain) */
+    min-height: 100vh;
+    min-height: 100dvh;
+    
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* 
+    Reset de Inputs (MODIFICADO)
+    Removemos 'border-radius: 0' global para que os estilos do Shadcn (rounded-md) funcionem.
+    Mantemos appearance: none apenas para evitar o look "anos 90".
+  */
+  input, textarea, button, select {
+    font-family: inherit;
+    touch-action: manipulation; /* Remove delay de 300ms */
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+    /* Importante: Não definimos border-radius: 0 aqui para não quebrar o Shadcn */
+  }
+
+  /* --- CLASSES UTILITÁRIAS SEGURAS (JavaScript Support) --- */
+  
+  /* Usa a variável --vh calculada pelo MobileNormalizer.tsx */
+  .min-h-safe {
+    min-height: 100vh; /* Fallback Pior Caso */
+    min-height: calc(var(--vh, 1vh) * 100); /* Fallback JS */
+    min-height: 100dvh; /* Moderno */
+  }
+
+  .h-safe {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    height: 100dvh;
+  }
+
+  /* 
+    Esconde elementos quando o teclado abre em Androids antigos 
+    (Funciona em conjunto com o MobileNormalizer.tsx)
+  */
+  body.keyboard-open .hide-mobile-keyboard {
+    display: none !important;
   }
 }
 
-/* Previne o scroll horizontal que quebra layouts mobile */
-body {
-  overflow-x: hidden;
-  width: 100%;
+/* Utilitário específico para o Editor de Convites */
+.canvas-wrapper {
+  border-width: 0;
 }

@@ -18,7 +18,6 @@ export function MobileSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Fecha o menu automaticamente quando a rota muda (navegação)
   useEffect(() => {
     setOpen(false);
   }, [pathname]);

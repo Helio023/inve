@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center p-4">
-      <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+      <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
         <h1 className="text-xl font-semibold text-slate-800">
           <Logo />
         </h1>

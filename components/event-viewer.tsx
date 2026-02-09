@@ -76,6 +76,7 @@ export function EventViewer({
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
   };
+  
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (navDirection !== "vertical") return;
     const touchEndY = e.changedTouches[0].clientY;
@@ -83,11 +84,13 @@ export function EventViewer({
     const threshold = 60;
     const container = scrollContainerRef.current;
     if (!container) return;
+    
     const isAtBottom =
       Math.abs(
         container.scrollHeight - container.scrollTop - container.clientHeight,
       ) < 2;
     const isAtTop = container.scrollTop === 0;
+    
     if (deltaY > threshold && isAtBottom) paginate(1);
     if (deltaY < -threshold && isAtTop) paginate(-1);
   };
@@ -180,7 +183,11 @@ export function EventViewer({
   return (
     <div className="min-h-screen-safe bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
       <div
-        className="relative w-full max-w-md h-[100dvh] bg-white shadow-xl md:rounded-2xl h-screen-safe md:h-[90vh] overflow-hidden md:border md:border-slate-300 flex flex-col group bg-black"
+        className={cn(
+          "relative w-full max-w-md shadow-xl md:rounded-2xl overflow-hidden md:border md:border-slate-300 flex flex-col group",
+          // Garante altura consistente (100dvh mobile, 90vh desktop)
+          "h-dvh md:h-[90vh]" 
+        )}
         style={{ perspective: "1000px" }}
       >
         {!isEditorPreview && !hasEntered && (
@@ -270,10 +277,13 @@ export function EventViewer({
                   }}
                 />
               )}
+              
+              {/* CONTAINER DE SCROLL ORIGINAL MANTIDO */}
               <div
                 ref={scrollContainerRef}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
+                // Adicionado 'flex flex-col' aqui para alinhar o conteúdo interno corretamente
                 className="w-full h-full overflow-y-auto no-scrollbar relative z-10 flex flex-col"
                 style={{
                   paddingTop: `${pageStyles.paddingTop}px`,
@@ -284,6 +294,7 @@ export function EventViewer({
                     navDirection === "horizontal" ? "pan-y" : "pan-x",
                 }}
               >
+              
                 <div className="flex flex-col min-h-full">
                   {activePage.blocks.map((block: any) => (
                     <PublicBlockRenderer
@@ -294,6 +305,7 @@ export function EventViewer({
                       canAnimate={hasEntered}
                     />
                   ))}
+                  {/* Espaçador original mantido */}
                   <div className="h-20 w-full shrink-0" />
                 </div>
               </div>

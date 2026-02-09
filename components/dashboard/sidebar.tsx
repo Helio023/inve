@@ -36,16 +36,16 @@ export function Sidebar({ className, setOpen }: SidebarProps) {
 
   return (
     <nav className={cn("flex flex-col gap-2 h-full bg-white", className)}>
-      {/* --- LOGO --- */}
+  
       <div className="flex items-center gap-2 px-4 mb-6 mt-6 md:mt-2">
         <Link href="/" className="cursor-pointer flex items-center gap-2 mt-4">
           <Logo/>
         </Link>
       </div>
 
-      {/* --- NAVEGAÇÃO PRINCIPAL --- */}
+   
       <div className="flex flex-col gap-1 px-2 flex-1">
-        {/* Bloco Administrativo (Apenas para Super Admin) */}
+
         {isSuperAdmin && (
           <div className="mb-4 pb-4 border-b border-slate-100">
             <p className="px-3 text-[10px] uppercase font-bold text-slate-400 mb-2 tracking-widest">

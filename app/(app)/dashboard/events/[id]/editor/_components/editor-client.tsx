@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import { useEditor } from "@/features/editor/hooks/useEditor";
 import { useAutoSave } from "@/features/editor/hooks/useAutoSave";
+import { BLOCK_PRESETS } from "@/features/editor/block-presets";
+import { BlockType } from "@/features/editor/types"; // Importação crucial
 
 // Actions
 import { publishEventAction } from "@/features/events/publish.action";
@@ -44,6 +46,8 @@ import {
   Copy,
   ArrowLeft,
   ArrowRight,
+  ArrowLeftCircle,
+  Sparkles,
 } from "lucide-react";
 import {
   Sheet,
@@ -62,84 +66,294 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Caixa de Ferramentas Lateral
-const Toolbox = ({
-  onAdd,
-  isNested,
-}: {
-  onAdd: (t: any) => void;
-  isNested: boolean;
-}) => {
-  const tools = [
-    { type: "HERO", label: "Capa", icon: Heart, color: "text-pink-500" },
-    { type: "TEXT", label: "Texto", icon: Type, color: "text-blue-500" },
-    {
-      type: "IMAGE",
-      label: "Imagem",
-      icon: ImageIcon,
-      color: "text-emerald-500",
-    },
-    { type: "VIDEO", label: "Vídeo", icon: Video, color: "text-red-500" },
-    { type: "MAP", label: "Mapa", icon: MapPin, color: "text-orange-500" },
-    {
-      type: "COUNTDOWN",
-      label: "Tempo",
-      icon: Clock,
-      color: "text-indigo-500",
-    },
-    {
-      type: "RSVP",
-      label: "RSVP",
-      icon: CheckSquare,
-      color: "text-purple-500",
-    },
-    { type: "MENU", label: "Menu", icon: Utensils, color: "text-amber-500" },
-    {
-      type: "SCHEDULE",
-      label: "Programa",
-      icon: CalendarDays,
-      color: "text-blue-500",
-    },
-    {
-      type: "CAROUSEL",
-      label: "Galeria",
-      icon: Images,
-      color: "text-purple-500",
-    },
-    ...(!isNested
-      ? [
-          {
-            type: "COLUMNS",
-            label: "Colunas",
-            icon: Columns,
-            color: "text-slate-700",
-          },
-        ]
-      : []),
-  ];
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-      {tools.map((tool) => (
-        <button
-          key={tool.type}
-          onClick={() => onAdd(tool.type)}
-          className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 hover:bg-blue-50 transition-all group shadow-sm active:scale-95"
-        >
-          <tool.icon
-            className={cn(
-              "w-6 h-6 mb-2 transition-transform group-hover:scale-110",
-              tool.color,
-            )}
+const BlockPreview = ({ preset }: { preset: any }) => {
+  const s = preset.styles;
+  const type = preset.type;
+
+  // Container Base da Miniatura
+  const baseClass =
+    "w-full h-24 rounded-lg overflow-hidden relative border border-slate-100 shadow-sm group-hover:border-blue-300 group-hover:shadow-md transition-all bg-white";
+
+  // 1. HERO PREVIEW
+  if (type === "HERO") {
+    return (
+      <div
+        className={baseClass}
+        style={{ backgroundColor: s.backgroundColor || "#fff" }}
+      >
+        {/* Se tiver imagem de fundo (simulada) */}
+        {s.backgroundImage && (
+          <div
+            className="absolute inset-0 opacity-50 bg-center bg-cover"
+            style={{
+              backgroundImage: s.backgroundImage.includes("url")
+                ? s.backgroundImage
+                : undefined,
+              backgroundColor: s.backgroundColor,
+            }}
           />
-          <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
-            {tool.label}
-          </span>
-        </button>
-      ))}
+        )}
+        <div
+          className={`absolute inset-0 flex flex-col justify-${s.justifyContent === "flex-end" ? "end" : "center"} p-3`}
+        >
+          <div
+            className="w-3/4 h-2 mb-1 rounded-sm"
+            style={{
+              backgroundColor: s.titleColor || "#000",
+              alignSelf: s.textAlign === "center" ? "center" : "flex-start",
+              fontFamily: s.titleFontFamily,
+            }}
+          />
+          <div
+            className="w-1/2 h-1 rounded-sm opacity-60"
+            style={{
+              backgroundColor: s.descColor || s.titleColor || "#000",
+              alignSelf: s.textAlign === "center" ? "center" : "flex-start",
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // 2. IMAGE PREVIEW
+  if (type === "IMAGE") {
+    return (
+      <div className={`${baseClass} flex items-center justify-center p-2`}>
+        <div
+          className="bg-slate-300"
+          style={{
+            width: s.borderRadius > 100 ? "50px" : "100%",
+            height: s.borderRadius > 100 ? "50px" : "100%",
+            borderRadius: s.borderRadius ? `${s.borderRadius}px` : "2px",
+            // Simula o Arco
+            borderTopLeftRadius: s.borderRadius?.toString().includes("300")
+              ? "50px"
+              : undefined,
+            borderTopRightRadius: s.borderRadius?.toString().includes("300")
+              ? "50px"
+              : undefined,
+          }}
+        />
+      </div>
+    );
+  }
+
+  // 3. TEXT PREVIEW
+  if (type === "TEXT") {
+    return (
+      <div className={`${baseClass} flex flex-col justify-center p-3 gap-1.5`}>
+        {/* Linhas de texto simuladas */}
+        <div
+          className="w-full h-1 bg-slate-300 rounded-full"
+          style={{
+            alignSelf: s.textAlign === "center" ? "center" : "flex-start",
+          }}
+        />
+        <div
+          className="w-5/6 h-1 bg-slate-300 rounded-full"
+          style={{
+            alignSelf: s.textAlign === "center" ? "center" : "flex-start",
+          }}
+        />
+        <div
+          className="w-4/6 h-1 bg-slate-300 rounded-full"
+          style={{
+            alignSelf: s.textAlign === "center" ? "center" : "flex-start",
+          }}
+        />
+        {s.fontStyle === "italic" && (
+          <div className="absolute top-1 left-1 text-[8px] text-slate-300">
+            Italic
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 4. RSVP PREVIEW
+  if (type === "RSVP") {
+    const isCard = s.backgroundColor !== "transparent";
+    return (
+      <div
+        className={`${baseClass} flex items-center justify-center bg-slate-50`}
+      >
+        <div
+          className="flex flex-col items-center gap-1 w-3/4 py-2 px-2 border border-slate-200"
+          style={{
+            backgroundColor: s.backgroundColor || "#fff",
+            borderRadius: s.borderRadius ? "6px" : "0px",
+            boxShadow:
+              s.shadow === "xl" ? "0 2px 5px rgba(0,0,0,0.05)" : "none",
+          }}
+        >
+          <div className="w-1/2 h-1.5 bg-slate-800 rounded-sm mb-1" />
+          <div className="w-full h-4 bg-slate-100 rounded-sm border border-slate-200" />
+          <div
+            className="w-full h-4 bg-slate-800 rounded-sm mt-1"
+            style={{ backgroundColor: s.btnBackgroundColor }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Default Fallback
+  return (
+    <div className={`${baseClass} flex items-center justify-center`}>
+      <span className="text-[9px] text-slate-400 font-bold uppercase">
+        {preset.label}
+      </span>
     </div>
   );
 };
 
+// --- NOVA TOOLBOX INTELIGENTE ---
+const SmartToolbox = ({
+  onAdd,
+  isNested,
+}: {
+  onAdd: (type: BlockType, content?: any, styles?: any) => void;
+  isNested: boolean;
+}) => {
+  const [selectedCategory, setSelectedCategory] = useState<BlockType | null>(
+    null,
+  );
+
+  const tools: { type: BlockType; label: string; icon: any; color: string }[] =
+    [
+      { type: "HERO", label: "Capa", icon: Heart, color: "text-pink-500" },
+      { type: "TEXT", label: "Texto", icon: Type, color: "text-blue-500" },
+      {
+        type: "IMAGE",
+        label: "Imagem",
+        icon: ImageIcon,
+        color: "text-emerald-500",
+      },
+      { type: "VIDEO", label: "Vídeo", icon: Video, color: "text-red-500" },
+      { type: "MAP", label: "Mapa", icon: MapPin, color: "text-orange-500" },
+      {
+        type: "COUNTDOWN",
+        label: "Tempo",
+        icon: Clock,
+        color: "text-indigo-500",
+      },
+      {
+        type: "RSVP",
+        label: "RSVP",
+        icon: CheckSquare,
+        color: "text-purple-500",
+      },
+      { type: "MENU", label: "Menu", icon: Utensils, color: "text-amber-500" },
+      {
+        type: "SCHEDULE",
+        label: "Programa",
+        icon: CalendarDays,
+        color: "text-blue-500",
+      },
+      {
+        type: "CAROUSEL",
+        label: "Galeria",
+        icon: Images,
+        color: "text-purple-500",
+      },
+      ...(!isNested
+        ? [
+            {
+              type: "COLUMNS" as BlockType,
+              label: "Colunas",
+              icon: Columns,
+              color: "text-slate-700",
+            },
+          ]
+        : []),
+    ];
+
+  // NÍVEL 1: CATEGORIAS
+  if (!selectedCategory) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 animate-in slide-in-from-left-4 duration-300">
+        {tools.map((tool) => (
+          <button
+            key={tool.type}
+            onClick={() => {
+              if (
+                BLOCK_PRESETS[tool.type] &&
+                BLOCK_PRESETS[tool.type].length > 0
+              ) {
+                setSelectedCategory(tool.type);
+              } else {
+                onAdd(tool.type);
+              }
+            }}
+            className="flex flex-col items-center justify-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 hover:bg-blue-50 transition-all group shadow-sm active:scale-95"
+          >
+            <tool.icon
+              className={cn(
+                "w-6 h-6 mb-2 transition-transform group-hover:scale-110",
+                tool.color,
+              )}
+            />
+            <span className="text-[10px] font-bold uppercase tracking-tight text-slate-600">
+              {tool.label}
+            </span>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  // NÍVEL 2: VARIANTES (COM VISUALIZAÇÃO REAL)
+  const variants = BLOCK_PRESETS[selectedCategory] || [];
+  const categoryInfo = tools.find((t) => t.type === selectedCategory);
+
+  return (
+    <div className="flex flex-col h-full animate-in slide-in-from-right-4 duration-300">
+      <div className="flex items-center gap-2 mb-4 pb-2 border-b sticky top-0 bg-white z-10">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setSelectedCategory(null)}
+          className="h-8 w-8 -ml-2 rounded-full hover:bg-slate-100"
+        >
+          <ArrowLeftCircle className="w-5 h-5 text-slate-400" />
+        </Button>
+        <span className="text-xs font-bold uppercase text-slate-600">
+          Estilos de {categoryInfo?.label || "Bloco"}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 pb-4">
+        {variants.map((preset) => (
+          <button
+            key={preset.id}
+            onClick={() => onAdd(preset.type, preset.content, preset.styles)}
+            className="text-left group flex flex-col gap-2"
+          >
+            {/* O NOVO PREVIEW VISUAL */}
+            <BlockPreview preset={preset} />
+
+            <div className="px-1">
+              <div className="font-bold text-[11px] text-slate-700">
+                {preset.label}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Botão Padrão em baixo */}
+      <button
+        onClick={() => onAdd(selectedCategory)}
+        className="w-full py-3 text-center text-[10px] font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg border border-dashed border-slate-200 mt-2"
+      >
+        Usar Padrão (Sem Estilo)
+      </button>
+    </div>
+  );
+};
+
+// --- EDITOR PRINCIPAL ---
 export function EditorClient({
   eventId,
   initialData,
@@ -187,30 +401,37 @@ export function EditorClient({
   const [isToolsOpen, setToolsOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
 
-  // SOLUÇÃO: Estado para controlar a aba ativa do painel de configurações
+  // Tab ativa do painel direito
   const [activeTab, setActiveTab] = useState<string>("block");
 
   const [addingTo, setAddingTo] = useState<{
     parentId: string;
     colIndex: number;
   } | null>(null);
+
   const [isPublishing, setIsPublishing] = useState(false);
   const [showNoCredits, setShowNoCredits] = useState(false);
   const [published, setPublished] = useState(currentStatus === "PUBLISHED");
 
   const activePageIndex = pages.findIndex((p) => p.id === activePageId);
 
-  // Efeito para abrir painel no mobile e garantir que a aba "bloco" apareça ao selecionar
   useEffect(() => {
     if (selectedBlockId) {
-      setActiveTab("block"); // Muda para a aba de bloco automaticamente ao selecionar um novo
+      setActiveTab("block");
       if (window.innerWidth < 768) setSettingsOpen(true);
     }
   }, [selectedBlockId]);
 
-  const handleAddBlock = (type: any) => {
-    if (addingTo) addBlock(type, addingTo.parentId, addingTo.colIndex);
-    else addBlock(type);
+  // --- CORREÇÃO DE TIPO DO HANDLE ADD BLOCK ---
+  // Agora aceita BlockType em vez de string genérica
+  const handleAddBlock = (type: BlockType, content?: any, styles?: any) => {
+    if (addingTo) {
+      // Se estiver adicionando dentro de colunas
+      addBlock(type, addingTo.parentId, addingTo.colIndex, content, styles);
+    } else {
+      // Se estiver adicionando na raiz
+      addBlock(type, undefined, undefined, content, styles);
+    }
     setAddingTo(null);
     setToolsOpen(false);
   };
@@ -261,14 +482,14 @@ export function EditorClient({
 
       <div className="flex-1 flex overflow-hidden relative">
         {!isPreview && (
-          <aside className="hidden md:flex w-72 bg-white border-r flex-col z-10 shadow-sm overflow-y-auto">
+          <aside className="hidden md:flex w-72 bg-white border-r flex-col z-10 shadow-sm overflow-hidden">
             <div className="p-4 border-b bg-slate-50/50">
               <h3 className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">
-                Elementos
+                Biblioteca
               </h3>
             </div>
-            <div className="p-4">
-              <Toolbox onAdd={handleAddBlock} isNested={false} />
+            <div className="p-4 flex-1 overflow-y-auto">
+              <SmartToolbox onAdd={handleAddBlock} isNested={false} />
             </div>
           </aside>
         )}
@@ -297,7 +518,6 @@ export function EditorClient({
 
         {!isPreview && (
           <aside className="hidden md:flex w-80 bg-white border-l flex-col z-10 shadow-sm overflow-hidden">
-            {/* SOLUÇÃO: Controlando o valor da Tab */}
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -381,13 +601,15 @@ export function EditorClient({
               className="rounded-t-[2.5rem] border-t-0 p-0 overflow-hidden bg-slate-50"
             >
               <SheetHeader className="px-6 py-6 bg-white border-b text-left">
-                <SheetTitle className="text-lg font-bold">Elementos</SheetTitle>
+                <SheetTitle className="text-lg font-bold">
+                  {addingTo ? "Adicionar na Coluna" : "Biblioteca de Elementos"}
+                </SheetTitle>
                 <SheetDescription className="text-xs">
-                  O que deseja inserir?
+                  Escolha um estilo para adicionar.
                 </SheetDescription>
               </SheetHeader>
-              <div className="p-6 pb-12">
-                <Toolbox onAdd={handleAddBlock} isNested={!!addingTo} />
+              <div className="p-6 pb-12 overflow-y-auto max-h-[70vh]">
+                <SmartToolbox onAdd={handleAddBlock} isNested={!!addingTo} />
               </div>
             </SheetContent>
           </Sheet>
@@ -425,7 +647,6 @@ export function EditorClient({
                   </SheetDescription>
                 </SheetHeader>
                 <div className="p-6 overflow-y-auto max-h-[60vh] pb-20">
-                  {/* SOLUÇÃO: Abas controladas no mobile também */}
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
                     <TabsList className="grid grid-cols-2 h-9 w-full mb-6">
                       <TabsTrigger

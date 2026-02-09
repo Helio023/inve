@@ -129,7 +129,7 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             
-            <SheetContent side="right" className="w-full sm:w-[400px] p-0 border-l border-slate-100 flex flex-col">
+            <SheetContent side="right" className="w-full sm:w-100 p-0 border-l border-slate-100 flex flex-col">
               
               <SheetHeader className="px-6 py-8 border-b border-slate-100 text-left bg-slate-50/50">
                 <SheetTitle className="flex items-center gap-2 text-2xl font-black">
