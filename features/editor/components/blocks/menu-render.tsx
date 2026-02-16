@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Utensils, CheckCircle2, Circle } from "lucide-react";
 import { useEventInteraction } from "../event-interaction-context";
-import { getTypographyStyle } from "@/features/editor/utils"; // <--- Importar
+import { getTypographyStyle } from "@/features/editor/utils"; 
 
 export function MenuRenderer({ content, styles, isPreview }: { content: any; styles: any; isPreview?: boolean }) {
   const sections = content.sections || [];

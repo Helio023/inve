@@ -63,57 +63,24 @@ export function ScheduleRenderer({
         />
 
         {items.map((item: any, idx: number) => (
-          <div key={idx} className="flex gap-5 relative pb-8 group last:pb-0">
-            {/* Coluna da Hora */}
-            <div className="w-18.75 shrink-0 text-right pt-0.5 flex flex-col items-end">
-              <span style={timeStyle}>{item.time}</span>
-              {item.endTime && (
-                <span
-                  style={{
-                    ...timeStyle,
-                    opacity: 0.6,
-                    fontSize: "0.8em",
-                    fontWeight: "normal",
-                  }}
-                >
-                  {item.endTime}
-                </span>
-              )}
-            </div>
+  <div key={idx} className="flex gap-5 relative pb-8 group last:pb-0">
+    <div className="w-18.75 shrink-0 text-right pt-0.5 flex flex-col items-end">
+      <span style={timeStyle}>{item.time}</span>
+    </div>
 
-            {/* Ponto */}
-            <div className="relative shrink-0 z-10">
-              <div
-                className="w-3 h-3 rounded-full border-2 bg-white mt-1.5"
-                style={{ borderColor: accentColor }}
-              />
-            </div>
+    <div className="relative shrink-0 z-10">
+      <div className="w-3 h-3 rounded-full border-2 bg-white mt-1.5" style={{ borderColor: accentColor }} />
+    </div>
 
-            {/* Conteúdo */}
-            <div className="flex-1 -mt-1">
-              <h4 style={activityTitleStyle}>{item.activity}</h4>
+    <div className="flex-1 -mt-1">
+      <h4 style={activityTitleStyle}>{item.title}</h4>
 
-              {(item.location || item.speaker) && (
-                <div className="flex flex-wrap gap-3 mb-2 mt-1.5">
-                  {item.location && (
-                    <div className="flex items-center gap-1" style={metaStyle}>
-                      <MapPin className="w-3 h-3" />
-                      <span>{item.location}</span>
-                    </div>
-                  )}
-                  {item.speaker && (
-                    <div className="flex items-center gap-1" style={metaStyle}>
-                      <User className="w-3 h-3" />
-                      <span>{item.speaker}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {item.description && <p style={descStyle}>{item.description}</p>}
-            </div>
-          </div>
-        ))}
+      {item.description && (
+        <p style={descStyle}>{item.description}</p>
+      )}
+    </div>
+  </div>
+))}
       </div>
     </div>
   );

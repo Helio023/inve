@@ -6,7 +6,6 @@ export type BlockPreset = {
   type: BlockType;
   content: any;
   styles: any;
-  preview?: string;
 };
 
 const create = (
@@ -14,185 +13,318 @@ const create = (
   label: string,
   styles: any,
   content: any,
-  preview: string = "",
 ): BlockPreset => ({
   id: `${type}_${label.toLowerCase().replace(/\s/g, "_")}_${Math.random().toString(36).substr(2, 5)}`,
   label,
   type,
   content,
   styles: { ...DEFAULT_STYLES, ...styles },
-  preview,
 });
 
-// --- IMAGENS ---
-const IMG_WEDDING_BW = "https://images.unsplash.com/photo-1511285560982-1351cdeb9821?q=80&w=2574&auto=format&fit=crop";
-const IMG_FLORAL = "https://images.unsplash.com/photo-1507646227500-4d389b0012be?q=80&w=2600&auto=format&fit=crop";
-const IMG_MINIMAL_VASE = "https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=1000&auto=format&fit=crop";
-const IMG_FOOD = "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1000&auto=format&fit=crop";
-const IMG_PARTY = "https://images.unsplash.com/photo-1519671482538-518b5c2cd43b?q=80&w=1000&auto=format&fit=crop";
-const IMG_ABSTRACT = "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1000&auto=format&fit=crop";
-
 export const BLOCK_PRESETS: Record<string, BlockPreset[]> = {
-  
-  // CAPAS (HERO) - Altura padronizada com minHeight: 600
   HERO: [
-    create("HERO", "Cinemático Dark", {
-      backgroundColor: "#000000",
-      backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%), url(${IMG_WEDDING_BW})`,
-      backgroundSize: "cover",
-      height: "auto", 
-      minHeight: 600, // Altura Fixa
-      justifyContent: "flex-end", // Alinha em baixo
-      paddingBottom: 80,
-      paddingLeft: 30,
-      paddingRight: 30,
-      textAlign: "left",
-      titleColor: "#ffffff",
-      titleFontFamily: "Playfair Display, serif",
-      titleFontSize: 48,
-      titleLineHeight: 1,
-      descColor: "#d4d4d4",
-      descFontSize: 14,
-      descLetterSpacing: 4,
-      descTextTransform: "uppercase",
-      descMarginTop: 16
-    }, {
-      title: "Ana & Pedro",
-      subtitle: "20 OUT 2026 • LISBOA"
-    }, "Fundo total escuro com texto no rodapé"),
-
-    create("HERO", "Convite Clássico", {
-      backgroundColor: "#FDFBF7",
-      paddingTop: 80,
-      paddingBottom: 80,
-      textAlign: "center",
-      borderWidth: 12, 
-      borderColor: "#FDFBF7",
-      titleColor: "#4a4a4a",
-      titleFontFamily: "Montserrat, sans-serif",
-      titleFontSize: 28,
-      titleFontWeight: "300",
-      titleLetterSpacing: 6,
-      titleTextTransform: "uppercase",
-      descColor: "#bcaaa4",
-      descFontFamily: "Dancing Script, cursive",
-      descFontSize: 32,
-      descMarginTop: 10,
-      height: "auto", 
-      minHeight: 600,
-    }, {
-      title: "CASAMENTO DE",
-      subtitle: "Mariana & Lucas"
-    }, "Fundo creme, borda limpa"),
-
-    create("HERO", "Editorial Moda", {
-      backgroundColor: "#ffffff",
-      backgroundImage: `url(${IMG_MINIMAL_VASE})`,
-      backgroundSize: "cover",
-      height: "auto", 
-      minHeight: 600,
-      titleColor: "#000000",
-      titleFontSize: 52,
-      titleFontWeight: "900",
-      titleLineHeight: 0.9,
-      titleTextTransform: "uppercase",
-      titleTextAlign: "center",
-      justifyContent: "center",
-      alignItems: "center"
-    }, {
-      title: "SAVE\nTHE\nDATE",
-      subtitle: ""
-    }, "Estilo poster de revista"),
-    
-    create("HERO", "Gradiente Moderno", {
-      backgroundImage: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
-      paddingTop: 100,
-      paddingBottom: 100,
-      textAlign: "center",
-      titleColor: "#1e293b",
-      titleFontSize: 40,
-      titleFontFamily: "serif",
-      titleFontStyle: "italic",
-      descColor: "#64748b",
-      descFontSize: 12,
-      descLetterSpacing: 2,
-      descTextTransform: "uppercase",
-      descMarginTop: 20,
-      descBorderTopWidth: 1, 
-      descPaddingTop: 20,
-      descBorderColor: "#cbd5e1",
-      descWidth: "fit-content",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "auto", 
-      minHeight: 600,
-    }, {
-      title: "Celebrando o Amor",
-      subtitle: "25 . 05 . 2026"
-    }, "Clean com linha decorativa"),
+    create(
+      "HERO",
+      "Editorial Vogue",
+      {
+        backgroundColor: "#000",
+        minHeight: 700,
+        titleColor: "#fff",
+        titleFontFamily: "var(--font-cormorant)",
+        titleFontSize: 72,
+        titleTextTransform: "uppercase",
+        descColor: "#d4af37",
+        animation: "fade",
+      },
+      { title: "LUXURY", subtitle: "UMA EXPERIÊNCIA ÚNICA" },
+    ),
+    create(
+      "HERO",
+      "Minimalista",
+      {
+        backgroundColor: "#F5F5F0",
+        minHeight: 500,
+        titleColor: "#333",
+        titleFontFamily: "var(--font-playfair)",
+        titleFontSize: 48,
+        descColor: "#8C8C7E",
+        animation: "slide-up",
+      },
+      { title: "O Casamento", subtitle: "Ana & João" },
+    ),
+    create(
+      "HERO",
+      "Cyber Night",
+      {
+        backgroundColor: "#050505",
+        image:
+          "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070",
+        minHeight: 600,
+        titleColor: "#00f2ff",
+        titleFontSize: 64,
+        titleFontWeight: "900",
+        animation: "zoom-in",
+      },
+      { title: "PARTY\n2026", subtitle: "THE FUTURE IS NOW" },
+    ),
   ],
 
-  // TEXTO
   TEXT: [
-    create("TEXT", "Parágrafo Leitura", {
-      color: "#334155",
-      textAlign: "left",
-      lineHeight: 1.8,
-      fontSize: 16,
-      paddingTop: 20,
-      paddingBottom: 20,
-      paddingLeft: 24,
-      paddingRight: 24,
-      backgroundColor: "#ffffff",
-    }, { text: "Estamos muito felizes em compartilhar este momento único com vocês." }, "Texto alinhado à esquerda"),
-
-    create("TEXT", "Citação Central", {
-      backgroundColor: "#F8FAFC",
-      color: "#475569",
-      textAlign: "center",
-      fontStyle: "italic",
-      fontFamily: "Playfair Display, serif",
-      fontSize: 22,
-      lineHeight: 1.5,
-      paddingTop: 60,
-      paddingBottom: 60,
-      paddingLeft: 40,
-      paddingRight: 40,
-      borderRadius: 8,
-      marginLeft: 20,
-      marginRight: 20
-    }, { text: "“O amor é a única coisa que cresce à medida que se reparte.”" }, "Box cinza claro"),
+    create(
+      "TEXT",
+      "Citação Poética",
+      {
+        backgroundColor: "#fff",
+        color: "#444",
+        fontFamily: "var(--font-dancing)",
+        fontSize: 32,
+        textAlign: "center",
+        paddingTop: 60,
+        paddingBottom: 60,
+      },
+      { text: "“Onde há amor, há vida.”" },
+    ),
+    create(
+      "TEXT",
+      "Caixa Informativa",
+      {
+        backgroundColor: "#f8fafc",
+        color: "#1e293b",
+        fontSize: 16,
+        textAlign: "justify",
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: "#e2e8f0",
+        paddingTop: 30,
+        paddingBottom: 30,
+        paddingLeft: 30,
+        paddingRight: 30,
+      },
+      {
+        text: "Pedimos a fineza de confirmar a presença até ao dia 15 de Maio.",
+      },
+    ),
+    create(
+      "TEXT",
+      "Destaque Dark",
+      {
+        backgroundColor: "#000",
+        color: "#fff",
+        fontSize: 24,
+        textAlign: "center",
+        textTransform: "uppercase",
+        letterSpacing: 4,
+        paddingTop: 80,
+        paddingBottom: 80,
+      },
+      { text: "Uma noite inesquecível." },
+    ),
   ],
 
-  // IMAGEM
-  IMAGE: [
-    create("IMAGE", "Arco (Arch)", { width: "100%", height: "450px", borderRadius: "50% 50% 0 0", objectFit: "cover", marginTop: 30 }, { url: IMG_FLORAL }, "Topo arredondado"),
-    create("IMAGE", "Círculo Perfeito", { width: "240px", height: "240px", aspectRatio: "1/1", borderRadius: 9999, objectFit: "cover", marginTop: 30, marginBottom: 30, borderWidth: 6, borderColor: "#ffffff", shadow: "lg", alignSelf: "center" }, { url: IMG_MINIMAL_VASE }, "Avatar redondo"),
-    create("IMAGE", "Full Bleed", { width: "100%", height: "400px", objectFit: "cover", borderRadius: 0, marginTop: 0, marginBottom: 0 }, { url: IMG_ABSTRACT }, "Largura total"),
-  ],
-
-  // MENU
-  MENU: [
-    create("MENU", "Bistrô Clássico", { backgroundColor: "#FDFBF7", paddingTop: 40, paddingBottom: 40, titleFontFamily: "Playfair Display, serif", titleFontSize: 24, titleColor: "#d97706", titleTextAlign: "center", titleTextTransform: "none", titleMarginBottom: 20, color: "#4b5563", textAlign: "left" }, { sections: [{ title: "Entradas", items: [{ name: "Carpaccio", description: "...", price: "" }] }] }, "Estilo restaurante"),
-  ],
-
-  // COUNTDOWN
-  COUNTDOWN: [
-    create("COUNTDOWN", "Glassmorphism", { paddingTop: 50, paddingBottom: 50, backgroundImage: `url(${IMG_ABSTRACT})`, backgroundSize: "cover", itemBackgroundColor: "rgba(255, 255, 255, 0.2)", itemColor: "#ffffff", itemBorderRadius: 12, itemBorderWidth: 1, itemBorderColor: "rgba(255, 255, 255, 0.3)", itemShadow: "0 4px 30px rgba(0, 0, 0, 0.1)", titleFontSize: 24, titleFontWeight: "bold", labelColor: "#e2e8f0", labelFontSize: 10, labelFontWeight: "600" }, { date: new Date(Date.now() + 864000000).toISOString() }, "Fundo vidro"),
-  ],
-
-  // RSVP
   RSVP: [
-    create("RSVP", "Card Shadow", { backgroundColor: "#ffffff", width: "90%", marginTop: 40, marginBottom: 40, paddingTop: 40, paddingBottom: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 24, shadow: "xl", alignSelf: "center", titleFontSize: 24, titleColor: "#1e293b", titleFontWeight: "bold", btnBackgroundColor: "#0f172a", btnColor: "#ffffff", btnBorderRadius: 50, btnHeight: 50, btnFontWeight: "600", inputBackgroundColor: "#f1f5f9", inputBorderWidth: 0, inputBorderRadius: 12, inputHeight: 48 }, { title: "Confirme sua Presença", description: "Por favor, responda até o dia 20.", buttonText: "Confirmar Agora" }, "Card branco"),
+    create(
+      "RSVP",
+      "VIP Card",
+      {
+        backgroundColor: "#fff",
+        borderRadius: 24,
+        shadow: "xl",
+        paddingTop: 40,
+        paddingBottom: 40,
+        titleFontSize: 32,
+        btnBackgroundColor: "#000",
+        btnColor: "#fff",
+        btnBorderRadius: 12,
+      },
+      {
+        title: "Confirmar Presença",
+        description: "É uma honra tê-lo connosco.",
+        buttonText: "Confirmar Agora",
+      },
+    ),
+    create(
+      "RSVP",
+      "Neo Brutalist",
+      {
+        backgroundColor: "#fff",
+        borderRadius: 0,
+        borderWidth: 3,
+        borderColor: "#000",
+        titleFontWeight: "900",
+        btnBackgroundColor: "#000",
+      },
+      {
+        title: "RSVP.",
+        description: "ENTRADA RESTRITA.",
+        buttonText: "VALIDAR",
+      },
+    ),
+    create(
+      "RSVP",
+      "Romantic Soft",
+      {
+        backgroundColor: "#fff5f5",
+        borderRadius: 50,
+        titleColor: "#9b2c2c",
+        titleFontFamily: "var(--font-dancing)",
+        btnBackgroundColor: "#f43f5e",
+        btnBorderRadius: 99,
+      },
+      {
+        title: "Vens celebrar?",
+        description: "Diz-nos se vens!",
+        buttonText: "Sim, eu vou!",
+      },
+    ),
   ],
 
-  // SCHEDULE
-  SCHEDULE: [
-    create("SCHEDULE", "Linha do Tempo Clean", { backgroundColor: "transparent", paddingTop: 40, paddingBottom: 40, titleFontSize: 28, titleFontFamily: "serif", titleTextAlign: "center", color: "#475569", borderColor: "#e2e8f0" }, { title: "Programação do Dia", items: [{ time: "16:00", activity: "Cerimônia" }] }, "Timeline vertical"),
-  ],
-
-  // MAPA
   MAP: [
-    create("MAP", "Card Flutuante", { backgroundColor: "#ffffff", borderRadius: 16, shadow: "xl", titleFontSize: 20, titleFontWeight: "bold", titleColor: "#1e293b", color: "#64748b", btnBackgroundColor: "#0f172a", btnColor: "#ffffff", btnBorderRadius: 8 }, { venueName: "Local", address: "Endereço", time: "16:30", buttonText: "Como Chegar", link: "" }, "Card sobreposto"),
-  ]
+    create(
+      "MAP",
+      "Luxo Dourado",
+      {
+        backgroundColor: "#fff",
+        borderRadius: 20,
+        shadow: "xl",
+        titleColor: "#1a1a1a",
+        btnBackgroundColor: "#1a1a1a",
+        btnColor: "#fff",
+      },
+      {
+        venueName: "Palácio Real",
+        address: "Avenida Central, 100",
+        link: "",
+        buttonText: "Abrir Localização",
+      },
+    ),
+    create(
+      "MAP",
+      "Dark GPS",
+      {
+        backgroundColor: "#111",
+        titleColor: "#00f2ff",
+        descColor: "#888",
+        btnBackgroundColor: "#00f2ff",
+        btnColor: "#000",
+      },
+      {
+        venueName: "The Club",
+        address: "Rua Noturna, 50",
+        link: "",
+        buttonText: "Ver no Mapa",
+      },
+    ),
+    create(
+      "MAP",
+      "Minimal Clean",
+      {
+        backgroundColor: "#fff",
+        btnBorderWidth: 1,
+        btnBorderColor: "#000",
+        btnColor: "#000",
+      },
+      {
+        venueName: "Jardim Oliveiras",
+        address: "Rua do Mar, 20",
+        link: "",
+        buttonText: "Como Chegar",
+      },
+    ),
+  ],
+
+  FAQ: [
+    create(
+      "FAQ",
+      "Clean List",
+      { backgroundColor: "#fff", titleFontSize: 18, descColor: "#666" },
+      {
+        items: [
+          { q: "Tem estacionamento?", a: "Sim, gratuito no local." },
+          { q: "Dress Code?", a: "Formal / Gala." },
+        ],
+      },
+    ),
+    create(
+      "FAQ",
+      "Dark Accordion",
+      {
+        backgroundColor: "#111",
+        titleColor: "#fff",
+        descColor: "#aaa",
+        titleBorderBottomWidth: 1,
+      },
+      { items: [{ q: "Crianças?", a: "Apenas maiores de 12 anos." }] },
+    ),
+    create(
+      "FAQ",
+      "Soft Cards",
+      { backgroundColor: "#fdf2f8", titleColor: "#be185d", borderRadius: 16 },
+      {
+        items: [
+          { q: "Presentes?", a: "A vossa presença é o melhor presente." },
+        ],
+      },
+    ),
+  ],
+
+  DRESS_CODE: [
+    create(
+      "DRESS_CODE",
+      "Classic Formal",
+      { backgroundColor: "#fff", titleFontSize: 28 },
+      { title: "Dress Code", description: "Fatos escuros e vestidos longos." },
+    ),
+    create(
+      "DRESS_CODE",
+      "Beach Casual",
+      { backgroundColor: "#f0f9ff", titleColor: "#0369a1" },
+      {
+        title: "Traje de Praia",
+        description: "Roupas leves e sapatos confortáveis.",
+      },
+    ),
+    create(
+      "DRESS_CODE",
+      "Black Tie",
+      { backgroundColor: "#000", titleColor: "#fff", descColor: "#ccc" },
+      { title: "Black Tie", description: "Smokings e vestidos de gala." },
+    ),
+  ],
+
+  BUTTON: [
+    create(
+      "BUTTON",
+      "Luxury Pill",
+      {
+        btnBackgroundColor: "#c5a059",
+        btnColor: "#fff",
+        btnBorderRadius: 99,
+        btnFontWeight: "bold",
+      },
+      { text: "Ver Lista de Casamento", url: "#" },
+    ),
+    create(
+      "BUTTON",
+      "Brutalist Box",
+      {
+        btnBackgroundColor: "#000",
+        btnColor: "#fff",
+        btnBorderRadius: 0,
+        btnTextTransform: "uppercase",
+      },
+      { text: "Confirmar Agora", url: "#" },
+    ),
+    create(
+      "BUTTON",
+      "Glass Blur",
+      {
+        btnBackgroundColor: "rgba(255,255,255,0.2)",
+        btnColor: "#000",
+        btnBorderWidth: 1,
+        btnBorderColor: "#ccc",
+        backdropFilter: "blur(10px)",
+      },
+      { text: "Saber Mais", url: "#" },
+    ),
+  ],
 };

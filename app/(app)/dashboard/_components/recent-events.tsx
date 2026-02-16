@@ -60,7 +60,7 @@ export function RecentEvents({ events }: { events: EventSummary[] }) {
 
             {/* Ação */}
             <div className="text-sm text-blue-600 font-medium hover:underline cursor-pointer">
-               <Link href={`/dashboard/events/${event.id}`}>
+               <Link href={`/dashboard/events/${event.id}/editor`}>
                  Editar
                </Link>
             </div>

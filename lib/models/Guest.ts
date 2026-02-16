@@ -23,6 +23,7 @@ export interface IGuest extends Document {
   sessionLabel?: string;
 
   menuChoices?: { section: string; item: string }[];
+  songRequests: string[];
 
   dietaryNotes?: string;
   songRequest?: string;
@@ -63,6 +64,7 @@ const GuestSchema = new Schema<IGuest>(
 
     maxAllowedGuests: { type: Number, default: 1 },
     validUntil: { type: Date },
+    songRequests: { type: [String], default: [] },
 
     checkedIn: { type: Boolean, default: false },
     checkedInAt: { type: Date },

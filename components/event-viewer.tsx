@@ -76,7 +76,7 @@ export function EventViewer({
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
   };
-  
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (navDirection !== "vertical") return;
     const touchEndY = e.changedTouches[0].clientY;
@@ -84,13 +84,13 @@ export function EventViewer({
     const threshold = 60;
     const container = scrollContainerRef.current;
     if (!container) return;
-    
+
     const isAtBottom =
       Math.abs(
         container.scrollHeight - container.scrollTop - container.clientHeight,
       ) < 2;
     const isAtTop = container.scrollTop === 0;
-    
+
     if (deltaY > threshold && isAtBottom) paginate(1);
     if (deltaY < -threshold && isAtTop) paginate(-1);
   };
@@ -178,23 +178,23 @@ export function EventViewer({
     );
 
   const pageStyles = { ...DEFAULT_PAGE_STYLES, ...(activePage.styles || {}) };
-  const backgroundStyle = getBackgroundStyle(pageStyles.backgroundColor);
+
+  const backgroundStyle = getBackgroundStyle(pageStyles);
 
   return (
-    <div className="min-h-screen-safe bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
+    <div className="h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
       <div
         className={cn(
           "relative w-full max-w-md shadow-xl md:rounded-2xl overflow-hidden md:border md:border-slate-300 flex flex-col group",
-          // Garante altura consistente (100dvh mobile, 90vh desktop)
-          "h-dvh md:h-[90vh]" 
+          "h-dvh md:h-[90vh]",
         )}
         style={{ perspective: "1000px" }}
       >
         {!isEditorPreview && !hasEntered && (
           <IntroScreen
-            title={pages[0]?.content?.title || "Bem-vindo"}
+            title={pages[0]?.blocks?.[0]?.content?.title || "Bem-vindo"}
             subtitle="Você tem um convite especial"
-            coverImage={pages[0]?.content?.image}
+            coverImage={pages[0]?.blocks?.[0]?.content?.image}
             guestName={guestName}
             onEnter={handleEnterEvent}
             isExpired={isExpired}
@@ -256,34 +256,22 @@ export function EventViewer({
               dragElastic={0.5}
               onDragEnd={onDragEnd}
               className="h-full w-full absolute inset-0 z-0 flex flex-col bg-white"
-              style={{
-                ...backgroundStyle,
-                ...(pageStyles.backgroundImage
-                  ? {
-                      backgroundImage: `url(${pageStyles.backgroundImage})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                    }
-                  : {}),
-              }}
+              style={backgroundStyle} // Agora recebe cor e imagem corretamente
             >
               {pageStyles.backgroundImage && (
                 <div
-                  className="absolute inset-0 z-0 pointer-events-none"
+                  className="absolute inset-0 z-0 pointer-events-none transition-opacity"
                   style={{
                     backgroundColor: "black",
                     opacity: pageStyles.backgroundOpacity || 0,
                   }}
                 />
               )}
-              
-              {/* CONTAINER DE SCROLL ORIGINAL MANTIDO */}
+
               <div
                 ref={scrollContainerRef}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
-                // Adicionado 'flex flex-col' aqui para alinhar o conteúdo interno corretamente
                 className="w-full h-full overflow-y-auto no-scrollbar relative z-10 flex flex-col"
                 style={{
                   paddingTop: `${pageStyles.paddingTop}px`,
@@ -294,23 +282,22 @@ export function EventViewer({
                     navDirection === "horizontal" ? "pan-y" : "pan-x",
                 }}
               >
-              
                 <div className="flex flex-col min-h-full">
                   {activePage.blocks.map((block: any) => (
                     <PublicBlockRenderer
                       key={block.id}
                       block={block}
-                      isPreview={isEditorPreview}
                       guest={guest}
                       canAnimate={hasEntered}
                     />
                   ))}
-                  {/* Espaçador original mantido */}
                   <div className="h-20 w-full shrink-0" />
                 </div>
               </div>
             </motion.div>
           </AnimatePresence>
+
+          {/* Dots de Paginação */}
           <div
             className={cn(
               "absolute z-40 flex justify-center gap-2 pointer-events-none transition-all",

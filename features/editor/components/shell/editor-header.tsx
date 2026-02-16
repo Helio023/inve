@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react"; 
+import { memo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
   EyeOff,
   ChevronDown,
   ExternalLink,
+  Undo2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -42,8 +43,10 @@ interface EditorHeaderProps {
   setIsPreview: (v: boolean) => void;
   settings?: any;
   onUpdateSettings?: (newSettings: any) => void;
+  // NOVAS PROPS PARA UNDO
+  canUndo?: boolean;
+  onUndo?: () => void;
 }
-
 
 const EditorHeaderComponent = ({
   activePageTitle,
@@ -62,12 +65,13 @@ const EditorHeaderComponent = ({
   setIsPreview,
   settings,
   onUpdateSettings,
+  canUndo,
+  onUndo,
 }: EditorHeaderProps) => {
   const publicUrl = `/sites/${agencySlug}/${eventSlug}`;
 
   return (
     <header className="h-14 bg-white border-b flex items-center justify-between px-3 md:px-4 shrink-0 z-50 relative shadow-sm">
-      {/* Lado Esquerdo */}
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
@@ -102,11 +106,6 @@ const EditorHeaderComponent = ({
                   <Cloud className="w-2.5 h-2.5 mr-1" /> PENDENTE
                 </span>
               )}
-              {saveStatus === "error" && (
-                <span className="text-[9px] font-bold text-red-600 flex items-center bg-red-50 px-1.5 py-0.5 rounded">
-                  <AlertCircle className="w-2.5 h-2.5 mr-1" /> ERRO
-                </span>
-              )}
             </div>
           </div>
           <span className="text-[10px] text-slate-400 font-medium">
@@ -116,6 +115,20 @@ const EditorHeaderComponent = ({
       </div>
 
       <div className="flex items-center gap-2">
+        {/* BOTÃO DESFAZER (UNDO) */}
+        {!isPreview && (
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={!canUndo}
+            onClick={onUndo}
+            className="h-9 w-9 text-slate-500 hover:text-blue-600 disabled:opacity-30"
+            title="Desfazer (Ctrl+Z)"
+          >
+            <Undo2 className="w-5 h-5" />
+          </Button>
+        )}
+
         {!isPreview && onUpdateSettings && (
           <GlobalSettingsDialog
             settings={settings}
@@ -124,28 +137,6 @@ const EditorHeaderComponent = ({
         )}
 
         <div className="w-px h-6 bg-slate-200 mx-1 hidden md:block" />
-
-        <Button
-          size="sm"
-          variant="outline"
-          className={cn(
-            "hidden md:flex h-9 rounded-lg font-bold border-slate-200 transition-all",
-            isPreview
-              ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white border-blue-700"
-              : "bg-white text-slate-600",
-          )}
-          onClick={() => setIsPreview(!isPreview)}
-        >
-          {isPreview ? (
-            <>
-              <EyeOff className="w-4 h-4  mr-2" /> Editar
-            </>
-          ) : (
-            <>
-              <Eye className="w-4 h-4 mr-2" /> Preview
-            </>
-          )}
-        </Button>
 
         {!isPreview && (
           <Button
@@ -159,6 +150,8 @@ const EditorHeaderComponent = ({
           </Button>
         )}
 
+    
+
         <div className="w-px h-6 bg-slate-200 mx-1 hidden md:block" />
 
         {published ? (
@@ -166,12 +159,12 @@ const EditorHeaderComponent = ({
             <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
-                className="h-9 px-4 bg-emerald-500 text-white hover:bg-emerald-600 font-bold rounded-lg shadow-sm border-b-2 border-emerald-700 active:border-b-0 transition-all flex items-center gap-2"
+                className="h-9 px-4 bg-emerald-500 text-white font-bold rounded-lg shadow-sm border-b-2 border-emerald-700 active:border-b-0 flex items-center gap-2"
               >
-                <CheckCircle className="w-4 h-4" />
-                <span className="hidden sm:inline font-black text-[11px] tracking-tight uppercase">
+                <CheckCircle className="w-4 h-4" />{" "}
+                <span className="hidden sm:inline text-[11px] uppercase">
                   No Ar
-                </span>
+                </span>{" "}
                 <ChevronDown className="w-3.5 h-3.5 opacity-70" />
               </Button>
             </DropdownMenuTrigger>
@@ -180,15 +173,15 @@ const EditorHeaderComponent = ({
               className="w-48 p-1 rounded-xl shadow-xl"
             >
               <DropdownMenuItem
-                className="rounded-lg cursor-pointer flex items-center gap-2 py-2"
+                className="cursor-pointer flex items-center gap-2 py-2"
                 onClick={() => window.open(publicUrl, "_blank")}
               >
                 <ExternalLink className="w-4 h-4 text-blue-500" />{" "}
-                <span className="font-semibold text-xs">Abrir Convite</span>
+                <span className="font-semibold text-xs">Abrir</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onUnpublish}
-                className="rounded-lg cursor-pointer flex items-center gap-2 py-2 text-red-600 focus:text-red-600 focus:bg-red-50"
+                className="cursor-pointer flex items-center gap-2 py-2 text-red-600"
               >
                 <EyeOff className="w-4 h-4" />{" "}
                 <span className="font-semibold text-xs">Tirar do Ar</span>
@@ -198,7 +191,7 @@ const EditorHeaderComponent = ({
         ) : (
           <Button
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md h-9 px-4 border-b-2 border-blue-800 active:border-b-0 transition-all"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md h-9 px-4 border-b-2 border-blue-800"
             onClick={onPublish}
             disabled={isPublishing || saveStatus === "saving"}
           >
@@ -207,8 +200,8 @@ const EditorHeaderComponent = ({
             ) : (
               <Globe className="w-4 h-4 sm:mr-2" />
             )}
-            <span className="hidden sm:inline uppercase text-[11px] tracking-widest font-black">
-              {isPublishing ? "Aguarde..." : "Publicar"}
+            <span className="hidden sm:inline uppercase text-[11px] font-black">
+              Publicar
             </span>
           </Button>
         )}
@@ -217,5 +210,4 @@ const EditorHeaderComponent = ({
   );
 };
 
-// 3. Exportar com memo
 export const EditorHeader = memo(EditorHeaderComponent);

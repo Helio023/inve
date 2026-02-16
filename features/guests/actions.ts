@@ -63,6 +63,41 @@ export async function addGuestAction(formData: FormData) {
   }
 }
 
+
+export async function editGuestAction(formData: FormData) {
+  try {
+    await connectDB();
+    const guestId = formData.get("guestId") as string;
+    const eventId = formData.get("eventId") as string;
+    
+    // Valida se o usuário é dono do evento
+    await validateOwnership(eventId);
+
+    const validUntilString = formData.get("validUntil") as string;
+    
+    const updateData = {
+      name: formData.get("name") as string,
+      phone: formData.get("phone") as string,
+      maxAllowedGuests: Number(formData.get("maxAdults") || 1),
+      maxAllowedChildren: Number(formData.get("maxKids") || 0),
+      tableName: formData.get("tableName") as string,
+      sessionLabel: formData.get("sessionLabel") as string,
+      validUntil: validUntilString ? new Date(validUntilString) : undefined,
+    };
+
+    const guest = await Guest.findByIdAndUpdate(guestId, updateData, { new: true });
+    
+    if (!guest) return { error: "Convidado não encontrado." };
+
+    revalidatePath(`/dashboard/events/${eventId}/guests`);
+    return { success: true, guest: JSON.parse(JSON.stringify(guest)) };
+  } catch (error: any) {
+    console.error("Erro ao editar convidado:", error);
+    return { error: error.message || "Erro ao editar convidado." };
+  }
+}
+
+
 export async function deleteGuestAction(guestId: string, eventId: string) {
   try {
     await connectDB();
@@ -204,5 +239,39 @@ export async function getAllGuestsForExportAction(filters: {
     return { success: true, data: JSON.parse(JSON.stringify(guests)) };
   } catch (error) {
     return { error: "Erro ao buscar dados para exportação" };
+  }
+}
+
+
+export async function submitSongRequestAction(formData: FormData) {
+  try {
+    await connectDB();
+    const token = formData.get("token") as string;
+    const song = formData.get("song") as string;
+
+    if (!song || !song.trim()) return { error: "Escreva o nome da música." };
+    if (!token) return { error: "Link do convite inválido." };
+
+    const guest = await Guest.findOneAndUpdate(
+      { inviteToken: token }, 
+      { 
+        $push: { songRequests: song },
+        $set: { hasOpened: true }
+      },
+      { new: true }
+    );
+
+    if (!guest) return { error: "Convidado não encontrado." };
+
+    if (guest.eventId) {
+      revalidatePath(`/host/${guest.eventId}`);
+    
+      revalidatePath(`/dashboard/events/${guest.eventId}/guests`);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao salvar música:", error);
+    return { error: "Erro interno ao salvar música." };
   }
 }
