@@ -12,10 +12,10 @@ import {
 } from "lucide-react";
 import { IBlock, DEFAULT_STYLES, IPage } from "../types";
 import { SharedBlockContent } from "./shared-block-content";
-import { 
-  getContainerStyle, 
-  getBackgroundStyle, 
-  getAnimationVariants 
+import {
+  getContainerStyle,
+  getBackgroundStyle,
+  getAnimationVariants,
 } from "../utils";
 import {
   DropdownMenu,
@@ -58,15 +58,16 @@ export const BlockRenderer = ({
 }: BlockRendererProps) => {
   const s = { ...DEFAULT_STYLES, ...block.styles };
   const definition = BLOCK_DEFINITIONS[block.type];
-  
-  // RESTAURAÇÃO DAS ANIMAÇÕES:
-  // Usamos o helper para transformar a string "fade", "slide-up" etc em objetos do Framer Motion
-  const variants = getAnimationVariants(s.animation || "none");
+
+  const variants = getAnimationVariants(
+    s.animation || "none",
+    s.animationDelay || 0,
+    s.animationDuration || 0.5,
+  );
 
   return (
     <motion.div
-      // A key única garante que a animação reinicie quando você mudar o tipo de animação no painel
-      key={`${block.id}-${s.animation}`}
+      key={`${block.id}-${s.animation}-${s.animationDelay}`}
       variants={variants}
       initial="hidden"
       animate="visible"
@@ -80,7 +81,7 @@ export const BlockRenderer = ({
         position: "relative",
       }}
       className={cn(
-        "group transition-all duration-200 outline-none",
+        "group outline-none",
         !isPreview && isSelected
           ? "ring-2 ring-blue-500 ring-inset z-20 shadow-2xl"
           : "hover:ring-1 hover:ring-slate-300",
@@ -165,19 +166,19 @@ export const BlockRenderer = ({
         styles={s}
         isPreview={!!isPreview}
         renderChild={(colIdx: number) => {
-          // USO DA DEFINITION: Segurança para blocos que não aceitam filhos
-          if (!definition.supportsChildren || block.type !== "COLUMNS") return null;
+          if (!definition.supportsChildren || block.type !== "COLUMNS")
+            return null;
 
           const colKey = `col${colIdx}`;
           const children = block.content.children?.[colKey] || [];
 
           return (
-            <div 
+            <div
               className={cn(
                 "relative flex flex-col gap-2 min-h-[80px] transition-all",
-                // RESOLUÇÃO VISUAL: No editor, se o fundo for transparente, 
-                // forçamos uma visibilidade para as colunas não sumirem
-                !isPreview && "outline-1 outline-dashed outline-slate-200 -outline-offset-1 rounded-lg bg-slate-50/20"
+
+                !isPreview &&
+                  "outline-1 outline-dashed outline-slate-200 -outline-offset-1 rounded-lg bg-slate-50/20",
               )}
             >
               {children.map((child: IBlock) => (
@@ -197,7 +198,7 @@ export const BlockRenderer = ({
                   onAddChild={onAddChild}
                 />
               ))}
-              
+
               {!isPreview && (
                 <button
                   onClick={(e) => {

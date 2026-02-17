@@ -63,6 +63,9 @@ export const getTypographyStyle = (
     marginBottom: px((s as any)[`${prefix}MarginBottom`]),
   };
 };
+
+
+
 export const getContainerStyle = (
   styles: Partial<IBlockStyles> | undefined,
   prefix: string = "",
@@ -76,30 +79,33 @@ export const getContainerStyle = (
     return (s as any)[key];
   };
 
-  const px = (val: any) =>
-    val !== undefined && val !== null && val !== "" ? `${val}px` : undefined;
+  const formatUnit = (val: any) => {
+    if (val === undefined || val === null || val === "") return undefined;
+    if (!isNaN(val) && typeof val !== "boolean") return `${val}px`; // Se for número, add px
+    return val;
+  };
 
   const shadowMap: Record<string, string> = {
     none: "none",
     sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
     md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
     lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-    xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04)",
+    xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 10px 10px 10px -5px rgb(0 0 0 / 0.04)",
   };
 
   return {
     backgroundColor: get("backgroundColor") || "transparent",
-    width: get("width"),
-    height: px(get("height")),
-    minHeight: px(get("minHeight")),
-    paddingTop: px(get("paddingTop")),
-    paddingBottom: px(get("paddingBottom")),
-    paddingLeft: px(get("paddingLeft")),
-    paddingRight: px(get("paddingRight")),
-    marginTop: px(get("marginTop")),
-    marginBottom: px(get("marginBottom")),
-    borderRadius: px(get("borderRadius")),
-    borderWidth: px(get("borderWidth")),
+    width: formatUnit(get("width")),
+    height: formatUnit(get("height")),
+    minHeight: formatUnit(get("minHeight")),
+    paddingTop: formatUnit(get("paddingTop")),
+    paddingBottom: formatUnit(get("paddingBottom")),
+    paddingLeft: formatUnit(get("paddingLeft")),
+    paddingRight: formatUnit(get("paddingRight")),
+    marginTop: formatUnit(get("marginTop")),
+    marginBottom: formatUnit(get("marginBottom")),
+    borderRadius: formatUnit(get("borderRadius")),
+    borderWidth: formatUnit(get("borderWidth")),
     borderColor: get("borderColor") || "transparent",
     borderStyle: get("borderStyle") || "solid",
     boxShadow: shadowMap[get("shadow")] || "none",
@@ -122,32 +128,44 @@ export const getBackgroundStyle = (
   };
 };
 
-
-
 import { Variants } from "framer-motion";
 
-export const getAnimationVariants = (animType: string): Variants => {
+
+export const getAnimationVariants = (
+  animType: string,
+  delay: number = 0,
+  duration: number = 0.5,
+): Variants => {
   const initialStates: any = {
     none: { opacity: 1, y: 0, x: 0, scale: 1, rotateX: 0 },
     fade: { opacity: 0 },
-    "slide-up": { opacity: 0, y: 50 },
-    "slide-down": { opacity: 0, y: -50 },
-    "slide-left": { opacity: 0, x: 50 },
-    "slide-right": { opacity: 0, x: -50 },
-    "zoom-in": { opacity: 0, scale: 0.8 },
-    "zoom-out": { opacity: 0, scale: 1.2 },
+
+    "slide-up": { opacity: 0, y: 30 },
+    "slide-down": { opacity: 0, y: -30 },
+    "slide-left": { opacity: 0, x: 30 },
+    "slide-right": { opacity: 0, x: -30 },
+    "zoom-in": { opacity: 0, scale: 0.92 },
+    "zoom-out": { opacity: 0, scale: 1.08 },
     flip: { opacity: 0, rotateX: 90 },
-    bounce: { opacity: 0, y: 50, scale: 0.9 },
+    bounce: { opacity: 0, y: 40, scale: 0.95 },
   };
 
   return {
     hidden: initialStates[animType] || initialStates.none,
     visible: {
-      opacity: 1, y: 0, x: 0, scale: 1, rotateX: 0,
+      opacity: 1,
+      y: 0,
+      x: 0,
+      scale: 1,
+      rotateX: 0,
       transition: {
-        type: animType === "bounce" ? "spring" : "tween",
-        stiffness: 100, damping: 15, duration: 0.6, ease: "easeOut"
-      }
-    }
+        ease: "linear",
+
+        duration: duration,
+        delay: delay,
+
+        type: "tween",
+      },
+    },
   };
 };

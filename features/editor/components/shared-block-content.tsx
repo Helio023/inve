@@ -130,8 +130,8 @@ export const SharedBlockContent = ({
     case "VIDEO":
       const videoSrc = formatVideoUrl(block.content.url);
       return (
-        <div 
-          style={getContainerStyle(s)} 
+        <div
+          style={getContainerStyle(s)}
           className="w-full h-full min-h-[250px] bg-black relative overflow-hidden group/video"
         >
           {videoSrc ? (
@@ -142,14 +142,17 @@ export const SharedBlockContent = ({
               allowFullScreen
             />
           ) : (
-            
             <div className="w-full h-full min-h-[250px] bg-slate-900 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-white/10 text-slate-400 p-8 transition-colors group-hover/video:bg-slate-800">
               <div className="p-4 bg-white/5 rounded-2xl shadow-sm border border-white/10 transition-transform group-hover/video:scale-110 duration-300">
                 <PlayCircle className="w-8 h-8 text-red-500 opacity-60" />
               </div>
               <div className="text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-white/60">Player de Vídeo</p>
-                <p className="text-[9px] text-white/40 font-bold uppercase mt-1">Insira o link do YouTube no painel lateral</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-white/60">
+                  Player de Vídeo
+                </p>
+                <p className="text-[9px] text-white/40 font-bold uppercase mt-1">
+                  Insira o link do YouTube no painel lateral
+                </p>
               </div>
             </div>
           )}
@@ -162,8 +165,12 @@ export const SharedBlockContent = ({
 
       return (
         <div
-          className="w-full h-full flex flex-col relative min-h-[350px]"
-          style={getContainerStyle(s)}
+          className="w-full flex-1 flex flex-col relative"
+          style={{
+            minHeight: s.height === "auto" ? "350px" : "100%",
+            height: "100%",
+            flex: 1,
+          }}
         >
           <div className="absolute inset-0 z-0 bg-slate-100">
             {mapSrc ? (
@@ -172,7 +179,7 @@ export const SharedBlockContent = ({
                 height="100%"
                 src={mapSrc}
                 style={{ border: 0 }}
-                className={cn(!isPreview && "pointer-events-none")} // Trava o mapa no editor
+                className={cn(!isPreview && "pointer-events-none")}
               />
             ) : (
               <div className="h-full flex items-center justify-center text-slate-300">
@@ -194,16 +201,11 @@ export const SharedBlockContent = ({
               <p style={getTypographyStyle(s, "desc")}>
                 {block.content.address}
               </p>
-
               <a
                 href={isPreview ? googleMapsUrl : "#"}
                 target={isPreview ? "_blank" : "_self"}
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!isPreview) e.preventDefault();
-                }}
                 className={cn(
-                  "mt-4 py-2 px-4 text-center font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm block",
+                  "mt-4 py-2 px-4 text-center font-bold flex items-center justify-center gap-2 transition-all block",
                   !isPreview && "cursor-default",
                 )}
                 style={{
@@ -213,13 +215,14 @@ export const SharedBlockContent = ({
                   borderRadius: (s as any).btnBorderRadius || 8,
                 }}
               >
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4" />{" "}
                 {block.content.buttonText || "Abrir GPS"}
               </a>
             </div>
           </div>
         </div>
       );
+
     case "RSVP":
       return (
         <RsvpBlock
