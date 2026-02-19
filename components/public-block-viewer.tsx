@@ -40,6 +40,11 @@ export const PublicBlockRenderer = ({
         ...getBackgroundStyle(s),
         position: "relative",
         width: s.width || "100%",
+         flexDirection: "column", 
+   
+    height: s.height === "auto" ? "auto" : s.height,
+        flexShrink: 0, 
+       
       }}
       className="w-full shrink-0"
     >

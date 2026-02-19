@@ -234,3 +234,4 @@ const EditorCanvasComponent = ({
 };
 
 export const EditorCanvas = memo(EditorCanvasComponent);
+

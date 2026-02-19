@@ -30,32 +30,34 @@ export interface BlockContentMap {
     link: string;
     buttonText?: string;
   };
-  COUNTDOWN: { date: string; label?: string };
+  COUNTDOWN: { date: string; label: string };
   RSVP: { title: string; description: string; buttonText: string };
   COLUMNS: { cols: number; children: Record<string, IBlock[]> };
   MENU: {
-     isInteractive: boolean;
+    isInteractive: boolean;
     sections: Array<{
       title: string;
       items: Array<{ name: string; description: string; price?: string }>;
     }>;
   };
-   SCHEDULE: { 
+  SCHEDULE: {
     title?: string;
-    items: Array<{ time: string; title: string; description: string }>; 
+    items: Array<{ time: string; title: string; description: string }>;
   };
   CAROUSEL: { images: Array<{ url: string; caption?: string }> };
   BUTTON: { text: string; url: string };
-  SONG_REQUEST: { title: string; placeholder?: string; buttonText?: string; };
+  SONG_REQUEST: { title: string; placeholder?: string; buttonText?: string };
   ICON: { name: string; size?: number; repeat?: number };
   DIVIDER: { align: "left" | "center" | "right"; width?: string };
-  SAVE_THE_DATE: { title: string; 
-    date: string;       
-    dateDisplay: string; 
+  SAVE_THE_DATE: {
+    title: string;
+    date: string;
+    dateDisplay: string;
     buttonText: string;
-    location?: string; };
+    location?: string;
+  };
   DRESS_CODE: { title: string; description: string; image?: string };
-  FAQ: { items: Array<{ q: string; a: string }> };
+  FAQ: { title: string; items: Array<{ q: string; a: string }> };
 }
 
 export type AnimationType =

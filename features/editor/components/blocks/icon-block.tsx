@@ -1,44 +1,54 @@
 "use client";
 
+import React from "react";
 import * as LucideIcons from "lucide-react";
 import { getContainerStyle } from "@/features/editor/utils";
 import { DEFAULT_STYLES } from "@/features/editor/types";
 
 export function IconBlock({ content, styles }: any) {
-  const iconName = content.iconName || "Heart";
+  // 1. BLINDAGEM: Fallback total para evitar o erro de 'undefined'
+  const iconName = content?.name || content?.iconName || "Heart";
+  const repeatCount = Math.max(1, Number(content?.repeat) || 1);
+  
+  const s = { ...DEFAULT_STYLES, ...styles };
+
+
   // @ts-ignore
   const IconComponent = LucideIcons[iconName] || LucideIcons.Heart;
-  const repeatCount = Math.max(1, content.repeat || 1); // Garante pelo menos 1
 
-  const s = { ...DEFAULT_STYLES, ...styles };
-  
-  // Container: Controla fundo, margem e alinhamento
-  const containerStyle = {
-      ...getContainerStyle(s, ""),
-      display: "flex",
-      justifyContent: s.textAlign === "left" ? "flex-start" : s.textAlign === "right" ? "flex-end" : "center",
-      alignItems: "center",
-      gap: "0.5rem",
-      backgroundColor: s.backgroundColor || "transparent", // Permite cor de fundo
-      minHeight: "auto"
+
+  const containerStyle: React.CSSProperties = {
+    ...getContainerStyle(s),
+    display: "flex",
+
+    justifyContent: s.textAlign === "left" ? "flex-start" : s.textAlign === "right" ? "flex-end" : "center",
+    alignItems: "center",
+    gap: "1rem", 
+    flexWrap: "wrap",
+    height: "auto",
+    minHeight: "1px",
   };
 
+  const iconSize = Number(s.fontSize) || 32;
+  const iconColor = s.color || "currentColor";
   
-  const iconSize = s.fontSize || 32; 
-  const iconColor = s.color || "#000";
+
+  const strokeWidth = s.fontWeight === "bold" ? 3 : s.fontWeight === "light" ? 1 : 2;
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} className="w-full">
       {Array.from({ length: repeatCount }).map((_, index) => (
-        <IconComponent 
+        <IconComponent
           key={index}
           size={iconSize}
           color={iconColor}
-          strokeWidth={s.fontWeight === "bold" ? 3 : s.fontWeight === "light" ? 1 : 2}
+          strokeWidth={strokeWidth}
           style={{
-           
-             opacity: repeatCount > 2 && (index === 0 || index === repeatCount - 1) ? 0.7 : 1,
+            
+            opacity: repeatCount > 2 && (index === 0 || index === repeatCount - 1) ? 0.6 : 1,
+            transition: "all 0.3s ease"
           }}
+          className="shrink-0"
         />
       ))}
     </div>

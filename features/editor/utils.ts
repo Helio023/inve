@@ -55,12 +55,13 @@ export const getTypographyStyle = (
     fontSize: px(get("fontSize")),
     fontWeight: get("fontWeight"),
     fontStyle: get("fontStyle"),
-    textTransform: get("textTransform"),
     lineHeight: get("lineHeight"),
     letterSpacing: px(get("letterSpacing")),
     textAlign: get("textAlign"),
     marginTop: px((s as any)[`${prefix}MarginTop`]),
     marginBottom: px((s as any)[`${prefix}MarginBottom`]),
+    textTransform: get("textTransform") as any,
+  
   };
 };
 

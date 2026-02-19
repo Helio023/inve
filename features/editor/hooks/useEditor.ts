@@ -51,7 +51,10 @@ const INITIAL_BLOCK_DATA: Record<BlockType, any> = {
     buttonText: "Salvar Data",
   },
   DRESS_CODE: { title: "Dress Code", description: "Traje Formal", image: "" },
-  FAQ: { items: [{ q: "Pergunta?", a: "Resposta." }] },
+  FAQ: { title: "Perguntas Frequentes", 
+    items: [
+      { q: "Existe estacionamento?", a: "Sim, gratuito no local." }
+    ],},
 };
 
 

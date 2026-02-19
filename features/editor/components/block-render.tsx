@@ -79,6 +79,11 @@ export const BlockRenderer = ({
         ...getContainerStyle(s),
         ...getBackgroundStyle(s),
         position: "relative",
+        display: "flex",
+        flexDirection: "column",
+height: s.height === "auto" ? "auto" : s.height,
+        flexShrink: 0, 
+        width: "100%"
       }}
       className={cn(
         "group outline-none",

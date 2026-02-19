@@ -18,6 +18,7 @@ import {
   Shirt,
   Music,
   PlayCircle,
+  MessageSquare,
 } from "lucide-react";
 import { BlockType } from "../types";
 
@@ -146,7 +147,12 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
         icon: AlignLeft,
         controls: ["typography", "colors"],
       },
-       { id: "btn", label: "Botão GPS", icon: MousePointerClick, controls: ["typography", "colors", "decoration", "size"] },
+      {
+        id: "btn",
+        label: "Botão GPS",
+        icon: MousePointerClick,
+        controls: ["typography", "colors", "decoration", "size"],
+      },
     ],
   },
   COUNTDOWN: {
@@ -173,11 +179,12 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
         icon: Hash,
         controls: ["typography", "colors"],
       },
+
       {
         id: "label",
-        label: "Legendas",
-        icon: AlignLeft,
-        controls: ["typography", "colors"],
+        label: "Legenda do Topo",
+        icon: Type,
+        controls: ["typography", "colors", "spacing"],
       },
     ],
   },
@@ -239,25 +246,25 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
       },
       {
         id: "title",
-        label: "Título",
+        label: "Título Principal",
         icon: Type,
         controls: ["typography", "colors"],
       },
       {
         id: "time",
-        label: "Horário",
+        label: "Horários",
         icon: Clock,
         controls: ["typography", "colors"],
       },
       {
         id: "itemTitle",
-        label: "Atividade",
+        label: "Atividades",
         icon: Type,
         controls: ["typography", "colors"],
       },
       {
         id: "desc",
-        label: "Detalhes",
+        label: "Descrições",
         icon: AlignLeft,
         controls: ["typography", "colors"],
       },
@@ -277,7 +284,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
       },
       {
         id: "title",
-        label: "Seções",
+        label: "Secções",
         icon: Type,
         controls: ["typography", "colors"],
       },
@@ -350,10 +357,30 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
     color: "pink",
     category: "interativo",
     layers: [
-      { id: "container", label: "Geral", icon: Layout, controls: ["colors", "spacing", "decoration", "size", "animation"] },
-      { id: "title", label: "Título", icon: Type, controls: ["typography", "colors"] },
-      { id: "input", label: "Campo", icon: BoxSelect, controls: ["colors", "typography", "decoration"] },
-      { id: "btn", label: "Botão", icon: MousePointerClick, controls: ["colors", "typography", "decoration", "size"] },
+      {
+        id: "container",
+        label: "Geral",
+        icon: Layout,
+        controls: ["colors", "spacing", "decoration", "size"],
+      },
+      {
+        id: "title",
+        label: "Título",
+        icon: Type,
+        controls: ["typography", "colors"],
+      },
+      {
+        id: "input",
+        label: "Campo",
+        icon: BoxSelect,
+        controls: ["typography", "colors", "decoration"],
+      },
+      {
+        id: "btn",
+        label: "Botão",
+        icon: MousePointerClick,
+        controls: ["typography", "colors", "decoration"],
+      },
     ],
   },
   ICON: {
@@ -398,11 +425,22 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
       },
       {
         id: "title",
-        label: "Destaque",
+        label: "Título",
         icon: Type,
         controls: ["typography", "colors"],
       },
-      { id: "btn", label: "Botão", icon: MousePointerClick, controls: ["typography", "colors", "decoration", "size"] },
+      {
+        id: "desc",
+        label: "Data",
+        icon: AlignLeft,
+        controls: ["typography", "colors", "spacing"],
+      },
+      {
+        id: "btn",
+        label: "Botão",
+        icon: MousePointerClick,
+        controls: ["typography", "colors", "decoration", "size", "spacing"],
+      },
     ],
   },
   DRESS_CODE: {
@@ -413,13 +451,13 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
     layers: [
       {
         id: "container",
-        label: "Fundo",
+        label: "Fundo do Bloco",
         icon: Layout,
         controls: ["colors", "spacing", "decoration", "size", "animation"],
       },
       {
         id: "title",
-        label: "Título",
+        label: "Título do Traje",
         icon: Type,
         controls: ["typography", "colors"],
       },
@@ -439,19 +477,28 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
     layers: [
       {
         id: "container",
-        label: "Fundo",
+        label: "Bloco Inteiro",
         icon: Layout,
         controls: ["colors", "spacing", "decoration", "size", "animation"],
       },
+
       {
         id: "title",
-        label: "Pergunta",
+        label: "Título do Bloco",
         icon: Type,
+        controls: ["typography", "colors", "spacing"],
+      },
+
+      {
+        id: "itemTitle",
+        label: "Estilo das Perguntas",
+        icon: MessageSquare,
         controls: ["typography", "colors"],
       },
+
       {
         id: "desc",
-        label: "Resposta",
+        label: "Estilo das Respostas",
         icon: AlignLeft,
         controls: ["typography", "colors"],
       },
