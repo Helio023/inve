@@ -50,7 +50,7 @@ export const HeroBlock = ({ content, styles: s }: any) => {
           <img 
             src={content.image} 
             className="w-full h-full object-cover" 
-            style={{ objectFit: s.objectFit || "cover" }} 
+            style={{  objectFit: s.objectFit || "cover"  }} 
             alt="" 
           />
         </div>

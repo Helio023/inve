@@ -118,14 +118,30 @@ export const getBackgroundStyle = (
 ): CSSProperties => {
   if (!styles) return { backgroundColor: "transparent" };
 
+  const bg = styles.backgroundColor || "transparent";
+  const img = styles.backgroundImage;
+  const isGradient = bg.includes("gradient");
+
+  const layers: string[] = [];
+
+  // Se houver imagem, ela é a primeira camada (fica por cima)
+  if (img && img !== "none" && img !== "") {
+    layers.push(`url(${img})`);
+  }
+
+  // Se a cor de fundo for um gradiente, ela entra como uma camada de imagem (fica por baixo)
+  if (isGradient) {
+    layers.push(bg);
+  }
+
   return {
-    backgroundColor: styles.backgroundColor || "transparent",
-    backgroundImage:
-      styles.backgroundImage && styles.backgroundImage !== "none"
-        ? `url(${styles.backgroundImage})`
-        : "none",
+   
+    backgroundColor: isGradient ? undefined : bg,
+   
+    backgroundImage: layers.length > 0 ? layers.join(", ") : "none",
     backgroundSize: "cover",
     backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
   };
 };
 

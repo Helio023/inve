@@ -12,7 +12,7 @@ export function CarouselRenderer({
   content: any;
   styles: any;
 }) {
-  // 1. Filtra URLs válidas com segurança máxima
+
   const images = Array.isArray(content?.images) 
     ? content.images.filter((img: any) => img?.url && typeof img.url === "string" && img.url.trim() !== "")
     : [];
@@ -24,7 +24,7 @@ export function CarouselRenderer({
   const intervalTime = (content?.interval || 3) * 1000;
   const effect = content?.effect || "slide";
 
-  // Sincroniza o índice se a lista de imagens mudar
+
   useEffect(() => {
     if (index >= images.length) {
       setIndex(0);
@@ -87,7 +87,7 @@ export function CarouselRenderer({
     <div className="relative w-full h-full overflow-hidden group">
       <AnimatePresence initial={false} custom={direction} mode="popLayout">
         <motion.img
-          key={currentImage.url} // Usa a URL como chave para animação suave
+          key={currentImage.url} 
           src={currentImage.url}
           alt={`Slide ${index}`}
           custom={direction}

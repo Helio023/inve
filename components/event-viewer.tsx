@@ -43,7 +43,7 @@ export function EventViewer({
   guest,
 }: EventViewerProps) {
   const [[page, direction], setPage] = useState([0, 0]);
-  const [hasEntered, setHasEntered] = useState(false);
+  const [hasEntered, setHasEntered] = useState(isEditorPreview);
   const [playMusic, setPlayMusic] = useState(false);
   const touchStartY = useRef(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -120,19 +120,32 @@ export function EventViewer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [paginate, navDirection]);
 
+  // TODAS AS VARIANTES DE ANIMAÇÃO MANTIDAS
   const variants = {
     slide: {
-      enter: (direction: number) => {
-        if (navDirection === "vertical")
-          return { y: direction > 0 ? "100%" : "-100%", opacity: 1, zIndex: 1 };
-        return { x: direction > 0 ? "100%" : "-100%", opacity: 1, zIndex: 1 };
-      },
+      enter: (direction: number) => ({
+        y: navDirection === "vertical" ? (direction > 0 ? "100%" : "-100%") : 0,
+        x:
+          navDirection === "horizontal"
+            ? direction > 0
+              ? "100%"
+              : "-100%"
+            : 0,
+        opacity: 1,
+        zIndex: 1,
+      }),
       center: { zIndex: 1, x: 0, y: 0, opacity: 1 },
-      exit: (direction: number) => {
-        if (navDirection === "vertical")
-          return { zIndex: 0, y: direction < 0 ? "100%" : "-100%", opacity: 1 };
-        return { zIndex: 0, x: direction < 0 ? "100%" : "-100%", opacity: 1 };
-      },
+      exit: (direction: number) => ({
+        zIndex: 0,
+        y: navDirection === "vertical" ? (direction < 0 ? "100%" : "-100%") : 0,
+        x:
+          navDirection === "horizontal"
+            ? direction < 0
+              ? "100%"
+              : "-100%"
+            : 0,
+        opacity: 1,
+      }),
     },
     fade: {
       enter: { opacity: 0, zIndex: 1 },
@@ -170,7 +183,7 @@ export function EventViewer({
   if (!pages || pages.length === 0) return <div>Sem conteúdo.</div>;
   if (!isPublished && !isEditorPreview)
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
+      <div className="h-dvh bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
         <Lock className="w-12 h-12 text-slate-500 mb-4" />
         <h1 className="text-2xl font-bold">Convite em Edição</h1>
         <p className="text-slate-400 mt-2">Este link ainda não está ativo.</p>
@@ -179,21 +192,20 @@ export function EventViewer({
 
   const pageStyles = { ...DEFAULT_PAGE_STYLES, ...(activePage.styles || {}) };
 
-  const backgroundStyle = getBackgroundStyle(pageStyles);
-
   return (
-    <div className="h-screen bg-slate-100 flex items-center justify-center font-sans overflow-hidden my-0 select-none p-0 md:p-4">
+    <div className="h-dvh w-full bg-slate-100 flex items-center justify-center font-sans overflow-hidden select-none p-0 md:p-4">
       <div
         className={cn(
-          "relative w-full max-w-md shadow-xl md:rounded-2xl overflow-hidden md:border md:border-slate-300 flex flex-col group",
-          "h-dvh md:h-[90vh]",
+          "relative w-full max-w-md shadow-2xl overflow-hidden flex flex-col group transition-all",
+          "h-dvh md:h-[90dvh] md:rounded-[2.5rem] md:border-[8px] md:border-slate-950",
+          isEditorPreview &&
+            "md:h-full md:border-none md:rounded-none md:shadow-none",
         )}
         style={{ perspective: "1000px" }}
       >
         {!isEditorPreview && !hasEntered && (
           <IntroScreen
             title={pages[0]?.blocks?.[0]?.content?.title || "Bem-vindo"}
-            subtitle="Você tem um convite especial"
             coverImage={pages[0]?.blocks?.[0]?.content?.image}
             guestName={guestName}
             onEnter={handleEnterEvent}
@@ -202,7 +214,9 @@ export function EventViewer({
             sessionLabel={guest?.sessionLabel}
           />
         )}
+
         <EventInteractionProvider>
+          {/* BOTÕES DE NAVEGAÇÃO */}
           {page > 0 && (
             <button
               onClick={() => paginate(-1)}
@@ -213,13 +227,10 @@ export function EventViewer({
                   : "top-4 left-1/2 -translate-x-1/2",
               )}
             >
-              {navDirection === "horizontal" ? (
-                <ChevronLeft className="w-6 h-6" />
-              ) : (
-                <ChevronUp className="w-6 h-6" />
-              )}
+              {navDirection === "horizontal" ? <ChevronLeft /> : <ChevronUp />}
             </button>
           )}
+
           {page < pages.length - 1 && (
             <button
               onClick={() => paginate(1)}
@@ -231,12 +242,13 @@ export function EventViewer({
               )}
             >
               {navDirection === "horizontal" ? (
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight />
               ) : (
-                <ChevronDown className="w-6 h-6" />
+                <ChevronDown />
               )}
             </button>
           )}
+
           <AnimatePresence initial={true} custom={direction} mode="popLayout">
             <motion.div
               key={page}
@@ -252,19 +264,14 @@ export function EventViewer({
                 duration: 0.5,
               }}
               drag={navDirection === "horizontal" ? "x" : false}
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.5}
               onDragEnd={onDragEnd}
               className="h-full w-full absolute inset-0 z-0 flex flex-col bg-white"
-              style={backgroundStyle} // Agora recebe cor e imagem corretamente
+              style={getBackgroundStyle(pageStyles)}
             >
               {pageStyles.backgroundImage && (
                 <div
-                  className="absolute inset-0 z-0 pointer-events-none transition-opacity"
-                  style={{
-                    backgroundColor: "black",
-                    opacity: pageStyles.backgroundOpacity || 0,
-                  }}
+                  className="absolute inset-0 z-0 bg-black"
+                  style={{ opacity: pageStyles.backgroundOpacity || 0 }}
                 />
               )}
 
@@ -274,10 +281,11 @@ export function EventViewer({
                 onTouchEnd={handleTouchEnd}
                 className="w-full h-full overflow-y-auto no-scrollbar relative z-10 flex flex-col"
                 style={{
-                  paddingTop: `${pageStyles.paddingTop}px`,
-                  paddingBottom: `${pageStyles.paddingBottom}px`,
-                  paddingLeft: `${pageStyles.paddingLeft}px`,
-                  paddingRight: `${pageStyles.paddingRight}px`,
+                  // PARIDADE TOTAL 1:1 COM O EDITOR
+                  paddingTop: `${pageStyles.paddingTop || 0}px`,
+                  paddingBottom: `${pageStyles.paddingBottom || 0}px`,
+                  paddingLeft: `${pageStyles.paddingLeft || 0}px`,
+                  paddingRight: `${pageStyles.paddingRight || 0}px`,
                   touchAction:
                     navDirection === "horizontal" ? "pan-y" : "pan-x",
                 }}
@@ -291,13 +299,12 @@ export function EventViewer({
                       canAnimate={hasEntered}
                     />
                   ))}
-                  <div className="h-20 w-full shrink-0" />
                 </div>
               </div>
             </motion.div>
           </AnimatePresence>
 
-          {/* Dots de Paginação */}
+          {/* DOTS DE PAGINAÇÃO */}
           <div
             className={cn(
               "absolute z-40 flex justify-center gap-2 pointer-events-none transition-all",
@@ -318,7 +325,7 @@ export function EventViewer({
                       : "w-1.5 h-1.5"
                     : idx === page
                       ? "h-4 w-1.5"
-                      : "h-1.5 w-1.5",
+                      : "w-1.5 h-1.5",
                 )}
               />
             ))}
@@ -329,6 +336,16 @@ export function EventViewer({
         <BackgroundMusicPlayer url={settings.music.url} autoPlay={playMusic} />
       )}
       <style jsx global>{`
+        html,
+        body {
+          height: 100dvh;
+          overflow: hidden;
+          margin: 0;
+          padding: 0;
+          background: #000;
+          position: fixed;
+          width: 100%;
+        }
         .no-scrollbar::-webkit-scrollbar {
           display: none;
         }

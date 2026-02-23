@@ -101,12 +101,7 @@ export const BLOCK_DEFINITIONS: Record<BlockType, BlockDefinition> = {
     color: "emerald",
     category: "midia",
     layers: [
-      {
-        id: "container",
-        label: "Estilo",
-        icon: Layout,
-        controls: ["spacing", "decoration", "size", "animation"],
-      },
+      { id: "container", label: "Estilo", icon: Layout, controls: ["spacing", "decoration", "size", "animation"] }
     ],
   },
   VIDEO: {
