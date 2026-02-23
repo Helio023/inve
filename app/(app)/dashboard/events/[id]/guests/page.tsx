@@ -119,6 +119,7 @@ export default async function EventGuestsPage({ params }: PageProps) {
             eventId={id}
             baseUrl={baseUrl} 
             eventDescription={event.description}
+            eventTitle={event.title}
           />
         </div>
       </div>

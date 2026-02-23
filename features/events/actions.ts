@@ -101,6 +101,9 @@ export async function updateEventAction(formData: FormData) {
     await Event.findByIdAndUpdate(eventId, updateData);
 
     revalidatePath(`/dashboard/events/${eventId}/settings`);
+    
+    revalidatePath(`/dashboard/events/${eventId}/guests`);
+    revalidatePath(`/sites/[subdomain]/[slug]`, 'page'); 
     return { success: true };
 
   } catch (error) {

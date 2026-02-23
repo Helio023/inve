@@ -20,38 +20,53 @@ export const PublicBlockRenderer = ({
   guest,
   canAnimate = true,
 }: PublicBlockRendererProps) => {
-  const s = { ...DEFAULT_STYLES, ...block.styles };
+  // 1. Unifica estilos brutos
+  const rawStyles = { ...DEFAULT_STYLES, ...block.styles };
+
+  // 2. NORMALIZAÇÃO: Mapeia as chaves dos presets para chaves CSS que o navegador entende
+  const normalizedStyles = {
+    ...rawStyles,
+    fontSize: rawStyles.textFontSize || rawStyles.fontSize,
+    color: rawStyles.textColor || rawStyles.color,
+    fontFamily: rawStyles.textFontFamily || rawStyles.fontFamily,
+    letterSpacing: rawStyles.textLetterSpacing || rawStyles.letterSpacing,
+    textTransform: rawStyles.textTextTransform || rawStyles.textTransform,
+    fontWeight: rawStyles.textFontWeight || rawStyles.fontWeight,
+    lineHeight: rawStyles.textLineHeight || rawStyles.lineHeight,
+    textAlign: rawStyles.textAlign,
+  };
 
   const variants = getAnimationVariants(
-    s.animation || "none",
-    s.animationDelay || 0,
-    s.animationDuration || 0.5,
+    normalizedStyles.animation || "none",
+    normalizedStyles.animationDelay || 0,
+    normalizedStyles.animationDuration || 0.5,
   );
 
   return (
     <motion.div
-      key={`${block.id}-${s.animation}-${s.animationDelay}`}
+      key={`${block.id}-${normalizedStyles.animation}-${normalizedStyles.animationDelay}`}
       variants={variants}
       initial="hidden"
       whileInView={canAnimate ? "visible" : "hidden"}
       viewport={{ once: true, amount: 0.1 }}
       style={{
-        ...getContainerStyle(s),
-        ...getBackgroundStyle(s),
+        ...getContainerStyle(normalizedStyles),
+        ...getBackgroundStyle(normalizedStyles),
         position: "relative",
-        width: s.width || "100%",
-         flexDirection: "column", 
-   
-    height: s.height === "auto" ? "auto" : s.height,
-        flexShrink: 0, 
-       
+        width: normalizedStyles.width || "100%",
+        display: "flex",
+        flexDirection: "column", 
+        height: normalizedStyles.height === "auto" ? "auto" : normalizedStyles.height,
+        minHeight: normalizedStyles.minHeight, 
+        flexShrink: 0,
+        boxSizing: "border-box", 
       }}
-      className="w-full shrink-0"
+      className="w-full shrink-0 pointer-events-auto"
     >
       <SharedBlockContent
         block={block}
-        styles={s}
-        isPreview={true}
+        styles={normalizedStyles} 
+        isPreview={false}
         guest={guest}
         renderChild={(colIdx: number) => {
           if (block.type !== "COLUMNS") return null;

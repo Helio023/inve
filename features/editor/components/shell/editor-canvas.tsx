@@ -35,10 +35,10 @@ const EditorCanvasComponent = ({
           id="phone-mockup"
           className={cn(
             "transition-all duration-500 flex flex-col relative bg-white shrink-0 z-20 overflow-hidden shadow-2xl",
-            "md:w-[420px] md:h-[min(85dvh,850px)] md:rounded-[48px] md:border-[12px] md:border-slate-900",
+            "md:w-[472px] md:h-[min(85dvh,850px)] md:rounded-[48px] md:border-[12px] md:border-slate-900",
             "max-md:w-full max-md:h-full max-md:rounded-[32px] max-md:border-[6px] max-md:border-slate-800",
             isPreview &&
-              "shadow-none border-none rounded-none w-full h-full max-w-md mx-auto",
+              "shadow-none border-none rounded-none w-full h-full max-w-[448px] mx-auto",
           )}
           style={baseBackground}
           onClick={(e) => e.stopPropagation()}

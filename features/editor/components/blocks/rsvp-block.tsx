@@ -69,11 +69,13 @@ export function RsvpBlock({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (isEditorPreview) {
       toast.success("Modo Editor: Resposta simulada!");
       setIsDone(true);
       return;
     }
+
     if (!token) {
       toast.error("Acesse pelo link do convite.");
       return;
@@ -81,20 +83,26 @@ export function RsvpBlock({
 
     setLoading(true);
     const formData = new FormData(e.currentTarget);
+    
+   
+    formData.set("status", status); 
     formData.append("token", token);
-    formData.append("status", status);
+
     if (menuSelections.length > 0) {
       formData.append("menuChoices", JSON.stringify(menuSelections));
     }
 
     const res = await submitRsvpAction(formData);
-    if (res.error) toast.error(res.error);
-    else {
+    
+    if (res.error) {
+      toast.error(res.error);
+    } else {
       setIsDone(true);
-      toast.success("Confirmado!");
+      toast.success("Confirmado com sucesso!");
     }
     setLoading(false);
   };
+
 
   if (isDone && !isEditorPreview) {
     const isConfirmed = status === "CONFIRMED";
@@ -135,7 +143,7 @@ export function RsvpBlock({
   }
 
   return (
-    <div className="w-full flex flex-col h-auto flex-shrink-0 py-8 px-4 sm:px-6">
+    <div className="w-full flex flex-col h-auto flex-shrink-0 py-8 px-4 sm:px-6 pointer-events-auto">
       <div className="text-center mb-10">
         <h2
           style={{ ...titleStyle, marginBottom: "0.75rem" }}
@@ -175,6 +183,9 @@ export function RsvpBlock({
             >
               <input
                 type="radio"
+                value={item.id}
+                checked={status === item.id}
+                onChange={() => setStatus(item.id as any)}
                 name="status"
                 className="hidden"
                 onClick={() => setStatus(item.id as any)}
@@ -219,6 +230,7 @@ export function RsvpBlock({
                   <Input
                     type="number"
                     name="adults"
+                    max={guest?.maxAllowedGuests || 1}
                     min="1"
                     readOnly={isEditorPreview}
                     defaultValue={guest?.confirmedAdults || 1}
@@ -241,6 +253,7 @@ export function RsvpBlock({
                   <Input
                     type="number"
                     name="kids"
+                    max={guest?.maxAllowedChildren || 0}
                     min="0"
                     readOnly={isEditorPreview}
                     className={cn(

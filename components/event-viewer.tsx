@@ -196,10 +196,10 @@ export function EventViewer({
     <div className="h-dvh w-full bg-slate-100 flex items-center justify-center font-sans overflow-hidden select-none p-0 md:p-4">
       <div
         className={cn(
-          "relative w-full max-w-md shadow-2xl overflow-hidden flex flex-col group transition-all",
-          "h-dvh md:h-[90dvh] md:rounded-[2.5rem] md:border-[8px] md:border-slate-950",
-          isEditorPreview &&
-            "md:h-full md:border-none md:rounded-none md:shadow-none",
+          "relative w-full flex flex-col overflow-hidden shadow-2xl transition-all",
+  
+    "h-dvh md:h-[90dvh] max-w-[448px] md:rounded-[2.5rem] md:border-[8px] md:border-slate-950",
+    isEditorPreview && "md:h-full md:border-none md:rounded-none md:shadow-none"
         )}
         style={{ perspective: "1000px" }}
       >
@@ -281,7 +281,7 @@ export function EventViewer({
                 onTouchEnd={handleTouchEnd}
                 className="w-full h-full overflow-y-auto no-scrollbar relative z-10 flex flex-col"
                 style={{
-                  // PARIDADE TOTAL 1:1 COM O EDITOR
+                  
                   paddingTop: `${pageStyles.paddingTop || 0}px`,
                   paddingBottom: `${pageStyles.paddingBottom || 0}px`,
                   paddingLeft: `${pageStyles.paddingLeft || 0}px`,

@@ -49,7 +49,6 @@ export function MenuRenderer({
     <div className="w-full flex flex-col gap-12 py-8 px-4">
       {sections.map((section: any, sIdx: number) => (
         <div key={sIdx} className={cn("w-full flex flex-col", alignmentClass)}>
-          {/* SECÇÃO: Título dinâmico */}
           <div className={cn("mb-8 w-full flex flex-col", alignmentClass)}>
             <h3 style={titleStyles} className="pb-2">
               {section.title || "Secção"}
@@ -74,7 +73,7 @@ export function MenuRenderer({
                 <div
                   key={iIdx}
                   onClick={() => {
-                    if (isInteractive && !isPreview && item.name) {
+                    if (isInteractive) {
                       toggleMenuSelection(section.title, item.name);
                     }
                   }}

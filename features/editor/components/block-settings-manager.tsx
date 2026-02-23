@@ -34,6 +34,7 @@ import { DressCodeForm } from "./forms/dress-code-form";
 import { FaqForm } from "./forms/faq-form";
 import { SongRequestForm } from "./forms/song-request-form";
 import { CountdownForm } from "./forms/countdown-form";
+import { ColumnsForm } from "./forms/columns-form";
 
 interface SettingsProps {
   block: IBlock;
@@ -238,6 +239,8 @@ function renderBlockForm(block: IBlock, onUpdate: (data: any) => void) {
       return <SongRequestForm {...props} />;
       case "COUNTDOWN": 
       return <CountdownForm {...props} />;
+       case "COLUMNS": 
+      return <ColumnsForm {...props} />;
     default:
       return (
         <div className="text-center py-10 border-2 border-dashed rounded-xl opacity-40 uppercase text-[10px] font-bold">

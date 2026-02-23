@@ -1,122 +1,3 @@
-// "use client";
-
-// import { useState } from "react";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { Textarea } from "@/components/ui/textarea";
-// import { Switch } from "@/components/ui/switch";
-// import { Plus, Trash2, ChevronDown, ChevronUp, Utensils } from "lucide-react";
-// import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-
-// export function MenuForm({ content, onUpdate }: any) {
-//   const sections = content.sections || [];
-//   const isInteractive = content.isInteractive || false;
-
-//   const addSection = () => {
-//     const newSections = [...sections, { title: "Nova Secção", items: [] }];
-//     onUpdate({ ...content, sections: newSections });
-//   };
-
-//   const removeSection = (idx: number) => {
-//     const newSections = sections.filter((_: any, i: number) => i !== idx);
-//     onUpdate({ ...content, sections: newSections });
-//   };
-
-//   const updateSectionTitle = (idx: number, title: string) => {
-//     const newSections = [...sections];
-//     newSections[idx].title = title;
-//     onUpdate({ ...content, sections: newSections });
-//   };
-
-//   const addItem = (sectionIdx: number) => {
-//     const newSections = [...sections];
-//     newSections[sectionIdx].items.push({ name: "Novo Prato", description: "", price: "" });
-//     onUpdate({ ...content, sections: newSections });
-//   };
-
-//   const updateItem = (sectionIdx: number, itemIdx: number, field: string, value: string) => {
-//     const newSections = [...sections];
-//     newSections[sectionIdx].items[itemIdx][field] = value;
-//     onUpdate({ ...content, sections: newSections });
-//   };
-
-//   const removeItem = (sectionIdx: number, itemIdx: number) => {
-//     const newSections = [...sections];
-//     newSections[sectionIdx].items = newSections[sectionIdx].items.filter((_:any, i:number) => i !== itemIdx);
-//     onUpdate({ ...content, sections: newSections });
-//   };
-
-//   return (
-//     <div className="space-y-6">
-      
-//       {/* Opção de Interatividade */}
-//       <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center justify-between">
-//         <div className="flex flex-col">
-//           <span className="text-xs font-bold text-blue-800">Menu Interativo?</span>
-//           <span className="text-[10px] text-blue-600">Permitir que convidados selecionem pratos.</span>
-//         </div>
-//         <Switch 
-//           checked={isInteractive}
-//           onCheckedChange={(checked) => onUpdate({ ...content, isInteractive: checked })}
-//         />
-//       </div>
-
-//       <div className="space-y-4">
-//         {sections.map((section: any, idx: number) => (
-//           <div key={idx} className="border rounded-lg p-3 bg-white space-y-3">
-//             <div className="flex items-center gap-2">
-//               <Input 
-//                 value={section.title} 
-//                 onChange={(e) => updateSectionTitle(idx, e.target.value)}
-//                 className="font-bold h-9"
-//                 placeholder="Nome da Secção (Ex: Jantar)"
-//               />
-//               <Button variant="ghost" size="icon" onClick={() => removeSection(idx)} className="text-red-400 hover:text-red-600 h-9 w-9">
-//                 <Trash2 className="w-4 h-4" />
-//               </Button>
-//             </div>
-
-//             <div className="pl-4 border-l-2 border-slate-100 space-y-3">
-//               {section.items.map((item: any, itemIdx: number) => (
-//                 <div key={itemIdx} className="bg-slate-50 p-2 rounded relative group">
-//                   <Button 
-//                     variant="ghost" 
-//                     size="icon" 
-//                     onClick={() => removeItem(idx, itemIdx)}
-//                     className="absolute top-1 right-1 h-6 w-6 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-//                   >
-//                     <Trash2 className="w-3 h-3" />
-//                   </Button>
-//                   <Input 
-//                     value={item.name} 
-//                     onChange={(e) => updateItem(idx, itemIdx, 'name', e.target.value)}
-//                     className="h-7 text-xs bg-transparent border-0 border-b border-slate-200 rounded-none focus-visible:ring-0 px-0 font-medium mb-1"
-//                     placeholder="Nome do Prato"
-//                   />
-//                   <Textarea 
-//                     value={item.description}
-//                     onChange={(e) => updateItem(idx, itemIdx, 'description', e.target.value)}
-//                     className="min-h-[40px] text-[10px] bg-transparent border-0 p-0 resize-none text-slate-500 focus-visible:ring-0"
-//                     placeholder="Descrição dos ingredientes..."
-//                   />
-//                 </div>
-//               ))}
-//               <Button onClick={() => addItem(idx)} variant="outline" size="sm" className="w-full text-xs h-8 border-dashed">
-//                 <Plus className="w-3 h-3 mr-2" /> Adicionar Prato
-//               </Button>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       <Button onClick={addSection} className="w-full bg-slate-900 text-white">
-//         <Plus className="w-4 h-4 mr-2" /> Nova Secção
-//       </Button>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -124,87 +5,153 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function MenuForm({ content, onUpdate }: any) {
   const sections = content.sections || [];
+  const val = (v: any) => v || "";
 
-  const updateItem = (sIdx: number, iIdx: number, field: string, value: string) => {
-    const newSections = [...sections];
-    const newItems = [...newSections[sIdx].items];
-    newItems[iIdx] = { ...newItems[iIdx], [field]: value };
-    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
-    onUpdate({ ...content, sections: newSections });
+  // --- ATUALIZAÇÕES IMUTÁVEIS ---
+  const updateSectionTitle = (sIdx: number, title: string) => {
+    const newSections = sections.map((section: any, index: number) => 
+      index === sIdx ? { ...section, title } : section
+    );
+    onUpdate({ sections: newSections });
+  };
+
+  const addDish = (sIdx: number) => {
+    const newSections = sections.map((section: any, index: number) => {
+      if (index === sIdx) {
+        return {
+          ...section,
+          items: [...(section.items || []), { name: "", description: "" }]
+        };
+      }
+      return section;
+    });
+    onUpdate({ sections: newSections });
+  };
+
+  const updateDish = (sIdx: number, iIdx: number, field: string, value: string) => {
+    const newSections = sections.map((section: any, index: number) => {
+      if (index === sIdx) {
+        const newItems = section.items.map((item: any, itemIndex: number) => 
+          itemIndex === iIdx ? { ...item, [field]: value } : item
+        );
+        return { ...section, items: newItems };
+      }
+      return section;
+    });
+    onUpdate({ sections: newSections });
+  };
+
+  const removeDish = (sIdx: number, iIdx: number) => {
+    const newSections = sections.map((section: any, index: number) => {
+      if (index === sIdx) {
+        return {
+          ...section,
+          items: section.items.filter((_: any, itemIndex: number) => itemIndex !== iIdx)
+        };
+      }
+      return section;
+    });
+    onUpdate({ sections: newSections });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex items-center justify-between">
+    <div className="space-y-6 animate-in fade-in">
+      {/* Toggle Interativo */}
+      <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex items-center justify-between shadow-sm">
         <div className="space-y-0.5">
           <span className="text-[10px] font-black text-blue-900 uppercase tracking-tighter block">Menu Interativo</span>
-          <span className="text-[9px] text-blue-600 block">Permitir escolha de pratos pelo convidado.</span>
+          <span className="text-[9px] text-blue-600 block">Permitir escolha de pratos.</span>
         </div>
         <Switch 
           checked={content.isInteractive}
-          onCheckedChange={(v) => onUpdate({ ...content, isInteractive: v })}
+          onCheckedChange={(v) => onUpdate({ isInteractive: v })}
         />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 pb-20"> {/* Padding extra para não cobrir o botão de baixo */}
         {sections.map((section: any, sIdx: number) => (
-          <div key={sIdx} className="border rounded-2xl p-4 bg-slate-50/30 space-y-4 relative group">
+          <div key={sIdx} className="border rounded-2xl p-4 bg-slate-50/30 space-y-4 relative group/section">
+            
+            {/* Header da Secção */}
             <div className="flex items-center gap-2">
-              <Input 
-                value={section.title} 
-                onChange={(e) => {
-                    const newS = [...sections]; 
-                    newS[sIdx] = { ...newS[sIdx], title: e.target.value };
-                    onUpdate({ ...content, sections: newS });
-                }}
-                className="font-black text-[10px] uppercase h-9 tracking-widest"
-                placeholder="NOME DA SECÇÃO"
-              />
-              <Button variant="ghost" size="icon" onClick={() => onUpdate({ ...content, sections: sections.filter((_:any, i:number) => i !== sIdx) })} className="text-red-400">
+              <div className="flex-1 space-y-1">
+                <Label className="text-[9px] font-bold text-slate-400 uppercase">Nome da Secção</Label>
+                <Input 
+                  value={val(section.title)} 
+                  onChange={(e) => updateSectionTitle(sIdx, e.target.value)}
+                  className="font-black text-[10px] uppercase h-9 tracking-widest bg-white"
+                  placeholder="EX: ENTRADAS"
+                />
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="mt-5 text-red-400 hover:bg-red-50"
+                onClick={() => onUpdate({ sections: sections.filter((_: any, i: number) => i !== sIdx) })}
+              >
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
 
-            <div className="pl-4 border-l-2 border-slate-200 space-y-3">
+            {/* Lista de Pratos */}
+            <div className="pl-3 border-l-2 border-slate-200 space-y-3">
               {section.items.map((item: any, iIdx: number) => (
-                <div key={iIdx} className="bg-white p-3 rounded-xl border shadow-sm relative group/item">
-                  <Button variant="ghost" size="icon" onClick={() => {
-                      const newS = [...sections];
-                      newS[sIdx].items = newS[sIdx].items.filter((_:any, i:number) => i !== iIdx);
-                      onUpdate({ ...content, sections: newS });
-                  }} className="absolute -top-1 -right-1 h-6 w-6 text-slate-300 opacity-0 group-item-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3" /></Button>
+                <div key={iIdx} className="bg-white p-3 rounded-xl border shadow-sm relative group/item space-y-1">
+                  
+                  {/* BOTÃO DE APAGAR PRATO - CORRIGIDO PARA MOBILE */}
+                  <button 
+                    type="button"
+                    onClick={() => removeDish(sIdx, iIdx)}
+                    className={cn(
+                      "absolute -top-2 -right-2 h-7 w-7 rounded-full shadow-md flex items-center justify-center transition-all z-20",
+                      "bg-white border border-slate-100 text-red-500",
+                      // No Desktop (lg), começa invisível. No Mobile, está sempre visível.
+                      "opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 hover:bg-red-50 active:scale-90"
+                    )}
+                  >
+                    <X className="w-3.5 h-3.5 stroke-[3px]" />
+                  </button>
                   
                   <Input 
-                    value={item.name} 
-                    onChange={(e) => updateItem(sIdx, iIdx, 'name', e.target.value)}
-                    className="h-7 text-xs font-bold border-0 border-b rounded-none px-0 focus-visible:ring-0 mb-1"
+                    value={val(item.name)} 
+                    onChange={(e) => updateDish(sIdx, iIdx, 'name', e.target.value)}
+                    className="h-7 text-xs font-bold border-0 border-b border-slate-100 rounded-none px-0 focus-visible:ring-0"
                     placeholder="Nome do Prato"
                   />
                   <Textarea 
-                    value={item.description}
-                    onChange={(e) => updateItem(sIdx, iIdx, 'description', e.target.value)}
+                    value={val(item.description)}
+                    onChange={(e) => updateDish(sIdx, iIdx, 'description', e.target.value)}
                     className="min-h-[40px] text-[10px] p-0 border-0 resize-none text-slate-500 focus-visible:ring-0"
-                    placeholder="Descrição dos ingredientes..."
+                    placeholder="Ingredientes..."
                   />
                 </div>
               ))}
-              <Button onClick={() => {
-                  const newS = [...sections];
-                  newS[sIdx].items = [...newS[sIdx].items, { name: "", description: "" }];
-                  onUpdate({ ...content, sections: newS });
-              }} variant="ghost" className="w-full text-[10px] font-bold h-8 border-dashed border-slate-200">+ Prato</Button>
+
+              <Button 
+                onClick={() => addDish(sIdx)} 
+                variant="ghost" 
+                className="w-full text-[10px] font-bold h-9 border-dashed border-slate-200 hover:bg-white"
+              >
+                <Plus className="w-3.5 h-3.5 mr-2" /> Adicionar Prato
+              </Button>
             </div>
           </div>
         ))}
       </div>
 
-      <Button onClick={() => onUpdate({ ...content, sections: [...sections, { title: "", items: [] }] })} className="w-full h-12 rounded-xl bg-slate-900">
-        <Plus className="w-4 h-4 mr-2" /> Nova Secção
-      </Button>
+      <div className="sticky bottom-0 pt-4 bg-white/80 backdrop-blur-sm pb-2">
+        <Button 
+          onClick={() => onUpdate({ sections: [...sections, { title: "", items: [] }] })} 
+          className="w-full h-12 rounded-xl bg-slate-900 text-white shadow-xl active:scale-95 transition-transform"
+        >
+          <Plus className="w-4 h-4 mr-2" /> Nova Secção
+        </Button>
+      </div>
     </div>
   );
 }

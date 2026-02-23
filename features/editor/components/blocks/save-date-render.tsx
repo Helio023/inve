@@ -17,7 +17,7 @@ export function SaveTheDateRenderer({
   
   // --- CAPTURA DE ESTILOS POR CAMADA ---
   const titleStyle = getTypographyStyle(s, "title");
-  const dateStyle = getTypographyStyle(s, "desc");
+  const dateStyle = getTypographyStyle(s, "dateText")
   const btnStyle = getTypographyStyle(s, "btn");
 
   const eventTitle = content.title || "Guarde esta Data";
