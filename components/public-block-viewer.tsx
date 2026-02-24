@@ -81,6 +81,7 @@ export const PublicBlockRenderer = ({
                   key={child.id}
                   block={child}
                   guest={guest}
+
                   canAnimate={canAnimate}
                 />
               ))}
