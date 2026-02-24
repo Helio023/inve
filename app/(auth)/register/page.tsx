@@ -5,7 +5,7 @@ import { RegisterWizard } from '@/features/auth/components/RegisterWizard';
 import { Logo } from '@/components/logo';
 
 export const metadata: Metadata = {
-  title: 'Criar Conta | Qonvip Moçambique',
+  title: 'Criar Conta | Qonvip',
   description: 'Registe a sua agência na Qonvip e comece a criar convites profissionais.',
 };
 
