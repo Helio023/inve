@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Privacidade e Proteção de Dados | Qonvip",
+  title: "Privacidade e Proteção de Dados",
   description: "Entenda como a Qonvip usa e protege as informações da sua agência e dos seus convidados.",
 };
 

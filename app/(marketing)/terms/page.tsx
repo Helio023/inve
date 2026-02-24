@@ -11,15 +11,10 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 
+
 export const metadata: Metadata = {
-  title: "Termos de Serviço | Qonvip",
-  description:
-    "Contrato de utilização da plataforma Qonvip. Regras de créditos, banimento por fraude e diretrizes white-label.",
-  openGraph: {
-    title: "Termos de Serviço | Qonvip",
-    description:
-      "Leia atentamente as regras do sistema de créditos segmentados.",
-  },
+  title: "Termos de Serviço",
+  description: "Contrato de utilização da plataforma Qonvip. Regras de créditos, banimento por fraude e diretrizes white-label",
 };
 
 export default function TermsPage() {
