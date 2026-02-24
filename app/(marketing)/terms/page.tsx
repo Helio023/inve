@@ -196,9 +196,7 @@ export default function TermsPage() {
               <p className="text-2xl font-black text-blue-600">
                 +258 87 639 7558
               </p>
-              <p className="text-xs text-slate-400 font-medium">
-                suporte@qonvip.com
-              </p>
+            
             </div>
             <div className="grayscale opacity-20">
               <Logo />
