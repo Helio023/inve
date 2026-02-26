@@ -96,7 +96,6 @@ export function IntroScreen({
   }, []);
 
   const handleEnter = async () => {
-    // Feedback tátil/áudio simulado
     try {
       const AudioContext =
         window.AudioContext || (window as any).webkitAudioContext;
@@ -125,7 +124,6 @@ export function IntroScreen({
           }}
           className="fixed inset-0 z-[200] flex items-center justify-center bg-[#FAF9F6] overflow-hidden"
         >
-          {/* Fundo com textura de papel premium */}
           <div className="absolute inset-0 opacity-[0.06] bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] pointer-events-none" />
           <FallingPetals />
 
@@ -179,7 +177,7 @@ export function IntroScreen({
                   </motion.div>
 
                   {guestName ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-center">
                       <span className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-bold block">
                         Convidado de Honra
                       </span>
@@ -203,13 +201,13 @@ export function IntroScreen({
                     className="flex flex-wrap justify-center gap-3"
                   >
                     {sessionLabel && (
-                      <span className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-100 text-[10px] font-medium text-slate-500 uppercase tracking-wider bg-slate-50/50">
+                      <span className="flex items-center gap-2 px-4 text-center py-1.5 rounded-full border border-slate-100 text-[10px] font-medium text-slate-500 uppercase tracking-wider bg-slate-50/50">
                         <Calendar className="w-3 h-3 opacity-60" />{" "}
                         {sessionLabel}
                       </span>
                     )}
                     {tableName && (
-                      <span className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-100 text-[10px] font-medium text-slate-500 uppercase tracking-wider bg-slate-50/50">
+                      <span className="flex items-center gap-2 text-center px-4 py-1.5 rounded-full border border-slate-100 text-[10px] font-medium text-slate-500 uppercase tracking-wider bg-slate-50/50">
                         <MapPin className="w-3 h-3 opacity-60" /> {tableName}
                       </span>
                     )}
@@ -219,7 +217,7 @@ export function IntroScreen({
                 <div className="h-px w-24 bg-gradient-to-r from-transparent via-slate-200 to-transparent mx-auto" />
 
                 {/* Nomes/Título */}
-                <div className="space-y-4">
+                <div className="space-y-4 text-center">
                   <h1 className="text-5xl md:text-6xl font-serif text-slate-900 leading-none tracking-tighter">
                     {title.split("&").map((name, i, arr) => (
                       <span key={name}>
