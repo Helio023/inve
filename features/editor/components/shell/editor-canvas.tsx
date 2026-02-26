@@ -1,8 +1,8 @@
+
 "use client";
 
 import { memo } from "react";
 import { cn } from "@/lib/utils";
-
 import { getBackgroundStyle } from "../../utils";
 import { EventInteractionProvider } from "@/features/editor/components/event-interaction-context";
 import { BlockRenderer } from "../block-render";
@@ -60,23 +60,51 @@ const EditorCanvasComponent = ({
             }}
           >
             <div className="flex flex-col min-h-full">
-              {activePage?.blocks.map((block: any, index: number) => (
-                <BlockRenderer
-                  key={block.id}
-                  block={block}
-                  isSelected={!isPreview && selectedBlockId === block.id}
-                  selectedBlockId={selectedBlockId}
-                  onClick={selectBlock}
-                  isPreview={isPreview}
-                  onAddChild={onAddChild}
-                  onMove={onMoveBlock}
-                  onDuplicate={onDuplicateBlock}
-                  onDelete={onDeleteBlock}
-                  pages={pages}
-                  isFirst={index === 0}
-                  onCopyToPage={copyBlockToPage}
-                />
-              ))}
+              {activePage?.blocks.map((block: any, index: number) => {
+                const isSelected = !isPreview && selectedBlockId === block.id;
+                
+                // EXTRAÇÃO CIRÚRGICA DE MARGENS
+                const mt = !isPreview ? (block.styles?.marginTop || 0) : 0;
+                const mb = !isPreview ? (block.styles?.marginBottom || 0) : 0;
+
+                return (
+                  <div key={block.id} className="w-full flex flex-col">
+                    {/* 1. ESPAÇADOR DE TOPO (Invisível, fora da borda de seleção) */}
+                    <div style={{ height: mt }} className="w-full pointer-events-none" />
+
+                    {/* 2. ÁREA DO BLOCO (Onde a borda realmente deve aparecer) */}
+                    <div
+                      className={cn(
+                        "relative group transition-all duration-200",
+                        !isPreview && "hover:ring-1 hover:ring-blue-400/40 hover:ring-inset",
+                        isSelected && "ring-2 ring-blue-500 ring-inset z-50 shadow-md"
+                      )}
+                    >
+                      <BlockRenderer
+               
+                        block={{
+                          ...block,
+                          styles: isPreview ? block.styles : { ...block.styles, marginTop: 0, marginBottom: 0 }
+                        }}
+                        isSelected={isSelected}
+                        selectedBlockId={selectedBlockId}
+                        onClick={selectBlock}
+                        isPreview={isPreview}
+                        onAddChild={onAddChild}
+                        onMove={onMoveBlock}
+                        onDuplicate={onDuplicateBlock}
+                        onDelete={onDeleteBlock}
+                        pages={pages}
+                        isFirst={index === 0}
+                        onCopyToPage={copyBlockToPage}
+                      />
+                    </div>
+
+                    
+                    <div style={{ height: mb }} className="w-full pointer-events-none" />
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

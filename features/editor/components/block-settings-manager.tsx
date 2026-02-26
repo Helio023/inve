@@ -36,6 +36,7 @@ import { SongRequestForm } from "./forms/song-request-form";
 import { CountdownForm } from "./forms/countdown-form";
 import { ColumnsForm } from "./forms/columns-form";
 
+
 interface SettingsProps {
   block: IBlock;
   updateBlock: (id: string, content: any) => void;
@@ -51,7 +52,6 @@ export const BlockSettingsManager = ({
   const definition = BLOCK_DEFINITIONS[block.type as BlockType];
 
   if (!definition) return null;
-
 
   const currentStyles = useMemo(() => {
     const allStyles = block.styles || {};
@@ -237,10 +237,11 @@ function renderBlockForm(block: IBlock, onUpdate: (data: any) => void) {
       return <FaqForm {...props} />;
     case "SONG_REQUEST":
       return <SongRequestForm {...props} />;
-      case "COUNTDOWN": 
+    case "COUNTDOWN":
       return <CountdownForm {...props} />;
-       case "COLUMNS": 
+    case "COLUMNS":
       return <ColumnsForm {...props} />;
+   
     default:
       return (
         <div className="text-center py-10 border-2 border-dashed rounded-xl opacity-40 uppercase text-[10px] font-bold">

@@ -16,7 +16,8 @@ export type BlockType =
   | "DIVIDER"
   | "SAVE_THE_DATE"
   | "DRESS_CODE"
-  | "FAQ";
+  | "FAQ"
+
 
 export interface BlockContentMap {
   HERO: { title: string; subtitle?: string; image?: string };
@@ -58,6 +59,7 @@ export interface BlockContentMap {
   };
   DRESS_CODE: { title: string; description: string; image?: string };
   FAQ: { title: string; items: Array<{ q: string; a: string }> };
+  PETALS: { count: number };
 }
 
 export type AnimationType =

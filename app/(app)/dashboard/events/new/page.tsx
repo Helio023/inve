@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { CreateEventSchema, CreateEventInput } from "@/features/events/schemas";
 import { createEventAction } from "@/features/events/actions";
-
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -55,7 +55,7 @@ export default function NewEventPage() {
       title: "",
       slug: "",
       eventType: "wedding",
-      // Cast para undefined ser aceito inicialmente como Date
+
       date: undefined as unknown as Date,
     },
   });
@@ -113,6 +113,19 @@ export default function NewEventPage() {
     <div className="max-w-2xl mx-auto py-8 px-4">
       <Card className="shadow-lg border-slate-200">
         <CardHeader className="bg-slate-50/50 border-b pb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 text-slate-500 hover:text-slate-800 -ml-2"
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Voltar
+            </Button>
+          </div>
           <CardTitle className="text-xl text-slate-800">
             Criar Novo Convite
           </CardTitle>

@@ -134,7 +134,7 @@ export function LoginForm() {
             href="/register" 
             className="font-semibold text-blue-600 hover:text-blue-500 hover:underline"
           >
-            Criar conta de Agência
+            Criar conta
           </Link>
         </p>
       </CardFooter>

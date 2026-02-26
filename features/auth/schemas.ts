@@ -14,6 +14,9 @@ export const RegisterSchema = z.object({
   province: z.string().min(1, "Selecione a província"),
   district: z.string().min(1, "Selecione o distrito"),
   description: z.string().optional(),
+  terms: z.boolean().refine((val) => val === true, {
+    message: "Você deve aceitar os termos para continuar.",
+  }),
   
   
   logoUrl: z.any().optional(), 

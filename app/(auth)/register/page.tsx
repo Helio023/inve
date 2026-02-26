@@ -5,7 +5,7 @@ import { RegisterWizard } from '@/features/auth/components/RegisterWizard';
 import { Logo } from '@/components/logo';
 
 export const metadata: Metadata = {
-  title: 'Criar Conta | Qonvip',
+  title: 'Criar Conta',
   description: 'Registe a sua agência na Qonvip e comece a criar convites profissionais.',
 };
 
@@ -35,17 +35,11 @@ export default function RegisterPage() {
           </p>
         </header>
 
-        {/* O Wizard agora define a altura da página */}
         <section className="w-full">
           <RegisterWizard />
         </section>
 
-        {/* Rodapé que aparece APÓS o formulário */}
-        <footer className="mt-5 mb-2 text-center">
-          <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">
-            © {new Date().getFullYear()} Qonvip • 
-          </p>
-        </footer>
+     
       </div>
     </main>
   );

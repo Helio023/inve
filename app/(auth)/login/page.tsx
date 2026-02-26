@@ -3,7 +3,7 @@ import { LoginForm } from "@/features/auth/components/LoginForm";
 import { Logo } from "@/components/logo";
 
 export const metadata: Metadata = {
-  title: "Login | Qonvip",
+  title: "Login",
   description: "Acesse o painel administrativo para gerenciar seus convites digitais.",
 };
 

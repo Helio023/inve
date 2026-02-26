@@ -21,7 +21,7 @@ import { RecentEvents } from "./_components/recent-events";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Visão Geral | Qonvip",
+  title: "Visão Geral",
 };
 
 export default async function DashboardPage() {

@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Briefcase, Users, MapPin } from "lucide-react";
 import { ImageUpload } from "@/components/image-upload"; 
+import Link from "next/link";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface StepProps {
   form: UseFormReturn<RegisterInput>;
@@ -153,6 +155,33 @@ export function StepProfile({ form }: StepProps) {
     </FormItem>
   )}
 />
+ <FormField
+        control={form.control}
+        name="terms"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-xl border border-slate-200 p-4 bg-slate-50/50">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              <FormLabel className="text-xs font-medium text-slate-700 cursor-pointer">
+                Eu li e aceito os{" "}
+                <Link href="/terms" className="text-blue-600 hover:underline font-bold">
+                  Termos de Uso
+                </Link>{" "}
+                e a{" "}
+                <Link href="/privacy" className="text-blue-600 hover:underline font-bold">
+                  Política de Privacidade
+                </Link>
+              </FormLabel>
+              <FormMessage />
+            </div>
+          </FormItem>
+        )}
+      />
     </div>
   );
 }

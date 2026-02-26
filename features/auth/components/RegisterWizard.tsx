@@ -21,7 +21,7 @@ import {
 import {
   Check,
   ChevronRight,
-  ChevronLeft,
+ 
   Loader2,
   MessageCircle,
 } from "lucide-react";
@@ -58,6 +58,7 @@ export function RegisterWizard() {
       accountType: "FREELANCER",
       province: "",
       district: "",
+      terms: false,
     },
   });
 
@@ -78,7 +79,7 @@ export function RegisterWizard() {
 
     if (isValid) {
       setCurrentStep((p) => p + 1);
-      // Rola a página para o topo para o usuário ver o início do novo passo
+     
       window.scrollTo(0, 0);
     }
   };
@@ -168,7 +169,7 @@ export function RegisterWizard() {
           {currentStep === STEPS.length - 1 ? (
             <Button
               onClick={form.handleSubmit(onSubmit, onError)}
-              disabled={isLoading}
+               disabled={isLoading || !form.watch("terms")}
               className="bg-blue-600 hover:bg-blue-700 min-w-[130px] font-black h-12 shadow-lg"
             >
               {isLoading ? <Loader2 className="animate-spin" /> : "Finalizar"}
@@ -185,17 +186,6 @@ export function RegisterWizard() {
         </CardFooter>
       </Card>
 
-      {/* Link de Suporte WhatsApp (TOTALMENTE FORA DO CARD) */}
-      <div className="w-full">
-        <a
-          href={`https://wa.me/${process.env.NEXT_PUBLIC_ADMIN_PHONE || "845031480"}`}
-          target="_blank"
-          className="flex items-center justify-center gap-3 bg-white text-slate-600 p-5 rounded-2xl text-xs font-bold border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors"
-        >
-          <MessageCircle className="w-5 h-5 text-emerald-500" />
-          Dúvidas no registo? Suporte Qonvip
-        </a>
-      </div>
     </div>
   );
 }
